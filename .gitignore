@@ -1,23 +1,49 @@
-# Compiled class file
+# streams-specific excludes
+toolkit.xml
+impl/nl/include/*.h
+*.pm
+.toolkitList
+doc
+# If you want to include a perl module, do
+!Access.pm
+!Connection.pm
+!Edge.pm
+!XMSSinkCommon.pm
+!XMSSourceCommon.pm
+
+/com.ibm.streamsx.messaging/doc/
+/com.ibm.streamsx.messaging/.settings
+samples/*/output
+samples/*/toolkit.xml
+/samples/*/doc
+
+## java excludes
 *.class
 
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# exclude generated Java primitive operator model files
+*$StreamsModel.java
 
 # Package Files #
-*.jar
+com.ibm.streamsx.messaging/lib/*.jar
+com.ibm.streamsx.messaging/impl/lib/*.jar
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+## C++ excludes
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# temporary directories
+tmp
+/build.xml~
