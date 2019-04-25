@@ -3,7 +3,7 @@ toolkit.xml
 impl/nl/include/*.h
 *.pm
 .toolkitList
-doc
+/**/spldoc
 # If you want to include a perl module, do
 !Access.pm
 !Connection.pm
