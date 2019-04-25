@@ -496,5 +496,4 @@ The &lt;attribute> element has three possible attributes:
     <info:requiredProductVersion>4.3.0.0</info:requiredProductVersion>
   </info:identity>
   <info:dependencies/>
-  <info:resources/>
 </info:toolkitInfoModel>
