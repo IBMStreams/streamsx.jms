@@ -47,15 +47,14 @@ import com.ibm.streamsx.jms.common.PropertyProvider;
 
 public class JMSSink extends AbstractOperator implements StateHandler{
 
-	private static final String CLASS_NAME = "com.ibm.streamsx.jms.JMSSink"; //$NON-NLS-1$
+	private static final String CLASS_NAME = JMSSink.class.getName();
 
 	/**
 	 * Create a {@code Logger} specific to this class that will write to the SPL
 	 * log facility as a child of the {@link LoggerNames#LOG_FACILITY}
 	 * {@code Logger}. The {@code Logger} uses a
 	 */
-	private static Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY
-			+ "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
     private static final Logger tracer = Logger.getLogger(CLASS_NAME);
 	
 	// property names used in message header

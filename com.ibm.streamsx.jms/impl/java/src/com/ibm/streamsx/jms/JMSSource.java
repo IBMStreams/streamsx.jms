@@ -51,15 +51,14 @@ import com.ibm.streamsx.jms.common.PropertyProvider;
 //The JMSSource operator converts a message JMS queue or topic to stream
 public class JMSSource extends ProcessTupleProducer implements StateHandler{	
 
-	private static final String CLASS_NAME = "com.ibm.streamsx.jms.JMSSource"; //$NON-NLS-1$
+	private static final String CLASS_NAME = JMSSource.class.getName();
 
 	/**
 	 * Create a {@code Logger} specific to this class that will write to the SPL
 	 * log facility as a child of the {@link LoggerNames#LOG_FACILITY}
 	 * {@code Logger}. The {@code Logger} uses a
 	 */
-	private static final Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY
-			+ "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final Logger tracer = Logger.getLogger(CLASS_NAME);
 	
 	// variable to hold the output port

@@ -14,8 +14,7 @@ import com.ibm.streams.operator.logging.TraceLevel;
 
 public class JmsClasspathUtil {
 
-	private static final String CLASS_NAME = "com.ibm.streamsx.jms.JmsClasspathUtil"; //$NON-NLS-1$
-	private static final Logger tracer = Logger.getLogger(CLASS_NAME);
+	private static final Logger tracer = Logger.getLogger(JmsClasspathUtil.class.getName());
 
 
 	public static void setupClassPaths(OperatorContext context) {
