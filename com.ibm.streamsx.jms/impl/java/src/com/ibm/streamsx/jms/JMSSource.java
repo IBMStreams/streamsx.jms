@@ -47,6 +47,7 @@ import com.ibm.streams.operator.types.RString;
 import com.ibm.streamsx.jms.common.DataGovernanceUtil;
 import com.ibm.streamsx.jms.common.IGovernanceConstants;
 import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.i18n.Messages;
 
 //The JMSSource operator converts a message JMS queue or topic to stream
 public class JMSSource extends ProcessTupleProducer implements StateHandler{	
@@ -58,7 +59,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	 * log facility as a child of the {@link LoggerNames#LOG_FACILITY}
 	 * {@code Logger}. The {@code Logger} uses a
 	 */
-	private static final Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.i18n.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final Logger tracer = Logger.getLogger(CLASS_NAME);
 	
 	// variable to hold the output port

@@ -27,6 +27,7 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.i18n.Messages;
 
 /* This class contains all the connection related information, creating maintaining and closing a connection to the JMSProvider
  * Sending and Receiving JMS messages

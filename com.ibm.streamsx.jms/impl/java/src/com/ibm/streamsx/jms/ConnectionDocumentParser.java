@@ -37,7 +37,7 @@ import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
-import com.ibm.streamsx.jms.Messages;
+import com.ibm.streamsx.jms.i18n.Messages;
 
 //This class parses and validates the connections document 
 class ConnectionDocumentParser {

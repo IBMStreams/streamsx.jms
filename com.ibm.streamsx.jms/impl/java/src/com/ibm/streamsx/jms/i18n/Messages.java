@@ -9,7 +9,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Messages {
-	private static final String BUNDLE_NAME = "com.ibm.streamsx.jms.i18n.CommonMessages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "com.ibm.streamsx.jms.i18n.JMSMessages"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

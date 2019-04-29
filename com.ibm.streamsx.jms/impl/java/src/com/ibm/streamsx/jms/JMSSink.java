@@ -41,6 +41,7 @@ import com.ibm.streams.operator.state.StateHandler;
 import com.ibm.streamsx.jms.common.DataGovernanceUtil;
 import com.ibm.streamsx.jms.common.IGovernanceConstants;
 import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.i18n.Messages;
 
 
 //The JMSSink operator publishes data from Streams to a JMS Provider queue or a topic.
@@ -54,7 +55,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	 * log facility as a child of the {@link LoggerNames#LOG_FACILITY}
 	 * {@code Logger}. The {@code Logger} uses a
 	 */
-	private static Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static Logger logger = Logger.getLogger(LoggerNames.LOG_FACILITY + "." + CLASS_NAME, "com.ibm.streamsx.jms.i18n.JMSMessages"); //$NON-NLS-1$ //$NON-NLS-2$
     private static final Logger tracer = Logger.getLogger(CLASS_NAME);
 	
 	// property names used in message header
