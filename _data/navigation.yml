@@ -31,18 +31,16 @@ userdocs:
     children:
       - title: "Overview"
         url: /docs/user/overview
-      - title: "Samples"
-        children:
-          - title: "JMSSample"
-            url: /samples/JMSSample/doc/spldoc/html
-          - title: "JMSSink"
-            url: /samples/JMSSink/doc/spldoc/html
-          - title: "JMSSource"
-            url: /samples/JMSSource/doc/spldoc/html
-          - title: "JmsWithXmlParse"
-            url: /samples/JmsWithXmlParse/doc/spldoc/html
-          - title: "JmsWithXmlParseBytes"
-            url: /samples/JmsWithXmlParseBytes/doc/spldoc/html
+      - title: "JMSSample"
+        url: /samples/JMSSample/doc/spldoc/html
+      - title: "JMSSink"
+        url: /samples/JMSSink/doc/spldoc/html
+      - title: "JMSSource"
+        url: /samples/JMSSource/doc/spldoc/html
+      - title: "JmsWithXmlParse"
+        url: /samples/JmsWithXmlParse/doc/spldoc/html
+      - title: "JmsWithXmlParseBytes"
+        url: /samples/JmsWithXmlParseBytes/doc/spldoc/html
 
 
 # developer documentation links
@@ -51,10 +49,8 @@ developerdocs:
     children:
       - title: "Developer Documentation Overview"
         url: /docs/developer/overview
-      - title: "SPL Doc"
-        children:
-          - title: "current"
-            url: /doc/spldoc/html
-          - title: "v0.0.1"
-            url: /doc/spldoc/0_0_1/html
+      - title: "SPL Doc current"
+        url: /doc/spldoc/html
+      - title: "SPL Doc v0.0.1"
+        url: /doc/spldoc/0_0_1/html
 
