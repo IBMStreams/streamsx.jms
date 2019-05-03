@@ -6,17 +6,17 @@ Incubation for projects is covered here: https://github.com/IBMStreams/administr
 
 ## Status
 
-- [ ] :red_circle: Stable release(s)
+- [x] :white_check_mark: Stable release(s)
   * Status: Splitting JMS functionality from Messaging toolkit
-- [ ] :red_circle: Project is properly documented
+- [x] :large_orange_diamond: Project is properly documented
   * Status: Needs review and updates
-- [ ] :red_circle: Project has samples and instructions to help users get started easily
-  * Status: Samples need a review
-- [ ] :red_circle: Sufficient testing
+- [x] :large_orange_diamond: Project has samples and instructions to help users get started easily
+  * Status: Samples need a review and more documentation
+- [x] :large_orange_diamond: Sufficient testing
   * Status: Tests of operators need a review
 - [ ] :red_circle: Instructions on how to get started with development and contributing to project
   * Status: Needs review
-- [ ] :red_circle: Website that contains information and documentation of the project
+- [x] :white_check_mark: Website that contains information and documentation of the project
   * Status: Needs review
 - [ ] :red_circle: Clear release plan
   * Status: **TBD**
