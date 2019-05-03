@@ -11,29 +11,13 @@ sidebar:
 {% include toc %}
 {% include editme %}
 
- Describe in this page the general development process. Refer for build setup and test setup to the appropriate pages
 
 
 ## Getting started
 
-Your text
+### Install Streams
 
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
+### Install Streams Studio
 
-### Development Heading level 3
-
-Some text
-
-Some shell command description
-
-```bash
-bundle install
-```
-
-### Development Another level 3 Heading
-
-**Note:** This is a Notize.
-{: .notice--warning}
-
+### Clone Toolkit Code from GitHub
 

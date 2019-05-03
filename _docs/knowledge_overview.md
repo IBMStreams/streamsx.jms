@@ -20,9 +20,9 @@ This page collects information and links providing background knowledge on Java 
 
 Oracle is the primary source for specifications of Java Messaging Service.
 
-(Java Messaging Service)[https://www.oracle.com/technetwork/java/index-jsp-142945.html]
+[Java Messaging Service](https://www.oracle.com/technetwork/java/index-jsp-142945.html)
 
-(Getting Started with Java Message Service)[https://www.oracle.com/technetwork/articles/java/introjms-1577110.html]
+[Getting Started with Java Message Service](https://www.oracle.com/technetwork/articles/java/introjms-1577110.html)
 
 
 ### Eclipse Foundation
@@ -30,5 +30,5 @@ Oracle is the primary source for specifications of Java Messaging Service.
 The Eclipse Foundation has become the prime maintainer of Java's Enterprise Edition of which JMS is a part of. It has
 been renamed to Jakarta now. It is probably good advise to keep an eye on developments here.
 
-(Jakarta Blogs)[https://jakartablogs.ee/]
+[Jakarta Blogs](https://jakartablogs.ee/)
 

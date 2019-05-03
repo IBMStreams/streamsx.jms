@@ -15,6 +15,6 @@ This page will provide information on working with IBM MQ and the IBM Streams JM
 
 ## IBM MQ
 
-(IBM MQ)[https://www.ibm.com/products/mq] is the current incarnation of IBM's message server
+[IBM MQ](https://www.ibm.com/products/mq) is the current incarnation of IBM's message server
 previously known as Websphere MQ.
 
