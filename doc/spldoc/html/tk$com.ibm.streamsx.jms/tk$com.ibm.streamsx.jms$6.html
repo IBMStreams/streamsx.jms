@@ -22,16 +22,16 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 0.0.1</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms$2.html">Connection specifications document</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms$5.html">Access_specification element</a> &gt; Destination element</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms$2.html">Connection specifications document</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms$5.html">Access_specification element</a> &gt; Destination element</p>
 
 </div>
 
 
 <div class="section">
-<p class="p">The &lt;destination&gt; element specifies the queue or topic that is used by the JMS toolkit operators.  The element also specifies some parameters that control the behavior of the operator.
+<p class="p">The &lt;destination&gt; element specifies the queue or topic that is used by the JMS toolkit operators. The element also specifies some parameters that control the behavior of the operator.
 </p>
 
-<p class="p">For WebSphere MQ, the &lt;destination&gt; element does not actually contain this information, instead it specifies the information indirectly by referencing a JMS administered object that is held in an external directory service.  For Apache ActiveMQ, the &lt;destination&gt; element can directly refer to a queue or a topic.
+<p class="p">For WebSphere MQ, the &lt;destination&gt; element does not actually contain this information, instead it specifies the information indirectly by referencing a JMS administered object that is held in an external directory service. For Apache ActiveMQ, the &lt;destination&gt; element can directly refer to a queue or a topic.
 </p>
 
 <p class="p">The following example shows an access specification that contains a &lt;destination&gt; element for the WebSphere MQ messaging system:
@@ -61,7 +61,7 @@
 <pre class="pre codeblock">
 &lt;access_specifications&gt;
   &lt;access_specification name="amqAccess"&gt;
-    &lt;destination identifier="dynamicQueues/MapQueue" 
+    &lt;destination identifier="dynamicQueues/MapQueue"
     delivery_mode="persistent" message_class="stream" /&gt;
     &lt;uses_connection connection="amqConn"/&gt;
     &lt;native_schema&gt;

@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 0.0.1</a> &gt; Connection specifications document</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; Connection specifications document</p>
 
 </div>
 
@@ -37,7 +37,7 @@
 <p class="p">Alternatively, operators can access equivalent data (one access specification) from several different messaging systems (many connection specifications), for example, accessing data from both a test system and a production system.
 </p>
 
-<p class="p">The compiler checks that the document conforms to the semantic rules of the XML schema that is defined for these documents. The SPL compiler uses the information that is given in the connection and access specifications to configure the operator.  The compiler does not attempt to connect to the messaging system or access its data to verify correct configuration at compile time.  The operators have run-time checks to validate configuration; if the configuration is incorrect these checks might result in run time failures, which are captured in the processing element logs.
+<p class="p">The compiler checks that the document conforms to the semantic rules of the XML schema that is defined for these documents. The SPL compiler uses the information that is given in the connection and access specifications to configure the operator. The compiler does not attempt to connect to the messaging system or access its data to verify correct configuration at compile time. The operators have run-time checks to validate configuration; if the configuration is incorrect these checks might result in run time failures, which are captured in the processing element logs.
 </p>
 
 <p class="p">The <tt class="ph tt">JMSSource</tt> and <tt class="ph tt">JMSSink</tt> operators parse the connection specifications document that is named by <strong class="ph b">connectionDocument</strong> parameter at run time. If this parameter is not specified, the operator looks for a <tt class="ph tt">etc/connections.xml</tt> file, where the path is relative to the application root directory directory.

@@ -22,13 +22,13 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 0.0.1</a> &gt; Developing and running applications that use the JMS toolkit</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; Developing and running applications that use the JMS toolkit</p>
 
 </div>
 
 
 <div class="section">
-<p class="p">To create applications that use the JMS toolkit, you must configure either Streams Studio or the SPL compiler to be aware of the location of the toolkit. 
+<p class="p">To create applications that use the JMS toolkit, you must configure either Streams Studio or the SPL compiler to be aware of the location of the toolkit.
 </p>
 
 </div>
@@ -38,21 +38,21 @@
 
 <div class="p">
 <ul class="ul">
-<li class="li"> Install IBM Streams.  Configure the product environment variables by entering the following command: 
+<li class="li"> Install IBM Streams.  Configure the product environment variables by entering the following command:
 <pre class="pre codeblock">
   source product-installation-root-directory/4.0.0.0/bin/streamsprofile.sh
 </pre>
 
 </li>
 
-<li class="li"> Install a supported version of WebSphere MQ Client and Apache ActiveMQ on the same machine as IBM Streams.       WebSphere MQ Server might or might not be on the same machine.  
+<li class="li"> Install a supported version of WebSphere MQ Client and Apache ActiveMQ on the same machine as IBM Streams.   WebSphere MQ Server might or might not be on the same machine.
 <div class="p">
 <ul class="ul">
 <li class="li"> Apache ActiveMQ
 <ul class="ul">
 <li class="li"> The <tt class="ph tt">JMSSource</tt> and <tt class="ph tt">JMSSink</tt> operators support Apache ActiveMQ 5.7 and up.
 <ul class="ul">
-<li class="li"> The Apache ActiveMQ libraries must be installed on same machine as IBM Streams         because the <tt class="ph tt">JMSSink</tt> and <tt class="ph tt">JMSSource</tt> operators require the libraries that are installed with IBM Streams.         However, the ActiveMQ instance to which a message is sent can be a different machine.          You must set the <strong class="ph b">STREAMS_MESSAGING_AMQ_HOME</strong> environment variable to the location where Apache ActiveMQ is installed. For example: 
+<li class="li"> The Apache ActiveMQ libraries must be installed on same machine as IBM Streams         because the <tt class="ph tt">JMSSink</tt> and <tt class="ph tt">JMSSource</tt> operators require the libraries that are installed with IBM Streams.         However, the ActiveMQ instance to which a message is sent can be a different machine.         You must set the <strong class="ph b">STREAMS_MESSAGING_AMQ_HOME</strong> environment variable to the location where Apache ActiveMQ is installed. For example:
 <pre class="pre codeblock">
   export STREAMS_MESSAGING_AMQ_HOME="/home/streamsuser/ApacheActiveMQ"
 </pre>
@@ -71,7 +71,7 @@
 
 <li class="li"> The <tt class="ph tt">JMSSource</tt> and <tt class="ph tt">JMSSink</tt> operators require the WebSphere MQ Client libraries for Java if the messaging provider is WebSphere MQ.
 <ul class="ul">
-<li class="li"> The WebSphere MQ Client libraries must be installed on the hosts where the JMS operators can be run.         You must set the <strong class="ph b">STREAMS_MESSAGING_WMQ_HOME</strong> environment variable to the location where WebSphere MQ is installed.          For example:
+<li class="li"> The WebSphere MQ Client libraries must be installed on the hosts where the JMS operators can be run.         You must set the <strong class="ph b">STREAMS_MESSAGING_WMQ_HOME</strong> environment variable to the location where WebSphere MQ is installed.         For example:
 <pre class="pre codeblock">
   export STREAMS_MESSAGING_WMQ_HOME="/opt/mqm"
 </pre>
@@ -138,14 +138,14 @@
 </ul>
 </li>
 
-<li class="li"> Develop your application. To avoid the need to fully qualify the operators, add a use directive in your application. 
+<li class="li"> Develop your application. To avoid the need to fully qualify the operators, add a use directive in your application.
 <ul class="ul">
 <li class="li"> For example, you can add the following clause in your SPL source file:
 <pre class="pre codeblock">
   use com.ibm.streamsx.jms::*;
 </pre>
 
-    You can also specify a use clause for individual operators by replacing the asterisk (*) with the operator name. For example: 
+    You can also specify a use clause for individual operators by replacing the asterisk (*) with the operator name. For example:
 <pre class="pre codeblock">
   use com.ibm.streamsx.jms::JMSSink;
 </pre>
@@ -155,11 +155,11 @@
 </ul>
 </li>
 
-<li class="li"> Build your application.  You can use the <strong class="ph b">sc</strong> command or Streams Studio.  </li>
+<li class="li"> Build your application.  You can use the <strong class="ph b">sc</strong> command or Streams Studio.</li>
 
-<li class="li"> Start the IBM Streams instance. </li>
+<li class="li"> Start the IBM Streams instance.</li>
 
-<li class="li"> Run the application. You can submit the application as a job by using the <strong class="ph b">streamtool submitjob</strong> command or by using Streams Studio. </li>
+<li class="li"> Run the application. You can submit the application as a job by using the <strong class="ph b">streamtool submitjob</strong> command or by using Streams Studio.</li>
 
 </ol>
 
