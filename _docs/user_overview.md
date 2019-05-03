@@ -2,7 +2,7 @@
 title: "Toolkit Usage Overview"
 permalink: /docs/user/overview/
 excerpt: "How to use this toolkit."
-last_modified_at: 2017-08-04T12:37:48-04:00
+last_modified_at: 2019-05-03T14:30:40+01:00
 redirect_from:
    - /theme-setup/
 sidebar:
@@ -12,31 +12,7 @@ sidebar:
 {%include editme %}
 
 
-Place here an overview about the functionality of the toolkit.
-Don't repeat work by explaining things which are available in SPLDOC.
-SPLDOC shall be linked in this page 
+This page will provide usage examples for the IBM Streams JMS toolkit.
 
-
-## Overview Sample header level 2
-
-Your text related to this topic 
-
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
-
-### Overview Sample header level 3
-
-Some text in this level
-
-Some shell command description
-
-```bash
-bundle install
-```
-
-### Overview Another Sample header level 3 
-
-**Note:** This is a Notize.
-{: .notice--warning}
 
 

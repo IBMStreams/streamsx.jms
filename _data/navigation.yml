@@ -31,6 +31,18 @@ userdocs:
     children:
       - title: "Overview"
         url: /docs/user/overview
+      - title: "Samples"
+        children:
+          - title: "JMSSample"
+            url: /samples/JMSSample/doc/spldoc/html
+          - title: "JMSSink"
+            url: /samples/JMSSink/doc/spldoc/html
+          - title: "JMSSource"
+            url: /samples/JMSSource/doc/spldoc/html
+          - title: "JmsWithXmlParse"
+            url: /samples/JmsWithXmlParse/doc/spldoc/html
+          - title: "JmsWithXmlParseBytes"
+            url: /samples/JmsWithXmlParseBytes/doc/spldoc/html
 
 
 # developer documentation links

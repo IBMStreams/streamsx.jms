@@ -2,7 +2,7 @@
 title: "Apache ActiveMQ"
 permalink: /docs/knowledge/activemq/
 excerpt: "Information about Apache ActiveMQ."
-last_modified_at: 2017-08-04T12:37:48-04:00
+last_modified_at: 2019-05-03T14:30:40+01:00
 redirect_from:
    - /theme-setup/
 sidebar:
