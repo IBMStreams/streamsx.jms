@@ -62,8 +62,12 @@ userdocs:
 developerdocs:
   - title: Developer documentation
     children:
-      - title: "General Toolkit development"
-        url: /docs/development/overview
+      - title: "Developer Documentation Overview"
+        url: /docs/developer/overview
+      - title: "SPL Doc current"
+        url: /doc/spldoc/html
+      - title: "SPL Doc 0.0.1"
+        url: /doc/spldoc/0_0_1/html
 #      - title: "Requirements"
 #        url: /docs/development/requirements
 #      - title: "Design"
