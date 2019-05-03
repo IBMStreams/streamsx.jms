@@ -17,7 +17,7 @@ repository               : "ibmstreams/streamsx.jms" # GitHub username/repo-name
 github_base_url          : "https://github.com" # your github server, will differ when enterprise github
 github_editme_path       : https://github.com/ibmstreams/streamsx.jms/blob/gh-pages
 spldoc_path              : &default_cta_url "/doc/spldoc/html"
-toolkit_excerpt          : &default_excerpt "This toolkit provides operators to exchange messages with JMS systems."
+toolkit_excerpt          : &default_excerpt "Toolkit providing operators to exchange messages with JMS systems."
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200

@@ -1,5 +1,5 @@
 ---
-title: "Toolkit technical background overview"
+title: "Background Knowledge"
 permalink: /docs/knowledge/overview/
 excerpt: "Basic knowledge of the toolkits technical domain."
 last_modified_at: 2017-08-04T12:37:48-04:00
@@ -11,29 +11,24 @@ sidebar:
 {% include toc %}
 {% include editme %}
 
+This page collects information and links providing background knowledge on Java Messaging Services.
 
-Descripe on this page the general overview about the domain specific knowledge you want to explain further.
-Separate huge topics to own pages.
-
-## Knowledge Heading level 2
+## Specifications
 
 
-**ProTip:** This is a Pro-Tip
-{: .notice--info}
+### Oracle
 
-### Knowledge Heading level 3
+Oracle is the primary source for specifications of Java Messaging Service.
 
-Some text
+(Java Messaging Service)[https://www.oracle.com/technetwork/java/index-jsp-142945.html]
 
-Some shell command description
+(Getting Started with Java Message Service)[https://www.oracle.com/technetwork/articles/java/introjms-1577110.html]
 
-```bash
-bundle install
-```
 
-### Knowledge Another level 3 Heading
+### Eclipse Foundation
 
-**Note:** This is a Notize.
-{: .notice--warning}
+The Eclipse Foundation has become the prime maintainer of Java's Enterprise Edition of which JMS is a part of. It has
+been renamed to Jakarta now. It is probably good advise to keep an eye on developments here.
 
+(Jakarta Blogs)[https://jakartablogs.ee/]
 
