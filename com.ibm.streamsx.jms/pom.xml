@@ -6,7 +6,7 @@
     <groupId>com.ibm.streamsx.jms</groupId>
     <artifactId>streamsx.jms</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>com.ibm.streamsx.jms</name>
     <repositories>
         <repository>
