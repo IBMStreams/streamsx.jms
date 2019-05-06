@@ -2,7 +2,8 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.util.List;
 
@@ -18,33 +19,34 @@ import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streams.operator.types.Blob;
+import com.ibm.streamsx.jms.types.NativeSchema;
 
 //This class handles the wbe22 message type 
-class WBE22TextMessageHandler extends BaseXMLMessageHandler {
+public class XMLTextMessageHandler extends BaseXMLMessageHandler {
 	
 	// the document builder
 	private DocumentBuilder documentBuilder;
 
 	// constructor
-	public WBE22TextMessageHandler(List<NativeSchema> nativeSchemaObjects,
-			String eventName) throws TransformerConfigurationException,
-			ParserConfigurationException {
+	public XMLTextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+			String eventName) throws ParserConfigurationException,
+			TransformerConfigurationException {
 		// call the base class constructor to initialize the native schema
 		// attributes and event name
-
 		super(nativeSchemaObjects, eventName);
-
 		documentBuilder = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder();
 	}
 
 	// constructor
-	public WBE22TextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public XMLTextMessageHandler(List<NativeSchema> nativeSchemaObjects,
 			String eventName, Metric nTruncatedInserts)
-			throws TransformerConfigurationException,
-			ParserConfigurationException {
+			throws ParserConfigurationException,
+			TransformerConfigurationException {
 		// call the base class constructor to initialize the native schema
 		// attributes,nTruncatedInserts and event name
 
@@ -64,42 +66,45 @@ class WBE22TextMessageHandler extends BaseXMLMessageHandler {
 		}
 		// create document element
 		Document document;
+
+		// Since there are not thread safe
 		synchronized (documentBuilder) {
 			document = documentBuilder.newDocument();
 		}
 		// create elements for constructing the xml document
-		// with wbe22 mesage format
-		Element field;
+		// with spl xml data type format
+		Element attr;
 		// creates an element for root tuple
-		Element rootElement = document.createElement("connector");	//$NON-NLS-1$ 
-		rootElement.setAttribute("name", "System S"); //$NON-NLS-1$ //$NON-NLS-2$
-		rootElement.setAttribute("version", "2.2"); //$NON-NLS-1$ //$NON-NLS-2$
-		Element rootEle1 = document.createElement("connector-object"); //$NON-NLS-1$
-		rootEle1.setAttribute("name", eventName); //$NON-NLS-1$
-		rootElement.appendChild(rootEle1);
-		String stringdata = new String();
+		Element rootElement = document.createElement("tuple"); //$NON-NLS-1$
+		rootElement.setAttribute("xmlns", //$NON-NLS-1$
+				"http://www.ibm.com/xmlns/prod/streams/spl/tuple"); //$NON-NLS-1$
 		// variable to specify if any of the attributes in the message is
 		// truncated
 		boolean isTruncated = false;
+		String stringdata = new String();
 
 		for (NativeSchema currentObject : nativeSchemaObjects) {
 			// iterate through the native schema elements
 			// extract the name, type and length
-
 			final String name = currentObject.getName();
 			final int length = currentObject.getLength();
-			field = document.createElement("field"); // create another element //$NON-NLS-1$
-			field.setAttribute("name", name); //$NON-NLS-1$
+
+			attr = document.createElement("attr"); // create another //$NON-NLS-1$
+			// element
+			attr.setAttribute("name", name); //$NON-NLS-1$
+			attr.setAttribute("type", tuple.getStreamSchema() //$NON-NLS-1$
+					.getAttribute(name).getType().getLanguageType());
+
 			// handle based on data type
 			switch (tuple.getStreamSchema().getAttribute(name).getType()
 					.getMetaType()) {
-			// BLOB is not supported for wbe22 message class
 			case RSTRING:
-			case USTRING:
+			case USTRING: {
 				// extract the String
 				// get its length
 				String rdata = tuple.getString(name);
 				int size = rdata.length();
+
 				// If no length was specified in native schema or
 				// if the length of the String rdata is less than the length
 				// specified in native schema
@@ -114,41 +119,66 @@ class WBE22TextMessageHandler extends BaseXMLMessageHandler {
 					isTruncated = true;
 					stringdata = rdata.substring(0, length);
 				}
+			}
 				break;
 			// spl types decimal32, decimal64,decimal128, timestamp are mapped
 			// to String.
-			case TIMESTAMP:
+			case TIMESTAMP: {
 				stringdata = (tuple.getTimestamp(name).getTimeAsSeconds())
 						.toString();
+			}
 				break;
-
 			case DECIMAL32:
 			case DECIMAL64:
-			case DECIMAL128:
-
-				// for decimal
+			case DECIMAL128: {
 				stringdata = tuple.getBigDecimal(name).toString();
+			}
+				break;
+			case BLOB: {
+				// extract the blob
+				// get its length
+				Blob bl = tuple.getBlob(name);
+				long size = bl.getLength();
+				// if the length of the blob is greater than the length
+				// specified in native schema
+				// set the isTruncated to true
+				// truncate the blob
+				if (size > length && length != LENGTH_ABSENT_IN_NATIVE_SCHEMA) {
+					isTruncated = true;
+					size = length;
+				}
+				byte[] blobdata = new byte[(int) size];
+				bl.getByteBuffer(0, (int) size).get(blobdata);
+				// set the bytes into the messaage
+				StringBuilder sb = new StringBuilder();
+				for (byte b : blobdata)
+					sb.append(String.format("%02x", b & 0xff)); //$NON-NLS-1$
+
+				stringdata = sb.toString();
+
+			}
 				break;
 			default:
 				stringdata = tuple.getString(name);
 				break;
 			}
 
-			field.appendChild(document.createTextNode(stringdata));
-			// append to root element
-			rootEle1.appendChild(field);
+			attr.appendChild(document.createTextNode((stringdata)));
+			rootElement.appendChild(attr); // add element1 under rootElement
 		}
-		// append rootElement to the document
-		document.appendChild(rootElement);
+
+		document.appendChild(rootElement); // add the rootElement to the
+											// document
 		// set the message
 		message.setText(createFinalDocument(document));
+
 		// if the isTruncated boolean is set, increment the metric
 		// nTruncatedInserts
 		if (isTruncated) {
 			nTruncatedInserts.incrementValue(1);
 		}
-		// return the message
 		return message;
-	}
+
+	}// convert end
 
 }

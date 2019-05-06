@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -24,15 +24,18 @@ import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
 import com.ibm.streams.operator.types.ValueFactory;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class handles the JMS Bytes message type 
-class BytesMessageHandler extends JMSMessageHandlerImpl {
+public class BytesMessageHandler extends JMSMessageHandlerImpl {
 
 	// variable to set the codepage parameter, defaults to UTF-8
 	private final String codepage;
 
 	// constructor
-	BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage) {
+	public BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage) {
 		// call the base class constructor to initialize the native schema
 		// attributes.
 		super(nativeSchemaObjects);
@@ -41,7 +44,7 @@ class BytesMessageHandler extends JMSMessageHandlerImpl {
 		codepage = cpage;
 	}
 
-	BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage, Metric nTruncatedInserts) {
+	public BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage, Metric nTruncatedInserts) {
 		super(nativeSchemaObjects, nTruncatedInserts);
 		// set the codepage parameter if one is specified in the operator model,
 		// if not a default value of UTF-8 is assumed

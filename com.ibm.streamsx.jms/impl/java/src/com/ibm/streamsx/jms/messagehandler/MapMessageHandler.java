@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,9 +16,12 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.Timestamp;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class handles the JMS Map message type 
-class MapMessageHandler extends JMSMessageHandlerImpl {
+public class MapMessageHandler extends JMSMessageHandlerImpl {
 	// constructor
 	public MapMessageHandler(List<NativeSchema> nativeSchemaObjects) {
 		// call the base class constructor to initialize the native schema

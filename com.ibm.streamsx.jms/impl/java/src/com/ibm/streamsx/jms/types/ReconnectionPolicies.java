@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.types;
 
 /* Enum to define the reconnection policies supported for both the operators in case
  * of both initial or transient connection failures.
@@ -13,6 +13,6 @@ package com.ibm.streamsx.jms;
  * InfiniteRetry= Infinite number of retry
  * 
  */
-enum ReconnectionPolicies {
+public enum ReconnectionPolicies {
 	BoundedRetry, NoRetry, InfiniteRetry;
 }

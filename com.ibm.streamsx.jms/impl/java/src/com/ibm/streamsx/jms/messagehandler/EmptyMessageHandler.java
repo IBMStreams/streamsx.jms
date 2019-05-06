@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.util.List;
 
@@ -20,14 +20,16 @@ import javax.jms.TextMessage;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.NativeSchema;
 
 //Empty message class is used in JMSSink/JMSSource to send/receive
 // control message to the JMSPorvider to test initial connectivity.
 
-class EmptyMessageHandler extends JMSMessageHandlerImpl {
+public class EmptyMessageHandler extends JMSMessageHandlerImpl {
 
 	// Constructor
-	EmptyMessageHandler(List<NativeSchema> nativeSchemaObjects) {
+	public EmptyMessageHandler(List<NativeSchema> nativeSchemaObjects) {
 		super(nativeSchemaObjects);
 	}
 

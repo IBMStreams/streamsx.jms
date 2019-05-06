@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.io.UnsupportedEncodingException;
 
@@ -14,6 +14,7 @@ import javax.xml.transform.TransformerException;
 
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.Tuple;
+import com.ibm.streamsx.jms.types.MessageAction;
 
 /*
  This is the base interface that defines the common functions

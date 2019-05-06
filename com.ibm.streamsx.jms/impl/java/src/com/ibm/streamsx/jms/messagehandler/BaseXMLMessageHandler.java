@@ -3,7 +3,7 @@
  * All Rights Reserved
  *******************************************************************************/
 
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -21,6 +21,8 @@ import org.w3c.dom.Document;
 
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.NativeSchema;
 
 abstract class BaseXMLMessageHandler extends JMSMessageHandlerImpl {
 

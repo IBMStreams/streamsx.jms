@@ -38,10 +38,26 @@ import com.ibm.streams.operator.model.Parameter;
 import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.state.StateHandler;
-import com.ibm.streamsx.jms.common.DataGovernanceUtil;
-import com.ibm.streamsx.jms.common.IGovernanceConstants;
-import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.datagovernance.DataGovernanceUtil;
+import com.ibm.streamsx.jms.datagovernance.IGovernanceConstants;
+import com.ibm.streamsx.jms.exceptions.ConnectionException;
+import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
+import com.ibm.streamsx.jms.helper.ConnectionDocumentParser;
+import com.ibm.streamsx.jms.helper.JMSConnectionHelper;
+import com.ibm.streamsx.jms.helper.JmsClasspathUtil;
+import com.ibm.streamsx.jms.helper.PropertyProvider;
 import com.ibm.streamsx.jms.i18n.Messages;
+import com.ibm.streamsx.jms.messagehandler.BytesMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.EmptyMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.JMSMessageHandlerImpl;
+import com.ibm.streamsx.jms.messagehandler.MapMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.StreamMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.WBE22TextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.WBETextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.XMLTextMessageHandler;
+import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 
 //The JMSSink operator publishes data from Streams to a JMS Provider queue or a topic.

@@ -3,7 +3,7 @@
  * All Rights Reserved
  *******************************************************************************/
 
-package com.ibm.streamsx.jms.common;
+package com.ibm.streamsx.jms.helper;
 
 import java.util.Map;
 

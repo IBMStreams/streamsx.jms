@@ -3,7 +3,7 @@
  * All Rights Reserved
  *******************************************************************************/
 
-package com.ibm.streamsx.jms.common;
+package com.ibm.streamsx.jms.datagovernance;
 
 public interface IGovernanceConstants {
 	public static final String TAG_OPERATOR_IGC = "OperatorIGC"; //$NON-NLS-1$

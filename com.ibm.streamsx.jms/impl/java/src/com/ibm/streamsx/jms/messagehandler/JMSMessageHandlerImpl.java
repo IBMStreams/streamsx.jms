@@ -2,13 +2,14 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.util.List;
 import com.ibm.streams.operator.metrics.Metric;
+import com.ibm.streamsx.jms.types.NativeSchema;
 
 //abstract base class for all JMS message classes 
-abstract class JMSMessageHandlerImpl implements JMSMessageHandler {
+public abstract class JMSMessageHandlerImpl implements JMSMessageHandler {
 
 	// This holds all the attributes coming in the native schema
 	// oject in connections.xml

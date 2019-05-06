@@ -44,10 +44,24 @@ import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.state.StateHandler;
 import com.ibm.streams.operator.types.RString;
-import com.ibm.streamsx.jms.common.DataGovernanceUtil;
-import com.ibm.streamsx.jms.common.IGovernanceConstants;
-import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.datagovernance.DataGovernanceUtil;
+import com.ibm.streamsx.jms.datagovernance.IGovernanceConstants;
+import com.ibm.streamsx.jms.exceptions.ConnectionException;
+import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
+import com.ibm.streamsx.jms.helper.ConnectionDocumentParser;
+import com.ibm.streamsx.jms.helper.JMSConnectionHelper;
+import com.ibm.streamsx.jms.helper.JmsClasspathUtil;
+import com.ibm.streamsx.jms.helper.PropertyProvider;
 import com.ibm.streamsx.jms.i18n.Messages;
+import com.ibm.streamsx.jms.messagehandler.BytesMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.EmptyMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.JMSMessageHandlerImpl;
+import com.ibm.streamsx.jms.messagehandler.MapMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.StreamMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 //The JMSSource operator converts a message JMS queue or topic to stream
 public class JMSSource extends ProcessTupleProducer implements StateHandler{	

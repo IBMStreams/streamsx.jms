@@ -3,7 +3,7 @@
  * All Rights Reserved
  *******************************************************************************/
 
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.types;
 
 /** Enum to specify the supported message class for both the operators
  * map=JMS MapMessage (a collection of name/type/value triplets)
@@ -17,6 +17,6 @@ package com.ibm.streamsx.jms;
  * empty=An empty JMS Message
  * text = JMS Text Message
 */
-enum MessageClass {
+public enum MessageClass {
 	map, stream, bytes, xml, wbe, wbe22, empty, text;
 }

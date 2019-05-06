@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.helper;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -26,13 +26,14 @@ import javax.naming.NamingException;
 import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.exceptions.ConnectionException;
 import com.ibm.streamsx.jms.i18n.Messages;
+import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 /* This class contains all the connection related information, creating maintaining and closing a connection to the JMSProvider
  * Sending and Receiving JMS messages
  */
-class JMSConnectionHelper implements ExceptionListener {
+public class JMSConnectionHelper implements ExceptionListener {
 
 	// variables required to create connection
 	// connection factory
@@ -161,7 +162,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	}
 
 	// getter for session
-	synchronized Session getSession() {
+	public synchronized Session getSession() {
 		return session;
 	}
 
@@ -189,7 +190,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	
 	// This constructor sets the parameters required to create a connection for
 	// JMSSource
-	JMSConnectionHelper(ConnectionDocumentParser connectionDocumentParser,ReconnectionPolicies reconnectionPolicy,
+	public JMSConnectionHelper(ConnectionDocumentParser connectionDocumentParser,ReconnectionPolicies reconnectionPolicy,
 			int reconnectionBound, double period, boolean isProducer,
 			int maxMessageRetry, long messageRetryDelay,
 			Metric nReconnectionAttempts, Logger logger, boolean useClientAckMode, String messageSelector, 
@@ -219,7 +220,7 @@ class JMSConnectionHelper implements ExceptionListener {
 
 	// This constructor sets the parameters required to create a connection for
 	// JMSSink
-	JMSConnectionHelper(ConnectionDocumentParser connectionDocumentParser, ReconnectionPolicies reconnectionPolicy,
+	public JMSConnectionHelper(ConnectionDocumentParser connectionDocumentParser, ReconnectionPolicies reconnectionPolicy,
 			int reconnectionBound, double period, boolean isProducer,
 			int maxMessageRetry, long messageRetryDelay,  
 			Metric nReconnectionAttempts, Metric nFailedInserts, Logger logger, boolean useClientAckMode, String msgSelectorCR, 
@@ -495,7 +496,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	// subroutine which on receiving a message, send it to the
 	// destination,update the metric
 	// nFailedInserts if the send fails
-	boolean sendMessage(Message message) throws ConnectionException, InterruptedException {
+	public boolean sendMessage(Message message) throws ConnectionException, InterruptedException {
 
 		tracer.log(TraceLevel.TRACE, "Begin sendMessage()"); //$NON-NLS-1$
 
@@ -544,7 +545,7 @@ class JMSConnectionHelper implements ExceptionListener {
 
 	// this subroutine receives messages from a message consumer
 	// This method supports the receive method with timeout
-	Message receiveMessage(long timeout) throws ConnectionException, InterruptedException, JMSException {
+	public Message receiveMessage(long timeout) throws ConnectionException, InterruptedException, JMSException {
 
 		tracer.log(TraceLevel.TRACE, "Into receiveMessage()"); //$NON-NLS-1$
 
@@ -579,7 +580,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	// Send message without retry in case of failure
 	// i.e connection problems, this method raise the error back to caller.
 	// No connection or message retry will be attempted.
-	void sendMessageNoRetry(Message message) throws JMSException {
+	public void sendMessageNoRetry(Message message) throws JMSException {
 		tracer.log(TraceLevel.TRACE, "Begin sendMessageNoRetry()"); //$NON-NLS-1$
 		try {
 			synchronized (getSession()) {
@@ -594,7 +595,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	}
 	
 	// send a consistent region message to the consistent region queue
-	void sendCRMessage(Message message) throws JMSException {
+	public void sendCRMessage(Message message) throws JMSException {
 		
 		tracer.log(TraceLevel.TRACE, "Begin sendCRMessage()"); //$NON-NLS-1$
 			
@@ -606,7 +607,7 @@ class JMSConnectionHelper implements ExceptionListener {
 	}
 		
 	// receive a message from consistent region queue
-	Message receiveCRMessage(long timeout) throws JMSException {
+	public Message receiveCRMessage(long timeout) throws JMSException {
 		
 		tracer.log(TraceLevel.TRACE, "Into receiveCRMessage()"); //$NON-NLS-1$
 		

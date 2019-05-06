@@ -2,7 +2,7 @@
  * Copyright (C) 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.helper;
 
 import java.net.MalformedURLException;
 import java.util.Map;

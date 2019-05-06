@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.types;
 
 //Class that holds the elements(name, type and length) of an attribute in native schema element.
 public class NativeSchema {

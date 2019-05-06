@@ -2,7 +2,7 @@
  * Copyright (C) 2013, 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,10 +37,14 @@ import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Type;
 import com.ibm.streams.operator.Type.MetaType;
+import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
 import com.ibm.streamsx.jms.i18n.Messages;
+import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class parses and validates the connections document 
-class ConnectionDocumentParser {
+public class ConnectionDocumentParser {
 
 	// Variable to hold the supported SPL data types for the adapter
 	private static final Set<String> supportedSPLTypes = new HashSet<String>(Arrays.asList("int8", "uint8", "int16", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -2,7 +2,7 @@
  * Copyright (C) 2014, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
-package com.ibm.streamsx.jms;
+package com.ibm.streamsx.jms.messagehandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streams.operator.types.XML;
+import com.ibm.streamsx.jms.types.MessageAction;
+import com.ibm.streamsx.jms.types.NativeSchema;
 
 /**
  * 
