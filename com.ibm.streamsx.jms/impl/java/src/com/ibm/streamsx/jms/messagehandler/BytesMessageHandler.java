@@ -109,6 +109,33 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 
 					bytedata = tuple.getString(name).getBytes(codepage);
 					break;
+
+				case BLIST:
+				case BMAP:
+				case BOOLEAN:
+				case BSET:
+				case BSTRING:
+				case COMPLEX32:
+				case COMPLEX64:
+				case ENUM:
+				case FLOAT32:
+				case FLOAT64:
+				case INT8:
+				case INT16:
+				case INT32:
+				case INT64:
+				case LIST:
+				case MAP:
+				case OPTIONAL:
+				case SET:
+				case TUPLE:
+				case UINT8:
+				case UINT16:
+				case UINT32:
+				case UINT64:
+				case XML:
+					// DO NOTHING
+					break;
 				}
 				size = bytedata.length;
 
@@ -333,6 +360,33 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 								tuple.setBlob(name, blob);
 								break;
 							}
+
+							case BLIST:
+							case BMAP:
+							case BOOLEAN:
+							case BSET:
+							case BSTRING:
+							case COMPLEX32:
+							case COMPLEX64:
+							case ENUM:
+							case FLOAT32:
+							case FLOAT64:
+							case INT8:
+							case INT16:
+							case INT32:
+							case INT64:
+							case LIST:
+							case MAP:
+							case OPTIONAL:
+							case SET:
+							case TUPLE:
+							case UINT8:
+							case UINT16:
+							case UINT32:
+							case UINT64:
+							case XML:
+								// DO NOTHING
+								break;
 							} 
 
 						}
@@ -340,6 +394,9 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 				}
 					break;
 
+				case String:
+					// DO NOTHING
+					break;
 				}
 
 				if (discard == true) {

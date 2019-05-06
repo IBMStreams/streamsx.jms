@@ -88,8 +88,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				break;
 
 			case String: {
-				switch (tuple.getStreamSchema().getAttribute(name).getType()
-						.getMetaType()) {
+				switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
 				case RSTRING:
 				case USTRING:
 
@@ -125,6 +124,34 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				case TIMESTAMP:
 					message.writeString((tuple.getTimestamp(name)
 							.getTimeAsSeconds()).toString());
+					break;
+
+				case BLIST:
+				case BLOB:
+				case BMAP:
+				case BOOLEAN:
+				case BSET:
+				case BSTRING:
+				case COMPLEX32:
+				case COMPLEX64:
+				case ENUM:
+				case FLOAT32:
+				case FLOAT64:
+				case INT8:
+				case INT16:
+				case INT32:
+				case INT64:
+				case LIST:
+				case MAP:
+				case OPTIONAL:
+				case SET:
+				case TUPLE:
+				case UINT8:
+				case UINT16:
+				case UINT32:
+				case UINT64:
+				case XML:
+					// DO NOTHING
 					break;
 				}
 			}
@@ -250,8 +277,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 					break;
 				case String:
 
-					switch (tuple.getStreamSchema().getAttribute(name)
-							.getType().getMetaType()) {
+					switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
 					case RSTRING:
 					case USTRING:
 						String stringData = streamMessage.readString();
@@ -284,8 +310,40 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 						}
 					}
 						break;
+
+					case BLIST:
+					case BLOB:
+					case BMAP:
+					case BOOLEAN:
+					case BSET:
+					case BSTRING:
+					case COMPLEX32:
+					case COMPLEX64:
+					case ENUM:
+					case FLOAT32:
+					case FLOAT64:
+					case INT8:
+					case INT16:
+					case INT32:
+					case INT64:
+					case LIST:
+					case MAP:
+					case OPTIONAL:
+					case SET:
+					case TUPLE:
+					case UINT8:
+					case UINT16:
+					case UINT32:
+					case UINT64:
+					case XML:
+						// DO NOTHING
+						break;
 					}
 
+					break;
+
+				case Bytes:
+					// DO NOTHING
 					break;
 				}
 			} catch (MessageEOFException meofEx) {

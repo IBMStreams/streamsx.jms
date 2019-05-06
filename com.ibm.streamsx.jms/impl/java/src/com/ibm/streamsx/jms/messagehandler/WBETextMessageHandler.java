@@ -93,8 +93,7 @@ public class WBETextMessageHandler extends BaseXMLMessageHandler {
 			final int length = currentObject.getLength();
 			Element ele = document.createElement(name);
 			// handle based on data type
-			switch (tuple.getStreamSchema().getAttribute(name).getType()
-					.getMetaType()) {
+			switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
 			// BLOB is not supported for wbe22 message class
 			case RSTRING:
 			case USTRING:
@@ -159,6 +158,23 @@ public class WBETextMessageHandler extends BaseXMLMessageHandler {
 				}
 				ele.setAttribute("data-type", "boolean"); //$NON-NLS-1$ //$NON-NLS-2$
 
+				break;
+
+			case BLIST:
+			case BLOB:
+			case BMAP:
+			case BSET:
+			case BSTRING:
+			case COMPLEX32:
+			case COMPLEX64:
+			case ENUM:
+			case LIST:
+			case MAP:
+			case OPTIONAL:
+			case SET:
+			case TUPLE:
+			case XML:
+				// DO NOTHING
 				break;
 			}
 
