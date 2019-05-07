@@ -37,8 +37,7 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.LoggerNames;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streams.operator.model.CustomMetric;
-import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.model.*;
 import com.ibm.streams.operator.samples.patterns.ProcessTupleProducer;
 import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
@@ -62,9 +61,41 @@ import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
 import com.ibm.streamsx.jms.types.MessageAction;
 import com.ibm.streamsx.jms.types.MessageClass;
 import com.ibm.streamsx.jms.types.ReconnectionPolicies;
+/*
+  <outputPortSet>
+    <description>
+  </outputPortSet>
+</outputPorts>
+*/
 
-//The JMSSource operator converts a message JMS queue or topic to stream
+@PrimitiveOperator(name = "JMSSource", namespace = "com.ibm.streamsx.jms", description = JMSSource.DESC, vmArgs="")
+@OutputPorts ({
+		@OutputPortSet(	cardinality = 1,
+						optional = false,
+						windowPunctuationInputPort = "-1",
+						windowPunctuationOutputMode = OutputPortSet.WindowPunctuationOutputMode.Free,
+						description = "\\n" +  //$NON-NLS-1$
+								"The `JMSSource` operator has one mandatory output and one optional output port.\\n" +  //$NON-NLS-1$
+								"If only the mandatory output port is specified, the operator submits a tuple for each message\\n" +  //$NON-NLS-1$
+								"that is successfully read from the messaging provider.\\n" +  //$NON-NLS-1$
+								"The mandatory output port is mutating and its punctuation mode is Free."),  //$NON-NLS-1$
+		@OutputPortSet(	cardinality = 1,
+						optional = true,
+						windowPunctuationInputPort = "-1",
+						windowPunctuationOutputMode = OutputPortSet.WindowPunctuationOutputMode.Free,
+						description = "\\n" +  //$NON-NLS-1$
+								"The `JMSSource` operator has one optional output port, which submits tuples when an error occurs.\\n" +  //$NON-NLS-1$
+								"\\n" +  //$NON-NLS-1$
+								"If both optional and mandatory output ports are specified, the operator submits a tuple to the mandatory port\\n" +  //$NON-NLS-1$
+								"for each message that is read successfully and a tuple to the optional port if an error occurs when reading a message.\\n" +  //$NON-NLS-1$
+								"The tuple submitted to the optional port contains an error message for each message that could not be read successfully.\\n" +  //$NON-NLS-1$
+								"The optional output port has a single attribute of type rstring that contains this error message.\\n" +  //$NON-NLS-1$
+								"The optional output port is mutating and its punctuation mode is Free.")  //$NON-NLS-1$
+})
+@Icons(location16 = "icons/JMSSource_16.gif", location32 = "icons/JMSSource_32.gif")
+@Libraries({"impl/lib/com.ibm.streamsx.jms.jar", "opt/downloaded/*"})
 public class JMSSource extends ProcessTupleProducer implements StateHandler{	
+	//The JMSSource operator converts a message JMS queue or topic to stream
 
 	private static final String CLASS_NAME = JMSSource.class.getName();
 
@@ -121,19 +152,19 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	
 	// when in consistent region, this parameter is used to indicate max time the receive method should block
 	public static final long RECEIVE_TIMEOUT = 500l;
-
+	
 	// initialize the metrices.
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+	@CustomMetric(kind = Metric.Kind.COUNTER, description="The number of messages that are read successfully from a queue or topic.")
 	public void setnMessagesRead(Metric nMessagesRead) {
 		this.nMessagesRead = nMessagesRead;
 	}
 
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+	@CustomMetric(kind = Metric.Kind.COUNTER, description="The number of messages that are dropped in the application.")
 	public void setnMessagesDropped(Metric nMessagesDropped) {
 		this.nMessagesDropped = nMessagesDropped;
 	}
 
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+	@CustomMetric(kind = Metric.Kind.COUNTER, description="The number of reconnection attempts that are made before a successful connection occurs.")
 	public void setnReconnectionAttempts(Metric nReconnectionAttempts) {
 		this.nReconnectionAttempts = nReconnectionAttempts;
 	}
@@ -196,8 +227,6 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	
 	private boolean initalConnectionEstablished = false;
 	
-	private String messageIDOutAttrName = null;
-	
 	private String jmsDestinationOutAttrName = null;
 	private String jmsDeliveryModeOutAttrName = null;
 	private String jmsExpirationOutAttrName = null;
@@ -209,8 +238,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private String jmsTypeOutAttrName = null;
 	private String jmsRedeliveredOutAttrName = null;
 	 
-	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList("messageIDOutAttrName",
-																		"jmsDestinationOutAttrName",
+	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList("jmsDestinationOutAttrName",
 																		"jmsDeliveryModeOutAttrName",
 																		"jmsExpirationOutAttrName", 
 																		"jmsPriorityOutAttrName",
@@ -246,7 +274,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return sslConnection;
 	}
 
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")
     public void setSslConnection(boolean sslConnection) {
 		this.sslConnection = sslConnection;
 	}
@@ -255,7 +283,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return trustStorePassword;
 	}
     
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies the password for the trustStore given by the *trustStore* parameter. The *sslConnection* parameter must be set to `true` for this parameter to have any effect.")
     public void setTrustStorePassword(String trustStorePassword) {
 		this.trustStorePassword = trustStorePassword;
 	}
@@ -264,7 +292,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return trustStore;
 	}
     
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies the path to the trustStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")
     public void setTrustStore(String trustStore) {
 		this.trustStore = trustStore;
 	}
@@ -273,7 +301,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return keyStorePassword;
 	}
     
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies the password for the keyStore given by the *keyStore* parameter. The *sslConnection* parameter must be set to `true` for this parameter to have any effect.")
     public void setKeyStorePassword(String keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
 	}
@@ -282,17 +310,16 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return keyStore;
 	}
     
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies the path to the keyStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")
     public void setKeyStore(String keyStore) {
 		this.keyStore = keyStore;
 	}    
-    
 
 	public String getAppConfigName() {
 		return appConfigName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.")
 	public void setAppConfigName(String appConfigName) {
 		this.appConfigName = appConfigName;
 	}
@@ -301,7 +328,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return userPropName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.")
 	public void setUserPropName(String userPropName) {
 		this.userPropName = userPropName;
 	}
@@ -310,25 +337,16 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return passwordPropName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.")
 	public void setPasswordPropName(String passwordPropName) {
 		this.passwordPropName = passwordPropName;
-	}
-
-	public String getMessageIDOutAttrName() {
-		return messageIDOutAttrName;
-	}
-
-	@Parameter(optional = true)
-	public void setMessageIDOutAttrName(String messageIDOutAttrName) {
-		this.messageIDOutAttrName = messageIDOutAttrName;
 	}
 
 	public String getJmsDestinationOutAttrName() {
 		return jmsDestinationOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSDestination" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSDestination to, the specified attribute in output stream must be of type rstring." )
 	public void setJmsDestinationOutAttrName(String jmsDestinationOutAttrName) {
 		this.jmsDestinationOutAttrName = jmsDestinationOutAttrName;
 	}
@@ -337,7 +355,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return jmsDeliveryModeOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSDeliveryMode" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSDeliveryMode to, the specified attribute in output stream must be of type int32." )
 	public void setJmsDeliveryModeOutAttrName(String jmsDeliveryModeOutAttrName) {
 		this.jmsDeliveryModeOutAttrName = jmsDeliveryModeOutAttrName;
 	}
@@ -346,8 +364,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return jmsExpirationOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSExpiration" )
-public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSExpiration to, the specified attribute in output stream must be of type int64." )
+	public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		this.jmsExpirationOutAttrName = jmsExpirationOutAttrName;
 	}
 
@@ -355,7 +373,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsPriorityOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSPriority" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSPriority to, the specified attribute in output stream must be of type int32." )
 	public void setJmsPriorityOutAttrName(String jmsPriorityOutAttrName) {
 		this.jmsPriorityOutAttrName = jmsPriorityOutAttrName;
 	}
@@ -364,7 +382,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsMessageIDOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSMessageID" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSMessageID to, the specified attribute in output stream must be of type rstring.")
 	public void setJmsMessageIDOutAttrName(String jmsMessageIDOutAttrName) {
 		this.jmsMessageIDOutAttrName = jmsMessageIDOutAttrName;
 	}
@@ -373,7 +391,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsTimestampOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSTimestamp" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSTimestamp to, the specified attribute in output stream must be of type int64." )
 	public void setJmsTimestampOutAttrName(String jmsTimestampOutAttrName) {
 		this.jmsTimestampOutAttrName = jmsTimestampOutAttrName;
 	}
@@ -382,7 +400,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsCorrelationIDOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSCorrelationID" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSCorrelationID to, the specified attribute in output stream must be of type rstring." )
 	public void setJmsCorrelationIDOutAttrName(String jmsCorrelationIDOutAttrName) {
 		this.jmsCorrelationIDOutAttrName = jmsCorrelationIDOutAttrName;
 	}
@@ -391,7 +409,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsReplyToOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSReplyTo" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSReplyTo to, the specified attribute in output stream must be of type rstring." )
 	public void setJmsReplyToOutAttrName(String jmsReplyToOutAttrName) {
 		this.jmsReplyToOutAttrName = jmsReplyToOutAttrName;
 	}
@@ -400,7 +418,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsTypeOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSType" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring." )
 	public void setJmsTypeOutAttrName(String jmsTypeOutAttrName) {
 		this.jmsTypeOutAttrName = jmsTypeOutAttrName;
 	}
@@ -409,7 +427,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return jmsRedeliveredOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "The name of the output attribute to store into the JMS Header information JMSRedelivered" )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean." )
 	public void setJmsRedeliveredOutAttrName(String jmsRedeliveredOutAttrName) {
 		this.jmsRedeliveredOutAttrName = jmsRedeliveredOutAttrName;
 	}
@@ -418,7 +436,7 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return messageSelector;
 	}
 
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This optional parameter is used as JMS Message Selector.")
 	public void setMessageSelector(String messageSelector) {
 		this.messageSelector = messageSelector;
 	}
@@ -427,50 +445,62 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		return triggerCount;
 	}
 
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+			"This optional parameter specifies how many messages are submitted before the JMSSource operator starts to drain the pipeline and establish a consistent state.\\n" +  //$NON-NLS-1$
+			"This parameter must be greater than zero and must be set if the JMSSource operator is the start operator of an operatorDriven consistent region.")  //$NON-NLS-1$
 	public void setTriggerCount(int triggerCount) {
 		this.triggerCount = triggerCount;
 	}
 
-	// Mandatory parameter access
-	@Parameter(optional = false)
+	@Parameter(optional = false, description = "This mandatory parameter identifies the access specification name.")	//$NON-NLS-1$
 	public void setAccess(String access) {
 		this.access = access;
 	}
 
-	// Mandatory parameter connection
-	@Parameter(optional = false)
+	@Parameter(optional = false, description = "This mandatory parameter identifies the name of the connection specification that contains an JMS element.")
 	public void setConnection(String connection) {
 		this.connection = connection;
 	}
 
-	// Optional parameter codepage
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$ 
+			"This optional parameter specifies the code page of the target system that is used to convert ustring for a Bytes message type.\\n" +  //$NON-NLS-1$
+			"If this parameter is specified, it must have exactly one value, which is a String constant.\\n" +  //$NON-NLS-1$
+			"If the parameter is not specified, the operator uses the default value of UTF8.\\n")  //$NON-NLS-1$
 	public void setCodepage(String codepage) {
 		this.codepage = codepage;
 	}
 
-	// Optional parameter reconnectionPolicy
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+			"This is an optional parameter that specifies the reconnection policy.\\n" +  //$NON-NLS-1$
+			"The valid values are `NoRetry`, `InfiniteRetry`, and `BoundedRetry`.\\n" +  //$NON-NLS-1$
+			"If the parameter is not specified, the reconnection policy is set to `BoundedRetry` with a **reconnectionBound** of `5`\\n" +  //$NON-NLS-1$
+			"and a **period** of 60 seconds.\\n")  //$NON-NLS-1$
 	public void setReconnectionPolicy(String reconnectionPolicy) {
-		this.reconnectionPolicy = ReconnectionPolicies
-				.valueOf(reconnectionPolicy);
+		this.reconnectionPolicy = ReconnectionPolicies.valueOf(reconnectionPolicy);
 	}
 
-	// Optional parameter reconnectionBound
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+			"This optional parameter specifies the number of successive connections that are attempted for an operator.\\n" +  //$NON-NLS-1$
+			"You can use this parameter only when the **reconnectionPolicy** parameter is specified and set to `BoundedRetry`,\\n" +  //$NON-NLS-1$
+			"otherwise a run time error occurs. If the **reconnectionBound** parameter is specified\\n" +  //$NON-NLS-1$
+			"and the **reconnectionPolicy** parameter is not set, a compile time error occurs.\\n" +  //$NON-NLS-1$
+			"The default value for the **reconnectionBound** parameter is `5`.\\n")  //$NON-NLS-1$
 	public void setReconnectionBound(int reconnectionBound) {
 		this.reconnectionBound = reconnectionBound;
 	}
 
-	// Optional parameter period
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+			"This optional parameter specifies the time period in seconds the operator waits before it tries to reconnect.\\n" +  //$NON-NLS-1$
+			"You can use this parameter only when the **reconnectionPolicy** parameter is specified,\\n" +  //$NON-NLS-1$
+			"otherwise a compile time error occurs. The default value for the **period** parameter is `60`.\\n")  //$NON-NLS-1$
 	public void setPeriod(double period) {
 		this.period = period;
 	}
 
-	// Optional parameter connectionDocument
-	@Parameter(optional = true, description="Connection document containing connection information to connect to messaging servers.  If not specified, the connection document is assumed to be application_dir/etc/connections.xml.")
+	@Parameter(optional = true, description="\\n" +  //$NON-NLS-1$
+			"This optional parameter specifies the path name of the file that contains the connection and access specifications,\\n" +  //$NON-NLS-1$
+			"which are identified by the **connection** and **access** parameters.\\n" +  //$NON-NLS-1$
+			"If this parameter is not specified, the operator uses the file that is in the default location `./etc/connections.xml`.")  //$NON-NLS-1$
 	public void setConnectionDocument(String connectionDocument) {
 		this.connectionDocument = connectionDocument;
 	}
@@ -1103,8 +1133,9 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 	 * @throws JMSException 
 	 */
 	private void handleJmsHeaderValues(Message msg, OutputTuple outTuple) throws JMSException {
+		
+		// TODO: If none of the JMS Header related parameters is set, we do not need to call this method 
 
-		int messageIDAttrIdx		= -1;
 		int jmsDestinationAttrIdx	= -1;
 		int jmsDeliveryModeAttrIdx	= -1;
 		int jmsExpirationAttrIdx	= -1;
@@ -1115,17 +1146,9 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 		int jmsReplyToAttrIdx		= -1;
 		int jmsTypeAttrIdx			= -1;
 		int jmsRedeliveredAttrIdx	= -1;
-				
+		
 		
 		StreamSchema streamSchema = getOutput(0).getStreamSchema();
-
-		
-		if(this.getMessageIDOutAttrName() != null) {
-			messageIDAttrIdx = streamSchema.getAttributeIndex(this.getMessageIDOutAttrName());
-		}
-		if(messageIDAttrIdx != -1 && msg.getJMSMessageID() != null) {
-			outTuple.setObject(messageIDAttrIdx, new RString(msg.getJMSMessageID()));
-		}
 
 		
 		if(this.getJmsDestinationOutAttrName() != null) {
@@ -1395,4 +1418,182 @@ public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
 	public void retireCheckpoint(long id) throws Exception {
 		logger.log(LogLevel.INFO, "RETIRE_CHECKPOINT", id);		 //$NON-NLS-1$
 	}
+
+	public static final String DESC = "\\n" +  //$NON-NLS-1$ 
+"The `JMSSource` operator reads data from a WebSphere MQ or an Apache Active MQ queue\\n" +  //$NON-NLS-1$
+"or a topic and creates tuples from the read data.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The `JMSSource` operator converts each WebSphere MQ or Apache Active MQ message to a separate tuple\\n" +  //$NON-NLS-1$
+"and sends it to the output stream. A single message is converted into a single tuple.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# SSL Support\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The `JMSSource` operator provides support for SSL via these parameters: *sslConnection*, *keyStore*, *keyStorePassword* and *trustStore*.\\n" +  //$NON-NLS-1$ 
+"When *sslConnection* is set to `true`, the *keyStore*, *keyStorePassword* and *trustStore* parameters must be set.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"**Note:** The `JMSSource` operator configures SSL by setting the JVM system properties via calls to `System.property()`.\\n" +  //$NON-NLS-1$ 
+"Java operators that are fused into the same PE share the same JVM. This implies that any other Java operators fused into the \\n" +  //$NON-NLS-1$
+"same PE as the `JMSSource` operator will have these SSL properties set. If this is undesirable, then the `JMSSource` operator\\n" +  //$NON-NLS-1$
+"should be placed into it's own PE.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# Behavior in a consistent region\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The `JMSSource` operator can participate in a consistent region. The operator must be at the start of a consistent region.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The operator supports periodic and operator-driven consistent region policies. If the consistent region policy is set as operatorDriven, the triggerCount parameter must be specified. The operator initiates a checkpoint after number of tuples specified by the triggerCount parameter have been processed.\\n" +  //$NON-NLS-1$ 
+"If the consistent region policy is set as periodic, the operator respects the period setting and establishes consistent states accordingly.\\n" +  //$NON-NLS-1$ 
+"\\n" +  //$NON-NLS-1$
+"When a message queue is consumed by multiple message consumers, i.e. multiple `JMSSource` instances are used to read messages from a same queue, then deterministic routing is required. This requirement can be achieved through the messageSelector parameter. For example, if an SPL application has two JMSSource operator instances and a JMS property named \\\"group\\\" is present on messages that can take value of either 'g1' or 'g2', then each JMSSource operator instance can be assigned in the following manner:\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"MyPersonNamesStream1 = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connectionDocument : \\\"/home/streamsuser/connections/JMSconnections.xml\\\";\\n" +  //$NON-NLS-1$
+"			connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"			messageSelector    : \\\"group = 'g1'\\\";\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"MyPersonNamesStream2 = JMSSource()\\n" +  //$NON-NLS-1$
+"    {\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"	        connectionDocument : \\\"/home/streamsuser/connections/JMSconnections.xml\\\";\\n" +  //$NON-NLS-1$
+"			connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"			messageSelector    : \\\"group = 'g2'\\\";\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# Exceptions\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The following types of exceptions can occur:\\n" +  //$NON-NLS-1$
+" * Run time errors that halt the operator execution.\\n" +  //$NON-NLS-1$
+"   * The JMSSource operator throws an exception and terminates in the following cases.\\n" +  //$NON-NLS-1$
+"     For some exceptions, the trace and log information is logged in the console logs\\n" +  //$NON-NLS-1$
+"     and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"     * During the initial connection attempt or during transient reconnection failures,\\n" +  //$NON-NLS-1$
+"       if the **reconnectionPolicy** is set to `NoRetry` and the operator does not have a successful connection,\\n" +  //$NON-NLS-1$
+"       or the **reconnectionPolicy** is set to `BoundedRetry` and the operator does not have a successful connection\\n" +  //$NON-NLS-1$
+"       after the number of attempts that are specified in the **reconnectionBound** parameter. Successive data is lost.\\n" +  //$NON-NLS-1$
+"     * The queue name is unknown.\\n" +  //$NON-NLS-1$
+"     * The queue manager name is unknown.\\n" +  //$NON-NLS-1$
+"     * The operator is unable to connect to the host or the port.\\n" +  //$NON-NLS-1$
+"     * A MapMessage, StreamMessage, or BytesMessage does not contain the attributes that are specified in the native schema.\\n" +  //$NON-NLS-1$
+"     * A MapMessage or StreamMessage contains attributes whose data type does not match the data type\\n" +  //$NON-NLS-1$
+"       that is specified in the native schema and the conversion fails.\\n" +  //$NON-NLS-1$
+"     * The message_class attribute in the access specification is bytes, stream, or map, and the name\\n" +  //$NON-NLS-1$
+"       and type attributes of the &lt;native_schema&gt; element do not match the name and type attribute in the output stream schema.\\n" +  //$NON-NLS-1$
+"     * When the message_class attribute is bytes and in the &lt;native_schema&gt; element,\\n" +  //$NON-NLS-1$
+"       the type attribute is string or bytes and the length attribute is missing.\\n" +  //$NON-NLS-1$
+"     * An invalid value is specified for the message_class attribute of the access specification.\\n" +  //$NON-NLS-1$
+"     * If an attribute occurs more than once in the &lt;native_schema&gt; element.\\n" +  //$NON-NLS-1$
+"     * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
+"     * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
+"     * The **jmsDestinationOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type." +  //$NON-NLS-1$
+"     * The **jmsDeliveryModeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsExpirationOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsPriorityOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsMessageIDOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsTimestampOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsCorrelationIDOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsReplyToOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsTypeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsRedeliveredOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.\\n" +  //$NON-NLS-1$
+" * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
+"   * The `JMSSource` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
+"     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
+"     and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"     * The `JMSSource` operator reads a message that does not match the message class in the &lt;native_schema&gt; element.\\n" +  //$NON-NLS-1$
+"     * When a negative length (-2 or -4) is specified in the native schema for bytes and string data types\\n" +  //$NON-NLS-1$
+"       and the message class is bytes, the operator expects the JMS message to start with a 2 or 4-byte length field.\\n" +  //$NON-NLS-1$
+"       If there are insufficient bytes remaining in the JMS message,\\n" +  //$NON-NLS-1$
+"       the operator discards the entire message and logs a run time error.\\n" +  //$NON-NLS-1$
+"     * When a non-negative length is specified in the native schema for bytes and string,\\n" +  //$NON-NLS-1$
+"       the operator attempts to read exactly that number of bytes from the BytesMessage.\\n" +  //$NON-NLS-1$
+"       If there are insufficient bytes remaining in the JMS message,\\n" +  //$NON-NLS-1$
+"       the operator discards the entire message and logs a run time error.\\n" +  //$NON-NLS-1$
+"     * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter is set\\n" +  //$NON-NLS-1$
+"       to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
+" * Compile time errors.\\n" +  //$NON-NLS-1$
+"   * The `JMSSource` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
+"     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
+"     and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"     * The mandatory parameters, **connection** and **access** are not specified.\\n" +  //$NON-NLS-1$
+"     * The **period** parameter is specified but the **reconnectionPolicy** parameter is not specified.\\n" +  //$NON-NLS-1$
+"     * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter is not specified.\\n" +  //$NON-NLS-1$
+"     * The environment variables **STREAMS_MESSAGING_WMQ_HOME** and **STREAMS_MESSAGING_AMQ_HOME** are not set\\n" +  //$NON-NLS-1$
+"       to the locations where the WMQ and AMQ libraries are installed.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"+ Examples\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"This example shows the use of multiple `JMSSource` operators with different parameter combinations.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	composite Main {\\n" +  //$NON-NLS-1$
+"	graph\\n" +  //$NON-NLS-1$
+"	// JMSSource operator with the default etc/connections.xml(relative to the application directory)\\n" +  //$NON-NLS-1$
+"	// connections document\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname&gt;\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream  = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connection : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access     : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	// JMSSource operator with fully qualified name of connections.xml\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname&gt;\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connectionDocument : \\\"/home/streamsuser/connections/JMSconnections.xml\\\";\\n" +  //$NON-NLS-1$
+"			connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	// JMSSource operator with optional output error port specified\\n" +  //$NON-NLS-1$
+"	(stream &lt;int32 id, rstring fname, rstring lname&gt; MyPersonNamesStream ;\\n" +  //$NON-NLS-1$
+"	stream &lt;rstring errorMessage&gt; ErrorStream) = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connection : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access     : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	// JMSSource operator with optional initDelay and reconnectionPolicy specified\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname&gt;\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"			reconnectionPolicy : \\\"NoRetry\\\";\\n" +  //$NON-NLS-1$
+"			initDelay          : 10;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	// JMSSource Operator with optional period and reconnectionPolicy specified\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname&gt;\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"		connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"		access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"		reconnectionPolicy : \\\"InfiniteRetry\\\";\\n" +  //$NON-NLS-1$
+"		period             : 1.20;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	// JMSSource operator with reconnectionPolicy specified as BoundedRetry\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname&gt;\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream = JMSSource()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"		param\\n" +  //$NON-NLS-1$
+"			connection         : \\\"amqConn\\\";\\n" +  //$NON-NLS-1$
+"			access             : \\\"amqAccess\\\";\\n" +  //$NON-NLS-1$
+"			reconnectionPolicy : \\\"BoundedRetry\\\";\\n" +  //$NON-NLS-1$
+"			reconnectionBound : 2;\\n" +  //$NON-NLS-1$
+"			period: 1.20;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n"  //$NON-NLS-1$
+;
+
 }
