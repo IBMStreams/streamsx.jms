@@ -72,7 +72,6 @@ import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 @OutputPorts ({
 		@OutputPortSet(	cardinality = 1,
 						optional = false,
-						windowPunctuationInputPort = "-1",
 						windowPunctuationOutputMode = OutputPortSet.WindowPunctuationOutputMode.Free,
 						description = "\\n" +  //$NON-NLS-1$
 								"The `JMSSource` operator has one mandatory output and one optional output port.\\n" +  //$NON-NLS-1$
@@ -81,7 +80,6 @@ import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 								"The mandatory output port is mutating and its punctuation mode is Free."),  //$NON-NLS-1$
 		@OutputPortSet(	cardinality = 1,
 						optional = true,
-						windowPunctuationInputPort = "-1",
 						windowPunctuationOutputMode = OutputPortSet.WindowPunctuationOutputMode.Free,
 						description = "\\n" +  //$NON-NLS-1$
 								"The `JMSSource` operator has one optional output port, which submits tuples when an error occurs.\\n" +  //$NON-NLS-1$
