@@ -61,12 +61,7 @@ import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
 import com.ibm.streamsx.jms.types.MessageAction;
 import com.ibm.streamsx.jms.types.MessageClass;
 import com.ibm.streamsx.jms.types.ReconnectionPolicies;
-/*
-  <outputPortSet>
-    <description>
-  </outputPortSet>
-</outputPorts>
-*/
+
 
 @PrimitiveOperator(name = "JMSSource", namespace = "com.ibm.streamsx.jms", description = JMSSource.DESC, vmArgs="")
 @OutputPorts ({
