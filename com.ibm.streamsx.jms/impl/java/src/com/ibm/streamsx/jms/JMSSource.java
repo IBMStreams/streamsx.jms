@@ -63,7 +63,7 @@ import com.ibm.streamsx.jms.types.MessageClass;
 import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 
-@PrimitiveOperator(name = "JMSSource", namespace = "com.ibm.streamsx.jms", description = JMSSource.DESC, vmArgs="")
+@PrimitiveOperator(name = "JMSSource", namespace = "com.ibm.streamsx.jms", description = JMSSource.DESC)
 @OutputPorts ({
 		@OutputPortSet(	cardinality = 1,
 						optional = false,
