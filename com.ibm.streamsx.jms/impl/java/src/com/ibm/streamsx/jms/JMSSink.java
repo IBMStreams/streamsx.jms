@@ -33,7 +33,15 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.LoggerNames;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streams.operator.model.*;
+import com.ibm.streams.operator.model.CustomMetric;
+import com.ibm.streams.operator.model.Icons;
+import com.ibm.streams.operator.model.InputPortSet;
+import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
+import com.ibm.streams.operator.model.OutputPortSet;
+import com.ibm.streams.operator.model.OutputPorts;
+import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.state.StateHandler;
@@ -156,43 +164,42 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	// Operator parameters
 
 	// This optional parameter codepage speciifes the code page of the target
-	// system using which ustring conversions have to be done for a BytesMessage
-	// type.
+	// system using which ustring conversions have to be done for a BytesMessage type.
 	// If present, it must have exactly one value that is a String constant. If
-	// the parameter is absent, the operator will use the default value of to
-	// UTF-8
+	// the parameter is absent, the operator will use the default value of to UTF-8
 	private String codepage = "UTF-8"; //$NON-NLS-1$
+	
 	// This mandatory parameter access specifies access specification name.
 	private String access;
+	
 	// This mandatory parameter connection specifies name of the connection
 	// specification containing a JMS element
 	private String connection;
+	
 	// This optional parameter connectionDocument specifies the pathname of a
 	// file containing the connection information.
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
 	// filepath ../etc/connections.xml (with respect to the data directory)
 	private String connectionDocument = null;
+	
 	// This optional parameter reconnectionBound specifies the number of
-	// successive connections that
-	// will be attempted for this operator.
+	// successive connections that will be attempted for this operator.
 	// It is an optional parameter of type uint32.
 	// It can appear only when the reconnectionPolicy parameter is set to
 	// BoundedRetry and cannot appear otherwise.If not present the default value
 	// is taken to be 5.
 	private int reconnectionBound = 5;
+	
 	// This optional parameter reconnectionPolicy specifies the reconnection
-	// policy that would be applicable during initial/intermittent connection
-	// failures.
-	// The valid values for this parameter are NoRetry, BoundedRetry and
-	// InfiniteRetry.
+	// policy that would be applicable during initial/intermittent connection failures.
+	// The valid values for this parameter are NoRetry, BoundedRetry and InfiniteRetry.
 	// If not specified, it is set to BoundedRetry with a reconnectionBound of 5
 	// and a period of 60 seconds.
-	private ReconnectionPolicies reconnectionPolicy = ReconnectionPolicies
-			.valueOf("BoundedRetry"); //$NON-NLS-1$
+	private ReconnectionPolicies reconnectionPolicy = ReconnectionPolicies.valueOf("BoundedRetry"); //$NON-NLS-1$
+	
 	// This optional parameter period specifies the time period in seconds which
-	// the
-	// operator will wait before trying to reconnect.
+	// the operator will wait before trying to reconnect.
 	// It is an optional parameter of type float64.
 	// If not specified, the default value is 60.0. It must appear only when the
 	// reconnectionPolicy parameter is specified
@@ -209,6 +216,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 	// Declaring the JMSMEssagehandler,
 	private JMSMessageHandlerImpl mhandler;
+	
 	// Variable to define if the connection attempted to the JMSProvider is the
 	// first one.
 	private boolean isInitialConnection = true;
@@ -225,7 +233,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     // unique id to identify messages on CR queue
     private String operatorUniqueID = null;
     
-    // application configuration name
+	// application configuration name
     private String appConfigName = null;
     
     // user property name stored in application configuration
@@ -241,7 +249,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     private String keyStorePassword = null;
     
     private String trustStorePassword = null;
-    
+
     private boolean sslConnection;
 
     public boolean isSslConnection() {
@@ -398,6 +406,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		this.connectionDocument = connectionDocument;
 	}
 	
+
 	public String getConnectionDocument() {
 	
 		if (connectionDocument == null)
@@ -767,7 +776,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 		// register for data governance
 		registerForDataGovernance(connectionDocumentParser.getProviderURL(), connectionDocumentParser.getDestination());
-		
+
 		tracer.log(TraceLevel.TRACE, "End initialize()"); //$NON-NLS-1$
 	}
 
@@ -807,13 +816,14 @@ public class JMSSink extends AbstractOperator implements StateHandler{
             try {
                 // Construct the JMS message based on the message type taking the
                 // attributes from the tuple. If the session is closed, we will be thrown out by JMSException.
-                message = mhandler.convertTupleToMessage(tuple,
-                        jmsConnectionHelper.getSession());
+                message = mhandler.convertTupleToMessage(tuple, jmsConnectionHelper.getSession());
                 msgSent = jmsConnectionHelper.sendMessage(message);
-            } catch (UnsupportedEncodingException | ParserConfigurationException | TransformerException e) {
+            }
+            catch (UnsupportedEncodingException | ParserConfigurationException | TransformerException e) {
                 tracer.log (LogLevel.ERROR, "Failure creating JMS message from input tuple: " + e.toString()); //$NON-NLS-1$
                 // no further action; tuple is dropped and sent to error port if present
-            } catch (/*JMS*/Exception e) {
+            }
+            catch (/*JMS*/Exception e) {
                 tracer.log (LogLevel.ERROR, "failure creating or sending JMS message: " + e.toString()
                         + ". Trying to reconnect and re-send message"); //$NON-NLS-1$
                 try {
@@ -849,6 +859,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		}
 	}
 
+
 	// Method to send the error message to the error output port if one is
 	// specified
 	private void sendOutputErrorMsg(Tuple tuple, String errorMessage)
@@ -856,7 +867,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 		OutputTuple errorTuple = errorOutputPort.newTuple();
 		String consolidatedErrorMessage = errorMessage;
-		// If the error output port speciifes the optional input tuple, populate
+		// If the error output port specifies the optional input tuple, populate
 		// its elements from the input tuple which caused this error.
 		if (hasOptionalTupleInErrorPort) {
 			Tuple embeddedTuple = embeddedSchema.getTuple(tuple);

@@ -200,8 +200,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private ReconnectionPolicies reconnectionPolicy = ReconnectionPolicies.valueOf("BoundedRetry"); //$NON-NLS-1$
 	
 	// This optional parameter period specifies the time period in seconds which
-	// the
-	// operator will wait before trying to reconnect.
+	// the operator will wait before trying to reconnect.
 	// It is an optional parameter of type float64.
 	// If not specified, the default value is 60.0. It must appear only when the
 	// reconnectionPolicy parameter is specified
@@ -241,6 +240,9 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 																		"jmsReplyToOutAttrName", 
 																		"jmsTypeOutAttrName", 
 																		"jmsRedeliveredOutAttrName");
+	
+	// Flag to signal if the operator accesses JMSHeader values
+	private boolean operatorAccessesJMSHeaderValues = false;
 	
 	private Object resetLock = new Object();
 	
@@ -871,6 +873,13 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		
 		// register for data governance
 		registerForDataGovernance(connectionDocumentParser.getProviderURL(), connectionDocumentParser.getDestination());
+		
+		// Check if this operator accesses JMS Header values
+		for(String jmsHeaderValOutAttrName : jmsHeaderValOutAttrNames ) {
+	        if (context.getParameterNames().contains(jmsHeaderValOutAttrName)) {
+	        	operatorAccessesJMSHeaderValues = true;
+	        }
+		}
 
 		tracer.log(TraceLevel.TRACE, "End initialize()"); //$NON-NLS-1$
 	}
@@ -1127,7 +1136,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	 */
 	private void handleJmsHeaderValues(Message msg, OutputTuple outTuple) throws JMSException {
 		
-		// TODO: If none of the JMS Header related parameters is set, we do not need to call this method 
+		if(! operatorAccessesJMSHeaderValues ) return; 
 
 		int jmsDestinationAttrIdx	= -1;
 		int jmsDeliveryModeAttrIdx	= -1;
