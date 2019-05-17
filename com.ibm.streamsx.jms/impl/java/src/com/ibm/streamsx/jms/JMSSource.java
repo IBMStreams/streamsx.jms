@@ -25,6 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
@@ -37,7 +38,13 @@ import com.ibm.streams.operator.logging.LogLevel;
 import com.ibm.streams.operator.logging.LoggerNames;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streams.operator.model.*;
+import com.ibm.streams.operator.model.CustomMetric;
+import com.ibm.streams.operator.model.Icons;
+import com.ibm.streams.operator.model.Libraries;
+import com.ibm.streams.operator.model.OutputPortSet;
+import com.ibm.streams.operator.model.OutputPorts;
+import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.samples.patterns.ProcessTupleProducer;
 import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
@@ -50,6 +57,8 @@ import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
 import com.ibm.streamsx.jms.helper.ConnectionDocumentParser;
 import com.ibm.streamsx.jms.helper.JMSConnectionHelper;
 import com.ibm.streamsx.jms.helper.JmsClasspathUtil;
+import com.ibm.streamsx.jms.helper.JmsHeaderHelper;
+import com.ibm.streamsx.jms.helper.PropertyAttributeType;
 import com.ibm.streamsx.jms.helper.PropertyProvider;
 import com.ibm.streamsx.jms.i18n.Messages;
 import com.ibm.streamsx.jms.messagehandler.BytesMessageHandler;
@@ -60,6 +69,7 @@ import com.ibm.streamsx.jms.messagehandler.StreamMessageHandler;
 import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
 import com.ibm.streamsx.jms.types.MessageAction;
 import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.PropertyType;
 import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 
@@ -219,6 +229,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	
 	private boolean initalConnectionEstablished = false;
 	
+	// Values to handle access to JMS Header values
 	private String jmsDestinationOutAttrName = null;
 	private String jmsDeliveryModeOutAttrName = null;
 	private String jmsExpirationOutAttrName = null;
@@ -230,19 +241,30 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private String jmsTypeOutAttrName = null;
 	private String jmsRedeliveredOutAttrName = null;
 	 
-	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList("jmsDestinationOutAttrName",
-																		"jmsDeliveryModeOutAttrName",
-																		"jmsExpirationOutAttrName", 
-																		"jmsPriorityOutAttrName",
-																		"jmsMessageIDOutAttrName",
-																		"jmsTimestampOutAttrName", 
-																		"jmsCorrelationIDOutAttrName",
-																		"jmsReplyToOutAttrName", 
-																		"jmsTypeOutAttrName", 
-																		"jmsRedeliveredOutAttrName");
+	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList(JMSOpConstants.PARAM_JMS_HEADER_DESTINATION_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_EXPIRATION_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_PRIORITY_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_MESSAGEID_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_TIMESTAMP_O_ATTR_NAME, 
+																		JMSOpConstants.PARAM_JMS_HEADER_CORRELATIONID_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_REPLYTO_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_TYPE_O_ATTR_NAME,
+																		JMSOpConstants.PARAM_JMS_HEADER_REDELIVERED_O_ATTR_NAME);
 	
-	// Flag to signal if the operator accesses JMSHeader values
+	// Flag to signal if the operator accesses JMS Header values
 	private boolean operatorAccessesJMSHeaderValues = false;
+
+	
+	// Values to handle access to JMS Header property values
+	private String jmsHeaderProperties = null;
+	
+	// The broken down JMS Header property / attribute / type triplets
+	private List<PropertyAttributeType> patTriplets = null;
+
+	// Flag to signal if the operator accesses JMS Header property values
+	private boolean operatorAccessesJMSHeaderPropertyValues = false;
+	
 	
 	private Object resetLock = new Object();
 	
@@ -413,7 +435,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return jmsTypeOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring." )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring." )	//$NON-NLS-1$
 	public void setJmsTypeOutAttrName(String jmsTypeOutAttrName) {
 		this.jmsTypeOutAttrName = jmsTypeOutAttrName;
 	}
@@ -422,16 +444,25 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		return jmsRedeliveredOutAttrName;
 	}
 
-	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean." )
+	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean." )	//$NON-NLS-1$
 	public void setJmsRedeliveredOutAttrName(String jmsRedeliveredOutAttrName) {
 		this.jmsRedeliveredOutAttrName = jmsRedeliveredOutAttrName;
 	}
 
+    public String getJmsHeaderProperties() {
+        return jmsHeaderProperties;
+    }
+
+    @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
+    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+        this.jmsHeaderProperties = jmsHeaderProperties;
+    }
+    
 	public String getMessageSelector() {
 		return messageSelector;
 	}
 
-	@Parameter(optional = true, description = "This optional parameter is used as JMS Message Selector.")
+	@Parameter(optional = true, description = "This optional parameter is used as JMS Message Selector.")	//$NON-NLS-1$
 	public void setMessageSelector(String messageSelector) {
 		this.messageSelector = messageSelector;
 	}
@@ -700,15 +731,15 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		    		boolean check = checker.checkRequiredAttributes(streamSchema, outAttributeName);
 		    		if (check) {
 		    			switch (jmsHeaderValOutAttrName) {
-		    			case "jmsDeliveryModeOutAttrName":
-		    			case "jmsPriorityOutAttrName":
+		    			case JMSOpConstants.PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME:
+		    			case JMSOpConstants.PARAM_JMS_HEADER_PRIORITY_O_ATTR_NAME:
 		    				checker.checkAttributeType(streamSchema.getAttribute(outAttributeName), MetaType.INT32);
 		    				break;
-		    			case "jmsExpirationOutAttrName":
-		    			case "jmsTimestampOutAttrName":
+		    			case JMSOpConstants.PARAM_JMS_HEADER_EXPIRATION_O_ATTR_NAME:
+		    			case JMSOpConstants.PARAM_JMS_HEADER_TIMESTAMP_O_ATTR_NAME:
 		    				checker.checkAttributeType(streamSchema.getAttribute(outAttributeName), MetaType.INT64);
 		    				break;
-		    			case "jmsRedeliveredOutAttrName":
+		    			case JMSOpConstants.PARAM_JMS_HEADER_REDELIVERED_O_ATTR_NAME:
 		    				checker.checkAttributeType(streamSchema.getAttribute(outAttributeName), MetaType.BOOLEAN);
 		    				break;
 		    			default:
@@ -719,10 +750,10 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	    	}
 		}
         
-        if((checker.getOperatorContext().getParameterNames().contains("appConfigName"))) { //$NON-NLS-1$
-        	String appConfigName = checker.getOperatorContext().getParameterValues("appConfigName").get(0); //$NON-NLS-1$
-			String userPropName = checker.getOperatorContext().getParameterValues("userPropName").get(0); //$NON-NLS-1$
-			String passwordPropName = checker.getOperatorContext().getParameterValues("passwordPropName").get(0); //$NON-NLS-1$
+        if((checker.getOperatorContext().getParameterNames().contains(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME))) { //$NON-NLS-1$
+        	String appConfigName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME).get(0); //$NON-NLS-1$
+			String userPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_USERPROPNAME).get(0); //$NON-NLS-1$
+			String passwordPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_PWPROPNAME).get(0); //$NON-NLS-1$
 			
 			
 			PropertyProvider provider = new PropertyProvider(checker.getOperatorContext().getPE(), appConfigName);
@@ -739,9 +770,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			
 			if(password == null || password.trim().length() == 0) {
 				logger.log(LogLevel.ERROR, "PROPERTY_NOT_FOUND_IN_APP_CONFIG", new String[] {passwordPropName, appConfigName}); //$NON-NLS-1$
-				checker.setInvalidContext(
-						Messages.getString("PROPERTY_NOT_FOUND_IN_APP_CONFIG"), //$NON-NLS-1$
-						new Object[] {passwordPropName, appConfigName});
+				checker.setInvalidContext(Messages.getString("PROPERTY_NOT_FOUND_IN_APP_CONFIG"), //$NON-NLS-1$
+																new Object[] {passwordPropName, appConfigName});
 			}
         }
         
@@ -756,9 +786,9 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		checker.checkDependentParameters("reconnectionBound", "reconnectionPolicy"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// Make sure if appConfigName is specified then both userPropName and passwordPropName are needed
-		checker.checkDependentParameters("appConfigName", "userPropName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("userPropName", "appConfigName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("passwordPropName", "appConfigName", "userPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_PWPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	@Override
@@ -766,6 +796,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			throws ParserConfigurationException, InterruptedException,
 			IOException, ParseConnectionDocumentException, SAXException,
 			NamingException, ConnectionException, Exception {
+		
+		
 
 		tracer.log(TraceLevel.TRACE, "Begin initialize()"); //$NON-NLS-1$
 		
@@ -782,13 +814,13 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			
 			tracer.log(TraceLevel.TRACE, "Setting up SSL connection"); //$NON-NLS-1$
 
-			if(context.getParameterNames().contains("keyStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTORE))
 				System.setProperty("javax.net.ssl.keyStore", getAbsolutePath(getKeyStore()));				
-			if(context.getParameterNames().contains("keyStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTOREPW))
 				System.setProperty("javax.net.ssl.keyStorePassword", getKeyStorePassword());				
-			if(context.getParameterNames().contains("trustStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTORE))
 				System.setProperty("javax.net.ssl.trustStore",  getAbsolutePath(getTrustStore()));			
-			if(context.getParameterNames().contains("trustStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTOREPW))
 				System.setProperty("javax.net.ssl.trustStorePassword",  getTrustStorePassword());
 		}
 		
@@ -881,9 +913,30 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	        }
 		}
 
+		
+		checkPrepareJmsHeaderPropertiesAccess(context, streamSchema);
+
 		tracer.log(TraceLevel.TRACE, "End initialize()"); //$NON-NLS-1$
 	}
 
+	
+	/**
+	 * Check and prepare this operator's access to JMS Header property values.
+	 * 
+	 * @param context	This operator's context data
+	 */
+	private void checkPrepareJmsHeaderPropertiesAccess(OperatorContext context, StreamSchema streamSchema) {
+ 
+        if((context.getParameterNames().contains(JMSOpConstants.PARAM_JMS_HEADER_PROPS))) {
+        	
+        	operatorAccessesJMSHeaderPropertyValues = true;
+        	patTriplets = new ArrayList<PropertyAttributeType>();
+        	
+        	JmsHeaderHelper.prepareJmsHeaderPropertiesAccess(context, streamSchema, patTriplets, logger, tracer);
+        }
+	}
+
+	
 	protected String getAbsolutePath(String filePath) {
 		if(filePath == null) 
 			return null;
@@ -1062,6 +1115,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
     				// the message was read successfully
     				case SUCCESSFUL_MESSAGE:
     					handleJmsHeaderValues(msg, dataTuple);
+    					writeJmsHeaderPropertyValuesIntoTuple(msg, dataTuple);
     					dataOutputPort.submit(dataTuple);
     					break;
     				default:
@@ -1223,6 +1277,102 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			outTuple.setObject(jmsRedeliveredAttrIdx, new Boolean(msg.getJMSRedelivered()));
 		}
 	}
+
+
+	/**
+	 * Reads JMS Header property values from the current
+	 * JMS message and stores them in output tuple attributes
+	 * according to the mapping defined via 'jmsHeaderProperties'
+	 * parameter.
+	 *  
+	 * @param msg			The current JMS message.
+	 * @param outTuple		The output tuple.
+	 */
+	private void writeJmsHeaderPropertyValuesIntoTuple(Message msg, OutputTuple outTuple) {
+		
+		// If we do not access property values, return
+		if(! operatorAccessesJMSHeaderPropertyValues ) return;
+
+
+		try {
+			// If the message has no property values, return
+			if(! msg.getPropertyNames().hasMoreElements()) return;
+			
+			for(PropertyAttributeType pat : patTriplets) {
+				
+				PropertyType	typeSpec	= pat.getTypeSpecification();
+				String			propName	= pat.getPropertyName();
+				int				attrIdx		= pat.getAttributeIdx();
+				
+				if(msg.propertyExists(propName)) {
+
+					switch (typeSpec) {
+					case BOOL:
+						{
+							boolean value = msg.getBooleanProperty(propName);
+							outTuple.setObject(attrIdx, new Boolean(value));
+						}
+						break;
+					case BYTE:
+						{
+							byte value = msg.getByteProperty(propName);
+							outTuple.setObject(attrIdx, new Byte(value));
+						}
+						break;
+					case SHORT:
+						{
+							short value = msg.getShortProperty(propName);
+							outTuple.setObject(attrIdx, new Short(value));
+						}
+						break;
+					case INT:
+						{
+							int value = msg.getIntProperty(propName);
+							outTuple.setObject(attrIdx, new Integer(value));
+						}
+						break;
+					case LONG:
+						{
+							long value = msg.getLongProperty(propName);
+							outTuple.setObject(attrIdx, new Long(value));
+						}
+						break;
+					case FLOAT:
+						{
+							float value = msg.getFloatProperty(propName);
+							outTuple.setObject(attrIdx, new Float(value));
+						}
+						break;
+					case DOUBLE:
+						{
+							double value = msg.getDoubleProperty(propName);
+							outTuple.setObject(attrIdx, new Double(value));
+						}
+						break;
+					case STRING:
+						{
+							String value = msg.getStringProperty(propName);
+							outTuple.setObject(attrIdx, new RString(value));
+						}
+						break;
+					case OBJECT:
+						{
+							Object value = msg.getObjectProperty(propName);
+							outTuple.setObject(attrIdx, value);
+						}
+						break;
+					}
+				}
+				else {
+					tracer.log(TraceLevel.DEBUG, "JMS Header property not contained in current message: " + propName);	//$NON-NLS-1$
+				}
+			}
+		}
+		catch (JMSException e) {
+			String errMsg = Messages.getString("ERROR_WHILE_READING_JMSHEADERPROPS", e.getMessage());	//$NON-NLS-1$
+			logger.log(LogLevel.ERROR, errMsg);
+		}
+	}
 	
 	
 	/**
@@ -1239,24 +1389,6 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	}
 
 
-	/**
-	 * Handles the property values of the current message.
-	 *  
-	 * @param msg			The current JMS message.
-	 * @param outTuple		The output tuple.
-	 * @throws JMSException 
-	 */
-//	private void handleJmsMessagePropertyValues(Message msg, OutputTuple outTuple) throws JMSException {
-//		Enumeration<String> propertyNames = msg.getPropertyNames();
-//		
-//		while (propertyNames.hasMoreElements()) {
-//			String name = propertyNames.nextElement();
-//			
-//			
-//		}
-//	}
-
-	
 	// Send the error message on to the error output port if one is specified
 	private void sendOutputErrorMsg(String errorMessage) {
 		OutputTuple errorTuple = errorOutputPort.newTuple();
@@ -1516,6 +1648,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "       the operator discards the entire message and logs a run time error.\\n" +  //$NON-NLS-1$
 "     * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter is set\\n" +  //$NON-NLS-1$
 "       to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
+" * Run time errors that cause an error message to be logged.\\n" +  //$NON-NLS-1$
+"     * Errors found in the configuration of **jmsHeaderProperties** are written to the log during the operator's initialization.\\n" +  //$NON-NLS-1$
 " * Compile time errors.\\n" +  //$NON-NLS-1$
 "   * The `JMSSource` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
 "     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$

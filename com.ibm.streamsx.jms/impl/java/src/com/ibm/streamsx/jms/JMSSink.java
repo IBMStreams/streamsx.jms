@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,6 +55,8 @@ import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
 import com.ibm.streamsx.jms.helper.ConnectionDocumentParser;
 import com.ibm.streamsx.jms.helper.JMSConnectionHelper;
 import com.ibm.streamsx.jms.helper.JmsClasspathUtil;
+import com.ibm.streamsx.jms.helper.JmsHeaderHelper;
+import com.ibm.streamsx.jms.helper.PropertyAttributeType;
 import com.ibm.streamsx.jms.helper.PropertyProvider;
 import com.ibm.streamsx.jms.i18n.Messages;
 import com.ibm.streamsx.jms.messagehandler.BytesMessageHandler;
@@ -64,6 +69,7 @@ import com.ibm.streamsx.jms.messagehandler.WBE22TextMessageHandler;
 import com.ibm.streamsx.jms.messagehandler.WBETextMessageHandler;
 import com.ibm.streamsx.jms.messagehandler.XMLTextMessageHandler;
 import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.PropertyType;
 import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 
@@ -232,7 +238,18 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     
     // unique id to identify messages on CR queue
     private String operatorUniqueID = null;
-    
+
+	
+	// Values to handle access to JMS Header property values
+	private String jmsHeaderProperties = null;
+	
+	// The broken down JMS Header property / attribute / type triplets
+	private List<PropertyAttributeType> patTriplets = null;
+
+	// Flag to signal if the operator accesses JMS Header property values
+	private boolean operatorAccessesJMSHeaderPropertyValues = false;
+	
+	
 	// application configuration name
     private String appConfigName = null;
     
@@ -405,8 +422,16 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	public void setConnectionDocument(String connectionDocument) {
 		this.connectionDocument = connectionDocument;
 	}
-	
 
+    public String getJmsHeaderProperties() {
+        return jmsHeaderProperties;
+    }
+
+    @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
+    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+        this.jmsHeaderProperties = jmsHeaderProperties;
+    }
+    
 	public String getConnectionDocument() {
 	
 		if (connectionDocument == null)
@@ -580,10 +605,10 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 			}
 		}
 		
-		if((checker.getOperatorContext().getParameterNames().contains("appConfigName"))) { //$NON-NLS-1$
-        	String appConfigName = checker.getOperatorContext().getParameterValues("appConfigName").get(0); //$NON-NLS-1$
-			String userPropName = checker.getOperatorContext().getParameterValues("userPropName").get(0); //$NON-NLS-1$
-			String passwordPropName = checker.getOperatorContext().getParameterValues("passwordPropName").get(0); //$NON-NLS-1$
+		if((checker.getOperatorContext().getParameterNames().contains(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME))) { //$NON-NLS-1$
+        	String appConfigName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME).get(0); //$NON-NLS-1$
+			String userPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_USERPROPNAME).get(0); //$NON-NLS-1$
+			String passwordPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_PWPROPNAME).get(0); //$NON-NLS-1$
 			
 			
 			PropertyProvider provider = new PropertyProvider(checker.getOperatorContext().getPE(), appConfigName);
@@ -628,9 +653,9 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		}
 		
 		// Make sure if appConfigName is specified then both userPropName and passwordPropName are needed
-		checker.checkDependentParameters("appConfigName", "userPropName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("userPropName", "appConfigName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("passwordPropName", "appConfigName", "userPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_PWPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	@Override
@@ -653,13 +678,13 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 			
 			tracer.log(TraceLevel.TRACE, "Setting up SSL connection"); //$NON-NLS-1$
 
-			if(context.getParameterNames().contains("keyStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTORE))
 				System.setProperty("javax.net.ssl.keyStore", getAbsolutePath(getKeyStore()));				
-			if(context.getParameterNames().contains("keyStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTOREPW))
 				System.setProperty("javax.net.ssl.keyStorePassword", getKeyStorePassword());				
-			if(context.getParameterNames().contains("trustStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTORE))
 				System.setProperty("javax.net.ssl.trustStore",  getAbsolutePath(getTrustStore()));			
-			if(context.getParameterNames().contains("trustStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTOREPW))
 				System.setProperty("javax.net.ssl.trustStorePassword",  getTrustStorePassword());
 		}
 		
@@ -777,8 +802,28 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		// register for data governance
 		registerForDataGovernance(connectionDocumentParser.getProviderURL(), connectionDocumentParser.getDestination());
 
+		checkPrepareJmsHeaderPropertiesAccess(context, streamSchema);
+
 		tracer.log(TraceLevel.TRACE, "End initialize()"); //$NON-NLS-1$
 	}
+
+	
+	/**
+	 * Check and prepare this operator's access to JMS Header property values.
+	 * 
+	 * @param context	This operator's context data
+	 */
+	private void checkPrepareJmsHeaderPropertiesAccess(OperatorContext context, StreamSchema streamSchema) {
+ 
+        if((context.getParameterNames().contains(JMSOpConstants.PARAM_JMS_HEADER_PROPS))) {
+        	
+        	operatorAccessesJMSHeaderPropertyValues = true;
+        	patTriplets = new ArrayList<PropertyAttributeType>();
+        	
+        	JmsHeaderHelper.prepareJmsHeaderPropertiesAccess(context, streamSchema, patTriplets, logger, tracer);
+        }
+	}
+
 
 	protected String getAbsolutePath(String filePath) {
 		if(filePath == null) 
@@ -817,6 +862,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
                 // Construct the JMS message based on the message type taking the
                 // attributes from the tuple. If the session is closed, we will be thrown out by JMSException.
                 message = mhandler.convertTupleToMessage(tuple, jmsConnectionHelper.getSession());
+                writeJmsHeaderPropertyValuesIntoJmsMessage(tuple, message);
                 msgSent = jmsConnectionHelper.sendMessage(message);
             }
             catch (UnsupportedEncodingException | ParserConfigurationException | TransformerException e) {
@@ -859,6 +905,93 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		}
 	}
 
+
+
+	/**
+	 * Reads JMS Header property values from the current
+	 * input tuple and stores them in property values of the
+	 * current JMS message according to the mapping defined
+	 * via 'jmsHeaderProperties' parameter.
+	 *  
+	 * @param msg		The current JMS message.
+	 * @param tuple		The output tuple.
+	 */
+	private void writeJmsHeaderPropertyValuesIntoJmsMessage(Tuple tuple, Message msg) {
+		
+		// If we do not access property values, return
+		if(! operatorAccessesJMSHeaderPropertyValues ) return;
+		
+		try {
+			for(PropertyAttributeType pat : patTriplets) {
+				
+				PropertyType	typeSpec	= pat.getTypeSpecification();
+				String			propName	= pat.getPropertyName();
+				int				attrIdx		= pat.getAttributeIdx();
+				
+				switch (typeSpec) {
+				case BOOL:
+					{
+						boolean value = tuple.getBoolean(attrIdx);
+						msg.setBooleanProperty(propName, value);
+					}
+					break;
+				case BYTE:
+					{
+						byte value = tuple.getByte(attrIdx);
+						msg.setByteProperty(propName, value);
+					}
+					break;
+				case SHORT:
+					{
+						short value = tuple.getShort(attrIdx);
+						msg.setShortProperty(propName, value);
+					}
+					break;
+				case INT:
+					{
+						int value = tuple.getInt(attrIdx);
+						msg.setIntProperty(propName, value);
+					}
+					break;
+				case LONG:
+					{
+						long value = tuple.getLong(attrIdx);
+						msg.setLongProperty(propName, value);
+					}
+					break;
+				case FLOAT:
+					{
+						float value = tuple.getFloat(attrIdx);
+						msg.setFloatProperty(propName, value);
+					}
+					break;
+				case DOUBLE:
+					{
+						double value = tuple.getDouble(attrIdx);
+						msg.setDoubleProperty(propName, value);
+					}
+					break;
+				case STRING:
+					{
+						String value = tuple.getString(attrIdx);
+						msg.setStringProperty(propName, value);
+					}
+					break;
+				case OBJECT:
+					{
+						Object value = tuple.getObject(attrIdx);
+						msg.setObjectProperty(propName, value);
+					}
+					break;
+				}
+			}
+		}
+		catch (JMSException e) {
+			String errMsg = Messages.getString("ERROR_WHILE_WRITING_JMSHEADERPROPS", e.getMessage());	//$NON-NLS-1$
+			logger.log(LogLevel.ERROR, errMsg);
+		}
+
+	}
 
 	// Method to send the error message to the error output port if one is
 	// specified
@@ -1047,6 +1180,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 "       The discarded message is not sent to the WebSphere MQ or Apache Active MQ queue or topic.\\n" +  //$NON-NLS-1$
 "    * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter\\n" +  //$NON-NLS-1$
 "      is set to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
+" * Run time errors that cause an error message to be logged.\\n" +  //$NON-NLS-1$
+"     * Errors found in the configuration of **jmsHeaderProperties** are written to the log during the operator's initialization.\\n" +  //$NON-NLS-1$
 " * Compile time errors.\\n" +  //$NON-NLS-1$
 "  * The `JMSink` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
 "    The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
