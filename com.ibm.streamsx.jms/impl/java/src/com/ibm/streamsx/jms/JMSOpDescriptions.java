@@ -18,7 +18,7 @@ public class JMSOpDescriptions {
             + "attribute names. The properties can be of the following types:\\n"	//$NON-NLS-1$
             + "\\n"																	//$NON-NLS-1$
             + "----------------------------------------------------------------\\n"	//$NON-NLS-1$
-            + "| Type specifier | Java / Property type | SPL / Attribute type |\\n"	//$NON-NLS-1$
+            + "| **Type specifier** | **Java / Property type** | **SPL / Attribute type** |\\n"	//$NON-NLS-1$
             + "|--------------------------------------------------------------|\\n"	//$NON-NLS-1$
             + "| bool           | boolean              | boolean              |\\n"	//$NON-NLS-1$
             + "|--------------------------------------------------------------|\\n"	//$NON-NLS-1$
