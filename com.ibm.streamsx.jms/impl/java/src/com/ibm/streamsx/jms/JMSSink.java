@@ -1172,6 +1172,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 "    * A negative length is specified for a string or blob data types in the native schema for a map, stream, xml, wbe, or wbe22 message class.\\n" +  //$NON-NLS-1$
 "    * A negative length other than -2 or -4 is specified for a string/blob data type in the native_schema for a bytes message class.\\n" +  //$NON-NLS-1$
 "    * The message_class attribute is empty, but the &lt;native_schema> element is not empty.\\n" +  //$NON-NLS-1$
+"    * The **jmsHeaderProperties** parameter is specified but the contained configuration is erroneous.\\n" +  //$NON-NLS-1$
 " * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
 "  * The `JMSink` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
 "    The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
@@ -1180,8 +1181,6 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 "       The discarded message is not sent to the WebSphere MQ or Apache Active MQ queue or topic.\\n" +  //$NON-NLS-1$
 "    * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter\\n" +  //$NON-NLS-1$
 "      is set to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
-" * Run time errors that cause an error message to be logged.\\n" +  //$NON-NLS-1$
-"     * Errors found in the configuration of **jmsHeaderProperties** are written to the log during the operator's initialization.\\n" +  //$NON-NLS-1$
 " * Compile time errors.\\n" +  //$NON-NLS-1$
 "  * The `JMSink` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
 "    The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$

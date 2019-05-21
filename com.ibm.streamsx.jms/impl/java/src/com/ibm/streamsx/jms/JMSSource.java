@@ -25,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.ibm.streams.operator.Attribute;
 import com.ibm.streams.operator.OperatorContext;
 import com.ibm.streams.operator.OperatorContext.ContextCheck;
 import com.ibm.streams.operator.OutputTuple;
@@ -1633,6 +1632,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "     * The **jmsReplyToOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
 "     * The **jmsTypeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
 "     * The **jmsRedeliveredOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.\\n" +  //$NON-NLS-1$
+"     * The **jmsHeaderProperties** parameter is specified but the contained configuration is erroneous.\\n" +  //$NON-NLS-1$
 " * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
 "   * The `JMSSource` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
 "     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
@@ -1648,8 +1648,6 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "       the operator discards the entire message and logs a run time error.\\n" +  //$NON-NLS-1$
 "     * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter is set\\n" +  //$NON-NLS-1$
 "       to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
-" * Run time errors that cause an error message to be logged.\\n" +  //$NON-NLS-1$
-"     * Errors found in the configuration of **jmsHeaderProperties** are written to the log during the operator's initialization.\\n" +  //$NON-NLS-1$
 " * Compile time errors.\\n" +  //$NON-NLS-1$
 "   * The `JMSSource` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
 "     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$

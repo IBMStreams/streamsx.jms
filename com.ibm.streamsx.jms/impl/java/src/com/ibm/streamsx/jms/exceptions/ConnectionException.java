@@ -5,10 +5,13 @@
 
 package com.ibm.streamsx.jms.exceptions;
 
-// This class is used for throwing exceptions
-// which comes during connection creation or 
-// sending/receiving JMS Messages.
 
+/**
+ * This class is used for throwing exceptions
+ * which comes during connection creation or
+ * sending/receiving JMS Messages.
+ *
+ */
 public class ConnectionException extends Exception {
 	
 	/**
