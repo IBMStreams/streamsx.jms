@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.1.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; <a class="xref" href="op$com.ibm.streamsx.jms$JMSSource.html">JMSSource</a> &gt; Examples</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; <a class="xref" href="op$com.ibm.streamsx.jms$JMSSource.html">JMSSource</a> &gt; Examples</p>
 
 </div>
 
@@ -37,7 +37,7 @@ composite Main {
 graph
 // JMSSource operator with the default etc/connections.xml(relative to the application directory)
 // connections document
-stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt;
+stream &lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream  = JMSSource()
 {
 	param
@@ -46,18 +46,18 @@ MyPersonNamesStream  = JMSSource()
 }
 
 // JMSSource operator with fully qualified name of connections.xml
-stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt;
+stream &lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream = JMSSource()
 {
 	param
-		connectionDocument : "/home/streamsuser/connections/JMSconnections.xml";
-		connection         : "amqConn";
+		connectionDocument :"/home/streamsuser/connections/JMSconnections.xml";
+		connection         : "amqConn"; 		
 		access             : "amqAccess";
 }
 
 // JMSSource operator with optional output error port specified
-(stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt; MyPersonNamesStream ;
-stream &amp;lt;rstring errorMessage&amp;gt; ErrorStream) = JMSSource()
+(stream &lt;int32 id, rstring fname, rstring lname&gt; MyPersonNamesStream ;
+stream &lt;rstring errorMessage&gt; ErrorStream) = JMSSource()
 {
 	param
 		connection : "amqConn";
@@ -65,7 +65,7 @@ stream &amp;lt;rstring errorMessage&amp;gt; ErrorStream) = JMSSource()
 }
 
 // JMSSource operator with optional initDelay and reconnectionPolicy specified
-stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt;
+stream &lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream = JMSSource()
 {
 	param
@@ -76,7 +76,7 @@ MyPersonNamesStream = JMSSource()
 }
 
 // JMSSource Operator with optional period and reconnectionPolicy specified
-stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt;
+stream &lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream = JMSSource()
 {
 	param
@@ -87,7 +87,7 @@ MyPersonNamesStream = JMSSource()
 }
 
 // JMSSource operator with reconnectionPolicy specified as BoundedRetry
-stream &amp;lt;int32 id, rstring fname, rstring lname&amp;gt;
+stream &lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream = JMSSource()
 {
 	param
@@ -97,7 +97,7 @@ MyPersonNamesStream = JMSSource()
 		reconnectionBound : 2;
 		period: 1.20;
 }
-}
+}                                                                                           
 </pre>
 
 

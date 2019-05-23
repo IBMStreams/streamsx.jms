@@ -31,6 +31,8 @@ userdocs:
     children:
       - title: "Overview"
         url: /docs/user/overview
+      - title: "Migrating from Messaging Toolkit"
+        url: /docs/user/migration
       - title: "JMSSample"
         url: /samples/JMSSample/doc/spldoc/html
       - title: "JMSSink"
@@ -49,8 +51,10 @@ developerdocs:
     children:
       - title: "Developer Documentation Overview"
         url: /docs/developer/overview
-      - title: "SPL Doc current"
+      - title: "SPL Doc current (v1.1.0)"
         url: /doc/spldoc/html
+      - title: "SPL Doc v1.0.0"
+        url: /doc/spldoc/1_0_0/html
       - title: "SPL Doc v0.0.1"
         url: /doc/spldoc/0_0_1/html
 

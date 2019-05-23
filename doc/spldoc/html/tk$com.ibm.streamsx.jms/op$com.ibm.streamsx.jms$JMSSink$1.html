@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; <a class="xref" href="op$com.ibm.streamsx.jms$JMSSink.html">JMSSink</a> &gt; Examples</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.1.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; <a class="xref" href="op$com.ibm.streamsx.jms$JMSSink.html">JMSSink</a> &gt; Examples</p>
 
 </div>
 
@@ -36,7 +36,7 @@
 composite Main {
 graph
 
-stream &lt;int32 id, rstring fname, rstring lname&gt;
+stream &amp;lt;int32 id, rstring fname, rstring lname&gt;
 MyPersonNamesStream  = Beacon()
 {
 param
@@ -48,52 +48,52 @@ param
 () as  MySink1 = JMSSink( MyPersonNamesStream )
 {
 param
-	connection : "amqConn";	
-	access     : "amqAccess";
+	connection : &amp;quot;amqConn&amp;quot;;	
+	access     : &amp;quot;amqAccess&amp;quot;;
 }
 
 // JMSSink operator with fully qualified name of connections document
 () as  MySink2 = JMSSink( MyPersonNamesStream )
 {
 param
-	connectionDocument   : "/home/streamsuser/connections/JMSconnections.xml";
-	connection           : "amqConn";
-	access               : "amqAccess";
+	connectionDocument   : &amp;quot;/home/streamsuser/connections/JMSconnections.xml&amp;quot;;
+	connection           : &amp;quot;amqConn&amp;quot;;
+	access               : &amp;quot;amqAccess&amp;quot;;
 }
 
 // JMSSink operator with optional output error port specified
-stream &lt;tuple&lt; int32 id, rstring fname, rstring lname&gt; inTuple, rstring errorMessage&gt;
+stream &amp;lt;tuple&amp;lt; int32 id, rstring fname, rstring lname&gt; inTuple, rstring errorMessage&gt;
 MySink3  = JMSSink(MyPersonNamesStream )
 {
 param
-	connection : "amqConn";	
-	access     : "amqAccess";
+	connection : &amp;quot;amqConn&amp;quot;;	
+	access     : &amp;quot;amqAccess&amp;quot;;
 }
 // JMSSink operator with reconnectionPolicy specified as  NoRetry
 () as  MySink4 = JMSSink( MyPersonNamesStream )
 {
 param
-	connection         : "amqConn";
-	access             : "amqAccess";
-	reconnectionPolicy : "NoRetry";
+	connection         : &amp;quot;amqConn&amp;quot;;
+	access             : &amp;quot;amqAccess&amp;quot;;
+	reconnectionPolicy : &amp;quot;NoRetry&amp;quot;;
 }
 
 // JMSSink operator with optional period and reconnectionPolicy specified
 () as  MySink5 = JMSSink( MyPersonNamesStream )
 {
 param
-	connection: "amqConn";	
-	access: "amqAccess";
-	reconnectionPolicy : "InfiniteRetry";
+	connection: &amp;quot;amqConn&amp;quot;;	
+	access: &amp;quot;amqAccess&amp;quot;;
+	reconnectionPolicy : &amp;quot;InfiniteRetry&amp;quot;;
 	period: 1.20;
 }
 // JMSSink operator with reconnectionPolicy specified as BoundedRetry
 () as  MySink6 = JMSSink( MyPersonNamesStream )
 {
 param
-	connection: "amqConn";	
-	access: "amqAccess"; 
-	reconnectionPolicy : "BoundedRetry";
+	connection: &amp;quot;amqConn&amp;quot;;	
+	access: &amp;quot;amqAccess&amp;quot;; 
+	reconnectionPolicy : &amp;quot;BoundedRetry&amp;quot;;
 	reconnectionBound : 2;
 	period: 1.20;
 }
@@ -108,33 +108,33 @@ param
 
 <div class="p">
 <pre class="pre codeblock">
-&lt;st:connections 	xmlns:st="http://www.ibm.com/xmlns/prod/streams/adapters"
-					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&amp;lt;st:connections 	xmlns:st=&amp;quot;http://www.ibm.com/xmlns/prod/streams/adapters&amp;quot;
+					xmlns:xsi=&amp;quot;http://www.w3.org/2001/XMLSchema-instance&amp;quot;&gt;
 
-&lt;connection_specifications&gt;
-	&lt;connection_specification name="amqConn"&gt;
-	 &lt;JMS initial_context="org.apache.activemq.jndi.ActiveMQInitialContextFactory"
-		provider_url = "tcp://machine1.com:61616"
-		connection_factory="ConnectionFactory"/&gt;
-	&lt;/connection_specification&gt;
-&lt;/connection_specifications&gt;
+&amp;lt;connection_specifications&gt;
+	&amp;lt;connection_specification name=&amp;quot;amqConn&amp;quot;&gt;
+	 &amp;lt;JMS initial_context=&amp;quot;org.apache.activemq.jndi.ActiveMQInitialContextFactory&amp;quot;
+		provider_url = &amp;quot;tcp://machine1.com:61616&amp;quot;
+		connection_factory=&amp;quot;ConnectionFactory&amp;quot;/&gt;
+	&amp;lt;/connection_specification&gt;
+&amp;lt;/connection_specifications&gt;
 
-&lt;access_specifications&gt;
-	&lt;access_specification name="amqAccess"&gt;
-		&lt;destination identifier="dynamicQueues/MapQueue" message_class="bytes" /&gt;
-			&lt;uses_connection connection="amqConn"/&gt;
-			&lt;native_schema&gt;
-				&lt;attribute name="id" type="Int" /&gt;
-				&lt;attribute name="fname" type="Bytes" length="15" /&gt;
-				&lt;attribute name="lname" type="Bytes" length="20" /&gt;
-				&lt;attribute name="age" type="Int" /&gt;
-				&lt;attribute name="gender" type="Bytes" length="1" /&gt;
-				&lt;attribute name="score" type="Float" /&gt;
-				&lt;attribute name="total" type="Double" /&gt;
-			&lt;/native_schema&gt;
-	&lt;/access_specification&gt;
-&lt;/access_specifications&gt;
-&lt;/st:connections&gt;
+&amp;lt;access_specifications&gt;
+	&amp;lt;access_specification name=&amp;quot;amqAccess&amp;quot;&gt;
+		&amp;lt;destination identifier=&amp;quot;dynamicQueues/MapQueue&amp;quot; message_class=&amp;quot;bytes&amp;quot; /&gt;
+			&amp;lt;uses_connection connection=&amp;quot;amqConn&amp;quot;/&gt;
+			&amp;lt;native_schema&gt;
+				&amp;lt;attribute name=&amp;quot;id&amp;quot; type=&amp;quot;Int&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;fname&amp;quot; type=&amp;quot;Bytes&amp;quot; length=&amp;quot;15&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;lname&amp;quot; type=&amp;quot;Bytes&amp;quot; length=&amp;quot;20&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;age&amp;quot; type=&amp;quot;Int&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;gender&amp;quot; type=&amp;quot;Bytes&amp;quot; length=&amp;quot;1&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;score&amp;quot; type=&amp;quot;Float&amp;quot; /&gt;
+				&amp;lt;attribute name=&amp;quot;total&amp;quot; type=&amp;quot;Double&amp;quot; /&gt;
+			&amp;lt;/native_schema&gt;
+	&amp;lt;/access_specification&gt;
+&amp;lt;/access_specifications&gt;
+&amp;lt;/st:connections&gt;
 </pre>
 
 

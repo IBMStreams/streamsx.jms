@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.1.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; JMSSink</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; JMSSink</p>
 
 </div>
 
@@ -43,7 +43,7 @@
 <div class="section"><h2 class="title sectiontitle">SSL Support
 </h2>
 
-<p class="p">The <tt class="ph tt">JMSSink</tt> operator provides support for SSL via these parameters: <em class="ph i">sslConnection</em>, <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em>. When <em class="ph i">sslConnection</em> is set to <tt class="ph tt">true</tt>, the <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em> parameters must be set. 
+<p class="p">The <tt class="ph tt">JMSSink</tt> operator provides support for SSL via these parameters: <em class="ph i">sslConnection</em>, <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em>.  When <em class="ph i">sslConnection</em> is set to <tt class="ph tt">true</tt>, the <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em> parameters must be set. 
 </p>
 
 <p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">JMSSink</tt> operator configures SSL by setting the JVM system properties via calls to <tt class="ph tt">System.property()</tt>.  Java operators that are fused into the same PE share the same JVM. This implies that any other Java operators fused into the  same PE as the <tt class="ph tt">JMSSink</tt> operator will have these SSL properties set. If this is undesirable, then the <tt class="ph tt">JMSSink</tt> operator should be placed into it's own PE. 
@@ -98,9 +98,7 @@
 
 <li class="li"> A negative length other than -2 or -4 is specified for a string/blob data type in the native_schema for a bytes message class.</li>
 
-<li class="li"> The message_class attribute is empty, but the &amp;lt;native_schema&gt; element is not empty.</li>
-
-<li class="li"> The <strong class="ph b">jmsHeaderProperties</strong> parameter is specified but the contained configuration is erroneous.</li>
+<li class="li"> The message_class attribute is empty, but the &lt;native_schema&gt; element is not empty.</li>
 
 </ul>
 </li>
@@ -170,14 +168,14 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 19 parameters.
+  <dd class="dd">This operator supports 18 parameters.
 <p class="p"> Required: 
 <a class="xref" href="#spldoc_operator__parameter__access">access</a>, <a class="xref" href="#spldoc_operator__parameter__connection">connection</a>
 
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__consistentRegionQueueName">consistentRegionQueueName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsHeaderProperties">jmsHeaderProperties</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxMessageSendRetries">maxMessageSendRetries</a>, <a class="xref" href="#spldoc_operator__parameter__messageSendRetryDelay">messageSendRetryDelay</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
+<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__consistentRegionQueueName">consistentRegionQueueName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxMessageSendRetries">maxMessageSendRetries</a>, <a class="xref" href="#spldoc_operator__parameter__messageSendRetryDelay">messageSendRetryDelay</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
 
 </p>
 </dd>
@@ -213,7 +211,7 @@
 
    <dd class="dd">
 
-<p class="p">The <tt class="ph tt">JMSSink</tt> operator is configurable with a single input port. This input port is a data port and is required. The input port is non-mutating and its punctuation mode is Oblivious. 
+<p class="p">The <tt class="ph tt">JMSSink</tt> operator is configurable with a single input port.  This input port is a data port and is required. The input port is non-mutating and its punctuation mode is Oblivious. 
 </p>
    </dd>
 
@@ -265,7 +263,7 @@
 
    <dd class="dd">
 
-<p class="p">The <tt class="ph tt">JMSSink</tt> operator is configurable with an optional output port that submits the error message and the tuple(optional) that caused this error. The optional output port is mutating and its punctuation mode is Free. This optional error output port contains an optional first attribute that contains the input tuple that caused the error and a second attribute of type rstring that contains the error message. Only one error message is sent for each failed tuple. 
+<p class="p">The <tt class="ph tt">JMSSink</tt> operator is configurable with an optional output port that submits the error message and the tuple(optional) that caused this error. The optional output port is mutating and its punctuation mode is Free. This optional error output port contains an optional first attribute that contains the input tuple that caused the error and a second attribute of type rstring that contains the error message. Only one error message is sent for each failed tuple.
 </p>
 
 <p class="p"/>
@@ -303,14 +301,15 @@
 
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
-This operator supports 19 parameters.
+
+
 <p class="p"> Required: 
 <a class="xref" href="#spldoc_operator__parameter__access">access</a>, <a class="xref" href="#spldoc_operator__parameter__connection">connection</a>
 
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__consistentRegionQueueName">consistentRegionQueueName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsHeaderProperties">jmsHeaderProperties</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxMessageSendRetries">maxMessageSendRetries</a>, <a class="xref" href="#spldoc_operator__parameter__messageSendRetryDelay">messageSendRetryDelay</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
+<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__consistentRegionQueueName">consistentRegionQueueName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__maxMessageSendRetries">maxMessageSendRetries</a>, <a class="xref" href="#spldoc_operator__parameter__messageSendRetryDelay">messageSendRetryDelay</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
 
 </p>
 <dl class="dl">
@@ -349,7 +348,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__appConfigName"><!-- --></a><tt class="ph tt">appConfigName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.
+<p class="p">        This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.
 </p>
 <dl class="dl">
 
@@ -380,7 +379,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__codepage"><!-- --></a><tt class="ph tt">codepage</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the code page of the target system that is used to convert ustring for a Bytes message type. If this parameter is specified, it must have exactly one value, which is a String constant. If the parameter is not specified, the operator uses the default value of UTF8. 
+<p class="p">This optional parameter specifies the code page of the target system that is used to convert ustring for a Bytes message type. If this parameter is specified, it must have exactly one value, which is a String constant. If the parameter is not specified, the operator uses the default value of UTF8.
 </p>
 <dl class="dl">
 
@@ -442,7 +441,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__connectionDocument"><!-- --></a><tt class="ph tt">connectionDocument</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the path name of the file that contains the connection and access specifications, which are identified by the connection and access parameters. If the parameter is not specified, the operator uses the file that is in the default location <tt class="ph tt">../etc/connections.xml</tt>. 
+<p class="p">This optional parameter specifies the path name of the file that contains the connection and access specifications, which are identified by the connection and access parameters. If the parameter is not specified, the operator uses the file that is in the default location <tt class="ph tt">../etc/connections.xml</tt>.
 </p>
 <dl class="dl">
 
@@ -473,274 +472,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__consistentRegionQueueName"><!-- --></a><tt class="ph tt">consistentRegionQueueName</tt></dt>
 
 <dd class="dd">
-<p class="p">This is a required parameter if this operator is participating in a consistent region. This parameter specifies the queue to be used to store consistent region specific information and the operator will perform a JNDI lookup with the queue name specified at initialization state. The queue name specified must also exist on the same messaging server where this operator is establishing the connection.
-</p>
-<dl class="dl">
-
- <dt class="dt dlterm">Properties </dt>
-
- <dd class="dd">
-  <ul class="sl simple">
-  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-  </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-  </ul>
-
- </dd>
-
-
-</dl>
-
-</dd>
-
-
-
-<dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsHeaderProperties"><!-- --></a><tt class="ph tt">jmsHeaderProperties</tt></dt>
-
-<dd class="dd">
-<p class="p">Specifies the mapping between JMS Header property values andStreams tuple attributes. The format of the mapping is: 
-</p>
-
-<p class="p"><tt class="ph tt">propertyName1/streamsAttributeName1/typeSpecifier1,propertyName2/streamsAttributeName2/typeSpecifier2,...</tt> 
-</p>
-
-<p class="p">Leading and trailing spaces are trimmed from property and
-</p>
-
-<p class="p">attribute names. The properties can be of the following types:
-</p>
-
-<div class="p">
-
-<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
-
-
-
-<tbody class="tbody">
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">Type specifier</strong>
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">Java / Property type</strong>
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">SPL / Attribute type</strong>
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">bool
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">boolean
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">boolean
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">byte
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">byte
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int8
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">short
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">short
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int16
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">int
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int32
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">long
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">long
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int64
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">float
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float32
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">double
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">double
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float64
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">string
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">String
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">rstring
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">object
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">Object
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">ustring, uint8, uint16, uint32, uint64
-</p>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-</div>
-
-</div>
-
-<p class="p">If property or attribute type do not match the specified type, an error is logged during operator initialization.
+<p class="p">        This is a required parameter if this operator is participating in a consistent region. This parameter specifies the queue to be used to store consistent region specific information and the operator will perform a JNDI lookup with the queue name specified at initialization state. The queue name specified must also exist on the same messaging server where this operator is establishing the connection.
 </p>
 <dl class="dl">
 
@@ -788,6 +520,9 @@ This operator supports 19 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -819,6 +554,9 @@ This operator supports 19 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -833,7 +571,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__maxMessageSendRetries"><!-- --></a><tt class="ph tt">maxMessageSendRetries</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the number of successive retries that are attempted for a message if a failure occurs when the message is sent. The default value is zero; no retries are attempted. 
+<p class="p">This optional parameter specifies the number of successive retries that are attempted for a message if a failure occurs when the message is sent.  The default value is zero; no retries are attempted.
 </p>
 <dl class="dl">
 
@@ -864,7 +602,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__messageSendRetryDelay"><!-- --></a><tt class="ph tt">messageSendRetryDelay</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the time in milliseconds to wait before the next delivery attempt. If the <strong class="ph b">maxMessageSendRetries</strong> is specified, you must also specify a value for this parameter. 
+<p class="p">This optional parameter specifies the time in milliseconds to wait before the next delivery attempt. If the <strong class="ph b">maxMessageSendRetries</strong> is specified, you must also specify a value for this parameter.
 </p>
 <dl class="dl">
 
@@ -895,7 +633,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__passwordPropName"><!-- --></a><tt class="ph tt">passwordPropName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.
+<p class="p">        This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.
 </p>
 <dl class="dl">
 
@@ -926,7 +664,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__period"><!-- --></a><tt class="ph tt">period</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the time period in seconds the operator waits before it tries to reconnect. It is an optional parameter of type float64. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified, otherwise a compile time error occurs. The default value for the <strong class="ph b">period</strong> parameter is <tt class="ph tt">60</tt>. 
+<p class="p">This parameter specifies the time period in seconds the operator waits before it tries to reconnect. It is an optional parameter of type float64. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified, otherwise a compile time error occurs. The default value for the <strong class="ph b">period</strong> parameter is <tt class="ph tt">60</tt>.		 
 </p>
 <dl class="dl">
 
@@ -1036,6 +774,9 @@ This operator supports 19 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1065,6 +806,9 @@ This operator supports 19 parameters.
      </li>
 
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
      </li>
 
   </ul>
@@ -1098,6 +842,9 @@ This operator supports 19 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1112,7 +859,7 @@ This operator supports 19 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__userPropName"><!-- --></a><tt class="ph tt">userPropName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.
+<p class="p">        This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.
 </p>
 <dl class="dl">
 
@@ -1140,6 +887,30 @@ This operator supports 19 parameters.
 
 
 </dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__codetemplate">Code Templates</a></strong></p>
+  <dl class="dl">
+    
+     <dt class="dt dlterm">JMSSink</dt>
+
+     <dd class="dd">
+       <pre class="pre codeblock">
+() as ${sinkPrefix}Sink = JMSSink(${inputStream})   {
+            param
+            	connection : "${ConnectionSpecificationName}";
+                access : "${AccessSpecificationName}";
+        }
+      </pre>
+
+     <p class="p"/>
+
+     </dd>
+
+    
+  </dl>
 
 </div>
 
@@ -1194,12 +965,12 @@ This operator supports 19 parameters.
 
  <dl class="dl">
  
-  <dt class="dt dlterm">Operator class library
+  <dt class="dt dlterm">Java operator class library
   </dt>
 
   <dd class="dd"/>
 
-  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.jms.jar, ../../impl/lib/com.ibm.streamsx.jms.jar, ../../opt/downloaded/*</tt></dd>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/java/bin, ../../impl/lib/com.ibm.streamsx.jms.jar</tt></dd>
 
  
  </dl>

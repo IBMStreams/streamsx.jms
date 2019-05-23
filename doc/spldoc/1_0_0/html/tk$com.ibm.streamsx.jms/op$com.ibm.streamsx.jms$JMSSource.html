@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.1.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; JMSSource</p>
+<a class="xref" href="../toolkits/toolkits.html">IBMStreams com.ibm.streamsx.jms Toolkit</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms 1.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.jms.html">com.ibm.streamsx.jms</a> &gt; JMSSource</p>
 
 </div>
 
@@ -32,7 +32,7 @@
 
 <div class="section">
 
-<p class="p">The <tt class="ph tt">JMSSource</tt> operator reads data from a WebSphere MQ or an Apache Active MQ queue or a topic and creates tuples from the read data.
+<p class="p">The <tt class="ph tt">JMSSource</tt> operator reads data from a WebSphere MQ or an Apache Active MQ queue or a topic and creates tuples from the read data. 
 </p>
 
 <p class="p">The <tt class="ph tt">JMSSource</tt> operator converts each WebSphere MQ or Apache Active MQ message to a separate tuple and sends it to the output stream. A single message is converted into a single tuple.
@@ -43,10 +43,10 @@
 <div class="section"><h2 class="title sectiontitle">SSL Support
 </h2>
 
-<p class="p">The <tt class="ph tt">JMSSource</tt> operator provides support for SSL via these parameters: <em class="ph i">sslConnection</em>, <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em>. When <em class="ph i">sslConnection</em> is set to <tt class="ph tt">true</tt>, the <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em> parameters must be set.
+<p class="p">The <tt class="ph tt">JMSSource</tt> operator provides support for SSL via these parameters: <em class="ph i">sslConnection</em>, <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em>.  When <em class="ph i">sslConnection</em> is set to <tt class="ph tt">true</tt>, the <em class="ph i">keyStore</em>, <em class="ph i">keyStorePassword</em> and <em class="ph i">trustStore</em> parameters must be set. 
 </p>
 
-<p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">JMSSource</tt> operator configures SSL by setting the JVM system properties via calls to <tt class="ph tt">System.property()</tt>. Java operators that are fused into the same PE share the same JVM. This implies that any other Java operators fused into the  same PE as the <tt class="ph tt">JMSSource</tt> operator will have these SSL properties set. If this is undesirable, then the <tt class="ph tt">JMSSource</tt> operator should be placed into it's own PE.
+<p class="p"><strong class="ph b">Note:</strong> The <tt class="ph tt">JMSSource</tt> operator configures SSL by setting the JVM system properties via calls to <tt class="ph tt">System.property()</tt>.  Java operators that are fused into the same PE share the same JVM. This implies that any other Java operators fused into the  same PE as the <tt class="ph tt">JMSSource</tt> operator will have these SSL properties set. If this is undesirable, then the <tt class="ph tt">JMSSource</tt> operator should be placed into it's own PE. 
 </p>
 
 </div>
@@ -57,7 +57,7 @@
 <p class="p">The <tt class="ph tt">JMSSource</tt> operator can participate in a consistent region. The operator must be at the start of a consistent region.
 </p>
 
-<p class="p">The operator supports periodic and operator-driven consistent region policies. If the consistent region policy is set as operatorDriven, the triggerCount parameter must be specified. The operator initiates a checkpoint after number of tuples specified by the triggerCount parameter have been processed. If the consistent region policy is set as periodic, the operator respects the period setting and establishes consistent states accordingly.
+<p class="p">The operator supports periodic and operator-driven consistent region policies. If the consistent region policy is set as operatorDriven, the triggerCount parameter must be specified. The operator initiates a checkpoint after number of tuples specified by the triggerCount parameter have been processed.  If the consistent region policy is set as periodic, the operator respects the period setting and establishes consistent states accordingly. 
 </p>
 
 <p class="p">When a message queue is consumed by multiple message consumers, i.e. multiple <tt class="ph tt">JMSSource</tt> instances are used to read messages from a same queue, then deterministic routing is required. This requirement can be achieved through the messageSelector parameter. For example, if an SPL application has two JMSSource operator instances and a JMS property named "group" is present on messages that can take value of either 'g1' or 'g2', then each JMSSource operator instance can be assigned in the following manner:
@@ -67,8 +67,8 @@
 <pre class="pre codeblock">
 {
 	param
-		connectionDocument : "/home/streamsuser/connections/JMSconnections.xml";
-		connection         : "amqConn";
+		connectionDocument :"/home/streamsuser/connections/JMSconnections.xml";
+		connection         : "amqConn"; 		
 		access             : "amqAccess";
 		messageSelector    : "group = 'g1'";
 }
@@ -81,8 +81,8 @@
 <pre class="pre codeblock">
 {
 	param
-        connectionDocument : "/home/streamsuser/connections/JMSconnections.xml";
-		connection         : "amqConn";
+        connectionDocument :"/home/streamsuser/connections/JMSconnections.xml";
+		connection         : "amqConn"; 		
 		access             : "amqAccess";
 		messageSelector    : "group = 'g2'";
 }
@@ -114,19 +114,23 @@
 
 <li class="li"> A MapMessage or StreamMessage contains attributes whose data type does not match the data type        that is specified in the native schema and the conversion fails.</li>
 
-<li class="li"> The message_class attribute in the access specification is bytes, stream, or map, and the name        and type attributes of the &amp;lt;native_schema&amp;gt; element do not match the name and type attribute in the output stream schema.</li>
+<li class="li"> The message_class attribute in the access specification is bytes, stream, or map, and the name        and type attributes of the &lt;native_schema&gt; element do not match the name and type attribute in the output stream schema.</li>
 
-<li class="li"> When the message_class attribute is bytes and in the &amp;lt;native_schema&amp;gt; element,        the type attribute is string or bytes and the length attribute is missing.</li>
+<li class="li"> When the message_class attribute is bytes and in the &lt;native_schema&gt; element,        the type attribute is string or bytes and the length attribute is missing.</li>
 
 <li class="li"> An invalid value is specified for the message_class attribute of the access specification.</li>
 
-<li class="li"> If an attribute occurs more than once in the &amp;lt;native_schema&amp;gt; element.</li>
+<li class="li"> If an attribute occurs more than once in the &lt;native_schema&gt; element.</li>
 
 <li class="li"> The <strong class="ph b">connectionsDocument</strong> parameter refers to an file that does not exist.</li>
 
 <li class="li"> The <strong class="ph b">connectionsDocument</strong> parameter is not specified and the <tt class="ph tt">connections.xml</tt> file is not present in the default location.</li>
 
-<li class="li"> The <strong class="ph b">jmsDestinationOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.     * The <strong class="ph b">jmsDeliveryModeOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.</li>
+<li class="li"> The <strong class="ph b">messageIDOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.</li>
+
+<li class="li"> The <strong class="ph b">jmsDestinationOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.</li>
+
+<li class="li"> The <strong class="ph b">jmsDeliveryModeOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.</li>
 
 <li class="li"> The <strong class="ph b">jmsExpirationOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.</li>
 
@@ -144,8 +148,6 @@
 
 <li class="li"> The <strong class="ph b">jmsRedeliveredOutAttrName</strong> parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.</li>
 
-<li class="li"> The <strong class="ph b">jmsHeaderProperties</strong> parameter is specified but the contained configuration is erroneous.</li>
-
 </ul>
 </li>
 
@@ -156,7 +158,7 @@
 <ul class="ul">
 <li class="li"> The <tt class="ph tt">JMSSource</tt> operator throws an exception and discards the message in the following cases.      The trace and log information for these exceptions is logged in the console logs      and also output to the optional output port if the application is configured to use the optional port.
 <ul class="ul">
-<li class="li"> The <tt class="ph tt">JMSSource</tt> operator reads a message that does not match the message class in the &amp;lt;native_schema&amp;gt; element.</li>
+<li class="li"> The <tt class="ph tt">JMSSource</tt> operator reads a message that does not match the message class in the &lt;native_schema&gt; element.</li>
 
 <li class="li"> When a negative length (-2 or -4) is specified in the native schema for bytes and string data types        and the message class is bytes, the operator expects the JMS message to start with a 2 or 4-byte length field.        If there are insufficient bytes remaining in the JMS message,        the operator discards the entire message and logs a run time error.</li>
 
@@ -225,7 +227,7 @@
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__jmsCorrelationIDOutAttrName">jmsCorrelationIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDeliveryModeOutAttrName">jmsDeliveryModeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDestinationOutAttrName">jmsDestinationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsExpirationOutAttrName">jmsExpirationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsHeaderProperties">jmsHeaderProperties</a>, <a class="xref" href="#spldoc_operator__parameter__jmsMessageIDOutAttrName">jmsMessageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsPriorityOutAttrName">jmsPriorityOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsRedeliveredOutAttrName">jmsRedeliveredOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsReplyToOutAttrName">jmsReplyToOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTimestampOutAttrName">jmsTimestampOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTypeOutAttrName">jmsTypeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__messageSelector">messageSelector</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__triggerCount">triggerCount</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
+<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__jmsCorrelationIDOutAttrName">jmsCorrelationIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDeliveryModeOutAttrName">jmsDeliveryModeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDestinationOutAttrName">jmsDestinationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsExpirationOutAttrName">jmsExpirationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsMessageIDOutAttrName">jmsMessageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsPriorityOutAttrName">jmsPriorityOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsRedeliveredOutAttrName">jmsRedeliveredOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsReplyToOutAttrName">jmsReplyToOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTimestampOutAttrName">jmsTimestampOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTypeOutAttrName">jmsTypeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__messageIDOutAttrName">messageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__messageSelector">messageSelector</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__triggerCount">triggerCount</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
 
 </p>
 </dd>
@@ -356,7 +358,7 @@ This operator supports 29 parameters.
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__jmsCorrelationIDOutAttrName">jmsCorrelationIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDeliveryModeOutAttrName">jmsDeliveryModeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDestinationOutAttrName">jmsDestinationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsExpirationOutAttrName">jmsExpirationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsHeaderProperties">jmsHeaderProperties</a>, <a class="xref" href="#spldoc_operator__parameter__jmsMessageIDOutAttrName">jmsMessageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsPriorityOutAttrName">jmsPriorityOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsRedeliveredOutAttrName">jmsRedeliveredOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsReplyToOutAttrName">jmsReplyToOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTimestampOutAttrName">jmsTimestampOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTypeOutAttrName">jmsTypeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__messageSelector">messageSelector</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__triggerCount">triggerCount</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
+<a class="xref" href="#spldoc_operator__parameter__appConfigName">appConfigName</a>, <a class="xref" href="#spldoc_operator__parameter__codepage">codepage</a>, <a class="xref" href="#spldoc_operator__parameter__connectionDocument">connectionDocument</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__jmsCorrelationIDOutAttrName">jmsCorrelationIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDeliveryModeOutAttrName">jmsDeliveryModeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsDestinationOutAttrName">jmsDestinationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsExpirationOutAttrName">jmsExpirationOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsMessageIDOutAttrName">jmsMessageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsPriorityOutAttrName">jmsPriorityOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsRedeliveredOutAttrName">jmsRedeliveredOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsReplyToOutAttrName">jmsReplyToOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTimestampOutAttrName">jmsTimestampOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__jmsTypeOutAttrName">jmsTypeOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__keyStore">keyStore</a>, <a class="xref" href="#spldoc_operator__parameter__keyStorePassword">keyStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__messageIDOutAttrName">messageIDOutAttrName</a>, <a class="xref" href="#spldoc_operator__parameter__messageSelector">messageSelector</a>, <a class="xref" href="#spldoc_operator__parameter__passwordPropName">passwordPropName</a>, <a class="xref" href="#spldoc_operator__parameter__period">period</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionBound">reconnectionBound</a>, <a class="xref" href="#spldoc_operator__parameter__reconnectionPolicy">reconnectionPolicy</a>, <a class="xref" href="#spldoc_operator__parameter__sslConnection">sslConnection</a>, <a class="xref" href="#spldoc_operator__parameter__triggerCount">triggerCount</a>, <a class="xref" href="#spldoc_operator__parameter__trustStore">trustStore</a>, <a class="xref" href="#spldoc_operator__parameter__trustStorePassword">trustStorePassword</a>, <a class="xref" href="#spldoc_operator__parameter__userPropName">userPropName</a>
 
 </p>
 <dl class="dl">
@@ -395,7 +397,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__appConfigName"><!-- --></a><tt class="ph tt">appConfigName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.
+<p class="p">        This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.
 </p>
 <dl class="dl">
 
@@ -519,7 +521,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
 
 <dd class="dd">
-<p class="p">Delay in seconds before the operator starts producing tuples.
+<p class="p">This optional parameter specifies the number of seconds that the <tt class="ph tt">JMSSource</tt> operator delays before it starts to produce tuples. During the delay, the operator is blocked.
 </p>
 <dl class="dl">
 
@@ -550,7 +552,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsCorrelationIDOutAttrName"><!-- --></a><tt class="ph tt">jmsCorrelationIDOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSCorrelationID to, the specified attribute in output stream must be of type rstring.
+<p class="p">        Output attribute on output data stream to assign JMSCorrelationID to, the specified attribute in output stream must be of type rstring.
 </p>
 <dl class="dl">
 
@@ -581,7 +583,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsDeliveryModeOutAttrName"><!-- --></a><tt class="ph tt">jmsDeliveryModeOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSDeliveryMode to, the specified attribute in output stream must be of type int32.
+<p class="p">        Output attribute on output data stream to assign JMSDeliveryMode to, the specified attribute in output stream must be of type int32.
 </p>
 <dl class="dl">
 
@@ -612,7 +614,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsDestinationOutAttrName"><!-- --></a><tt class="ph tt">jmsDestinationOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSDestination to, the specified attribute in output stream must be of type rstring.
+<p class="p">        Output attribute on output data stream to assign JMSDestination to, the specified attribute in output stream must be of type rstring.
 </p>
 <dl class="dl">
 
@@ -643,274 +645,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsExpirationOutAttrName"><!-- --></a><tt class="ph tt">jmsExpirationOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSExpiration to, the specified attribute in output stream must be of type int64.
-</p>
-<dl class="dl">
-
- <dt class="dt dlterm">Properties </dt>
-
- <dd class="dd">
-  <ul class="sl simple">
-  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-  </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-  </ul>
-
- </dd>
-
-
-</dl>
-
-</dd>
-
-
-
-<dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsHeaderProperties"><!-- --></a><tt class="ph tt">jmsHeaderProperties</tt></dt>
-
-<dd class="dd">
-<p class="p">Specifies the mapping between JMS Header property values andStreams tuple attributes. The format of the mapping is: 
-</p>
-
-<p class="p"><tt class="ph tt">propertyName1/streamsAttributeName1/typeSpecifier1,propertyName2/streamsAttributeName2/typeSpecifier2,...</tt> 
-</p>
-
-<p class="p">Leading and trailing spaces are trimmed from property and
-</p>
-
-<p class="p">attribute names. The properties can be of the following types:
-</p>
-
-<div class="p">
-
-<div class="tablenoborder"><table cellpadding="4" cellspacing="0" summary="" class="table" frame="border" border="1" rules="all">
-
-
-
-<tbody class="tbody">
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">Type specifier</strong>
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">Java / Property type</strong>
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p"><strong class="ph b">SPL / Attribute type</strong>
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">bool
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">boolean
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">boolean
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">byte
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">byte
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int8
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">short
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">short
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int16
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">int
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int32
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">long
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">long
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">int64
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">float
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float32
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">double
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">double
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">float64
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">string
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">String
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">rstring
-</p>
-
-</td>
-
-</tr>
-
-<tr class="row">
-<td class="entry" colspan="1" valign="top">
-<p class="p">object
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">Object
-</p>
-
-</td>
-
-<td class="entry" colspan="1" valign="top">
-<p class="p">ustring, uint8, uint16, uint32, uint64
-</p>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-</div>
-
-</div>
-
-<p class="p">If property or attribute type do not match the specified type, an error is logged during operator initialization.
+<p class="p">        Output attribute on output data stream to assign JMSExpiration to, the specified attribute in output stream must be of type int64.
 </p>
 <dl class="dl">
 
@@ -941,7 +676,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsMessageIDOutAttrName"><!-- --></a><tt class="ph tt">jmsMessageIDOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSMessageID to, the specified attribute in output stream must be of type rstring.
+<p class="p">        Output attribute on output data stream to assign JMSMessageID to, the specified attribute in output stream must be of type rstring.
 </p>
 <dl class="dl">
 
@@ -972,7 +707,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsPriorityOutAttrName"><!-- --></a><tt class="ph tt">jmsPriorityOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSPriority to, the specified attribute in output stream must be of type int32.
+<p class="p">        Output attribute on output data stream to assign JMSPriority to, the specified attribute in output stream must be of type int32.
 </p>
 <dl class="dl">
 
@@ -1003,7 +738,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsRedeliveredOutAttrName"><!-- --></a><tt class="ph tt">jmsRedeliveredOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean.
+<p class="p">        Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean.
 </p>
 <dl class="dl">
 
@@ -1034,7 +769,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsReplyToOutAttrName"><!-- --></a><tt class="ph tt">jmsReplyToOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSReplyTo to, the specified attribute in output stream must be of type rstring.
+<p class="p">        Output attribute on output data stream to assign JMSReplyTo to, the specified attribute in output stream must be of type rstring.
 </p>
 <dl class="dl">
 
@@ -1065,7 +800,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsTimestampOutAttrName"><!-- --></a><tt class="ph tt">jmsTimestampOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSTimestamp to, the specified attribute in output stream must be of type int64.
+<p class="p">        Output attribute on output data stream to assign JMSTimestamp to, the specified attribute in output stream must be of type int64.
 </p>
 <dl class="dl">
 
@@ -1096,7 +831,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__jmsTypeOutAttrName"><!-- --></a><tt class="ph tt">jmsTypeOutAttrName</tt></dt>
 
 <dd class="dd">
-<p class="p">Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring.
+<p class="p">        Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring.
 </p>
 <dl class="dl">
 
@@ -1144,6 +879,9 @@ This operator supports 29 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1175,6 +913,40 @@ This operator supports 29 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+  </ul>
+
+ </dd>
+
+
+</dl>
+
+</dd>
+
+
+
+<dt class="dt dlterm"><a name="spldoc_operator__parameter__messageIDOutAttrName"><!-- --></a><tt class="ph tt">messageIDOutAttrName</tt></dt>
+
+<dd class="dd">
+<p class="p">        Output attribute on output data stream to assign message ID to, the specified attribute in output stream must be of type rstring.
+</p>
+<dl class="dl">
+
+ <dt class="dt dlterm">Properties </dt>
+
+ <dd class="dd">
+  <ul class="sl simple">
+  <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+  </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
   </ul>
 
  </dd>
@@ -1189,7 +961,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__messageSelector"><!-- --></a><tt class="ph tt">messageSelector</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter is used as JMS Message Selector.
+<p class="p">        This optional parameter is used as JMS Message Selector.
 </p>
 <dl class="dl">
 
@@ -1220,7 +992,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__passwordPropName"><!-- --></a><tt class="ph tt">passwordPropName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.
+<p class="p">        This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.
 </p>
 <dl class="dl">
 
@@ -1251,7 +1023,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__period"><!-- --></a><tt class="ph tt">period</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the time period in seconds the operator waits before it tries to reconnect. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified, otherwise a compile time error occurs. The default value for the <strong class="ph b">period</strong> parameter is <tt class="ph tt">60</tt>. 
+<p class="p">This optional parameter specifies the time period in seconds the operator waits before it tries to reconnect. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified, otherwise a compile time error occurs. The default value for the <strong class="ph b">period</strong> parameter is <tt class="ph tt">60</tt>.
 </p>
 <dl class="dl">
 
@@ -1282,7 +1054,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__reconnectionBound"><!-- --></a><tt class="ph tt">reconnectionBound</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies the number of successive connections that are attempted for an operator. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified and set to <tt class="ph tt">BoundedRetry</tt>, otherwise a run time error occurs. If the <strong class="ph b">reconnectionBound</strong> parameter is specified and the <strong class="ph b">reconnectionPolicy</strong> parameter is not set, a compile time error occurs. The default value for the <strong class="ph b">reconnectionBound</strong> parameter is <tt class="ph tt">5</tt>. 
+<p class="p">This optional parameter specifies the number of successive connections that are attempted for an operator. You can use this parameter only when the <strong class="ph b">reconnectionPolicy</strong> parameter is specified and set to <tt class="ph tt">BoundedRetry</tt>, otherwise a run time error occurs. If the <strong class="ph b">reconnectionBound</strong> parameter is specified and the <strong class="ph b">reconnectionPolicy</strong> parameter is not set, a compile time error occurs. The default value for the <strong class="ph b">reconnectionBound</strong> parameter is <tt class="ph tt">5</tt>.
 </p>
 <dl class="dl">
 
@@ -1313,7 +1085,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__reconnectionPolicy"><!-- --></a><tt class="ph tt">reconnectionPolicy</tt></dt>
 
 <dd class="dd">
-<p class="p">This is an optional parameter that specifies the reconnection policy. The valid values are <tt class="ph tt">NoRetry</tt>, <tt class="ph tt">InfiniteRetry</tt>, and <tt class="ph tt">BoundedRetry</tt>. If the parameter is not specified, the reconnection policy is set to <tt class="ph tt">BoundedRetry</tt> with a <strong class="ph b">reconnectionBound</strong> of <tt class="ph tt">5</tt> and a <strong class="ph b">period</strong> of 60 seconds. 
+<p class="p">This is an optional parameter that specifies the reconnection policy. The valid values are <tt class="ph tt">NoRetry</tt>, <tt class="ph tt">InfiniteRetry</tt>, and <tt class="ph tt">BoundedRetry</tt>. If the parameter is not specified, the reconnection policy is set to <tt class="ph tt">BoundedRetry</tt> with a <strong class="ph b">reconnectionBound</strong> of <tt class="ph tt">5</tt> and a <strong class="ph b">period</strong> of 60 seconds.
 </p>
 <dl class="dl">
 
@@ -1361,6 +1133,9 @@ This operator supports 29 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1375,7 +1150,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__triggerCount"><!-- --></a><tt class="ph tt">triggerCount</tt></dt>
 
 <dd class="dd">
-<p class="p">This optional parameter specifies how many messages are submitted before the JMSSource operator starts to drain the pipeline and establish a consistent state. This parameter must be greater than zero and must be set if the JMSSource operator is the start operator of an operatorDriven consistent region.
+<p class="p">This optional parameter specifies how many messages are submitted before the JMSSource operator starts to drain the pipeline and establish a consistent state.  This parameter must be greater than zero and must be set if the JMSSource operator is the start operator of an operatorDriven consistent region.
 </p>
 <dl class="dl">
 
@@ -1423,6 +1198,9 @@ This operator supports 29 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1454,6 +1232,9 @@ This operator supports 29 parameters.
      <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
      </li>
 
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
   </ul>
 
  </dd>
@@ -1468,7 +1249,7 @@ This operator supports 29 parameters.
 <dt class="dt dlterm"><a name="spldoc_operator__parameter__userPropName"><!-- --></a><tt class="ph tt">userPropName</tt></dt>
 
 <dd class="dd">
-<p class="p">This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.
+<p class="p">        This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.
 </p>
 <dl class="dl">
 
@@ -1496,6 +1277,30 @@ This operator supports 29 parameters.
 
 
 </dl>
+
+</div>
+
+<div class="section">
+<p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__codetemplate">Code Templates</a></strong></p>
+  <dl class="dl">
+    
+     <dt class="dt dlterm">JMSSource</dt>
+
+     <dd class="dd">
+       <pre class="pre codeblock">
+stream&lt;${streamType}&gt; ${streamName} = JMSSource()   {
+	      param
+            	connection : "${ConnectionSpecificationName}";
+                access : "${AccessSpecificationName}";
+          }
+      </pre>
+
+     <p class="p"/>
+
+     </dd>
+
+    
+  </dl>
 
 </div>
 
@@ -1550,12 +1355,12 @@ This operator supports 29 parameters.
 
  <dl class="dl">
  
-  <dt class="dt dlterm">Operator class library
+  <dt class="dt dlterm">Java operator class library
   </dt>
 
   <dd class="dd"/>
 
-  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/lib/com.ibm.streamsx.jms.jar, ../../impl/lib/com.ibm.streamsx.jms.jar, ../../opt/downloaded/*</tt></dd>
+  <dd class="dd"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__context__dependencies__managedlibrary__libpath">Library Path</a>: <tt class="ph tt">../../impl/java/bin, ../../impl/lib/com.ibm.streamsx.jms.jar</tt></dd>
 
  
  </dl>
