@@ -42,7 +42,7 @@ public enum PropertyType {
 	public static boolean doTypeSpecAndAttributeTypeMatch(PropertyType typeSpecification, Type attributeType) {
 		
 		PropertyType mapsTo = null;
-		
+						
 		switch(attributeType.getMetaType()) {
 			case BOOLEAN:
 				mapsTo = BOOL;
@@ -68,32 +68,35 @@ public enum PropertyType {
 			case RSTRING:
 				mapsTo = STRING;
 				break;
-			case BLOB:
-				mapsTo = OBJECT;
-				break;
-			case BLIST:
-			case BMAP:
-			case BSET:
-			case BSTRING:
-			case COMPLEX32:
-			case COMPLEX64:
-			case DECIMAL128:
-			case DECIMAL32:
-			case DECIMAL64:
-			case ENUM:
-			case LIST:
-			case MAP:
-			case SET:
-			case TIMESTAMP:
-			case TUPLE:
 			case UINT8:
 			case UINT16:
 			case UINT32:
 			case UINT64:
 			case USTRING:
-			case XML:
+				mapsTo = OBJECT;
+				break;
+//			case BLIST:
+//			case BLOB:
+//			case BMAP:
+//			case BSET:
+//			case BSTRING:
+//			case COMPLEX32:
+//			case COMPLEX64:
+//			case DECIMAL128:
+//			case DECIMAL32:
+//			case DECIMAL64:
+//			case ENUM:
+//			case LIST:
+//			case MAP:
+//			case SET:
+//			case TIMESTAMP:
+//			case TUPLE:
+//			case XML:
 			default:
-				// Go with the default null
+				// The types ending here are not supported either
+				// on SPL->JMS side or directly forbidden by the
+				// JMS Header property type restrictions, so we
+				// go with the default null / not supported here.
 		}
 		
 		return (mapsTo == typeSpecification);

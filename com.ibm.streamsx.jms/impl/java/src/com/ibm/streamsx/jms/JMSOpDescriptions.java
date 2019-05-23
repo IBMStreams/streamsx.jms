@@ -36,7 +36,9 @@ public class JMSOpDescriptions {
             + "|--------------------------------------------------------------|\\n"	//$NON-NLS-1$
             + "| string         | String               | rstring              |\\n"	//$NON-NLS-1$
             + "|--------------------------------------------------------------|\\n"	//$NON-NLS-1$
-            + "| object         | Object               | Object               |\\n"	//$NON-NLS-1$		// TODO: Object type in SPL???
+            + "| object         | Object               | ustring, uint8,      |\\n"	//$NON-NLS-1$
+            + "|                |                      | uint16, uint32,      |\\n"	//$NON-NLS-1$
+            + "|                |                      | uint64               |\\n"	//$NON-NLS-1$
             + "----------------------------------------------------------------\\n"	//$NON-NLS-1$
             + "\\n"																	//$NON-NLS-1$
             + "If property or attribute type do not match the specified type, "		//$NON-NLS-1$

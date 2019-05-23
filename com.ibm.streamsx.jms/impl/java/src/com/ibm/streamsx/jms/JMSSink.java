@@ -921,13 +921,13 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		// If we do not access property values, return
 		if(! operatorAccessesJMSHeaderPropertyValues ) return;
 		
-		try {
-			for(PropertyAttributeType pat : patTriplets) {
-				
-				PropertyType	typeSpec	= pat.getTypeSpecification();
-				String			propName	= pat.getPropertyName();
-				int				attrIdx		= pat.getAttributeIdx();
-				
+		for(PropertyAttributeType pat : patTriplets) {
+			
+			PropertyType	typeSpec	= pat.getTypeSpecification();
+			String			propName	= pat.getPropertyName();
+			int				attrIdx		= pat.getAttributeIdx();
+	
+			try {
 				switch (typeSpec) {
 				case BOOL:
 					{
@@ -984,11 +984,13 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 					}
 					break;
 				}
+				
 			}
-		}
-		catch (JMSException e) {
-			String errMsg = Messages.getString("ERROR_WHILE_WRITING_JMSHEADERPROPS", e.getMessage());	//$NON-NLS-1$
-			logger.log(LogLevel.ERROR, errMsg);
+			catch (JMSException e) {
+				String errMsg = Messages.getString("ERROR_WHILE_WRITING_JMSHEADERPROPS", e.getMessage());	//$NON-NLS-1$
+				logger.log(LogLevel.ERROR, errMsg);
+			}
+
 		}
 
 	}
