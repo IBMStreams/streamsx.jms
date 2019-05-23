@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.naming.NamingException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,18 +37,69 @@ import com.ibm.streams.operator.logging.LoggerNames;
 import com.ibm.streams.operator.logging.TraceLevel;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.model.CustomMetric;
+import com.ibm.streams.operator.model.Icons;
+import com.ibm.streams.operator.model.InputPortSet;
+import com.ibm.streams.operator.model.InputPorts;
+import com.ibm.streams.operator.model.Libraries;
+import com.ibm.streams.operator.model.OutputPortSet;
+import com.ibm.streams.operator.model.OutputPorts;
 import com.ibm.streams.operator.model.Parameter;
+import com.ibm.streams.operator.model.PrimitiveOperator;
 import com.ibm.streams.operator.state.Checkpoint;
 import com.ibm.streams.operator.state.ConsistentRegionContext;
 import com.ibm.streams.operator.state.StateHandler;
-import com.ibm.streamsx.jms.common.DataGovernanceUtil;
-import com.ibm.streamsx.jms.common.IGovernanceConstants;
-import com.ibm.streamsx.jms.common.PropertyProvider;
+import com.ibm.streamsx.jms.datagovernance.DataGovernanceUtil;
+import com.ibm.streamsx.jms.datagovernance.IGovernanceConstants;
+import com.ibm.streamsx.jms.exceptions.ConnectionException;
+import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
+import com.ibm.streamsx.jms.helper.ConnectionDocumentParser;
+import com.ibm.streamsx.jms.helper.JMSConnectionHelper;
+import com.ibm.streamsx.jms.helper.JmsClasspathUtil;
+import com.ibm.streamsx.jms.helper.JmsHeaderHelper;
+import com.ibm.streamsx.jms.helper.PropertyAttributeType;
+import com.ibm.streamsx.jms.helper.PropertyProvider;
 import com.ibm.streamsx.jms.i18n.Messages;
+import com.ibm.streamsx.jms.messagehandler.BytesMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.EmptyMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.JMSMessageHandlerImpl;
+import com.ibm.streamsx.jms.messagehandler.MapMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.StreamMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.TextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.WBE22TextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.WBETextMessageHandler;
+import com.ibm.streamsx.jms.messagehandler.XMLTextMessageHandler;
+import com.ibm.streamsx.jms.types.MessageClass;
+import com.ibm.streamsx.jms.types.PropertyType;
+import com.ibm.streamsx.jms.types.ReconnectionPolicies;
 
 
-//The JMSSink operator publishes data from Streams to a JMS Provider queue or a topic.
 
+@PrimitiveOperator(name = "JMSSink", namespace = "com.ibm.streamsx.jms", description = JMSSink.DESC)
+@InputPorts (
+	@InputPortSet(	cardinality = 1,
+					optional = false,
+					windowingMode = InputPortSet.WindowMode.NonWindowed,
+					windowPunctuationInputMode = InputPortSet.WindowPunctuationInputMode.Oblivious,
+					description = "\\n" +  //$NON-NLS-1$
+							"The `JMSSink` operator is configurable with a single input port.\\n" +  //$NON-NLS-1$ 
+							"This input port is a data port and is required. The input port is non-mutating and its punctuation mode is Oblivious.\\n"  //$NON-NLS-1$
+	)
+)
+@OutputPorts (
+	@OutputPortSet(	cardinality = 1,
+					optional = true,
+					windowPunctuationOutputMode = OutputPortSet.WindowPunctuationOutputMode.Free,
+					description = "\\n" +  //$NON-NLS-1$
+							"The `JMSSink` operator is configurable with an optional output port that submits the error message\\n" +  //$NON-NLS-1$
+							"and the tuple(optional) that caused this error.\\n" +  //$NON-NLS-1$
+							"The optional output port is mutating and its punctuation mode is Free.\\n" +  //$NON-NLS-1$
+							"This optional error output port contains an optional first attribute that contains the input tuple\\n" +  //$NON-NLS-1$
+							"that caused the error and a second attribute of type rstring that contains the error message.\\n" +  //$NON-NLS-1$
+							"Only one error message is sent for each failed tuple.\\n"  //$NON-NLS-1$
+	)
+)
+@Icons(location16 = "icons/JMSSink_16.gif", location32 = "icons/JMSSink_32.gif")
+@Libraries({"impl/lib/com.ibm.streamsx.jms.jar", "opt/downloaded/*"})
 public class JMSSink extends AbstractOperator implements StateHandler{
 
 	private static final String CLASS_NAME = JMSSink.class.getName();
@@ -97,17 +151,18 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	Metric nReconnectionAttempts;
 
 	// Initialize the metrices
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+
+	@CustomMetric(kind = Metric.Kind.COUNTER, description = "The number of failed inserts to the WebSphere MQ or the Apache ActiveMQ. Failed insertions can occur when a message is dropped because of a run time error.")	//$NON-NLS-1$
 	public void setnFailedInserts(Metric nFailedInserts) {
 		this.nFailedInserts = nFailedInserts;
 	}
 
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+	@CustomMetric(kind = Metric.Kind.COUNTER, description = "The number of tuples that had truncated attributes when they were converted to a message.")	//$NON-NLS-1$
 	public void setnTruncatedInserts(Metric nTruncatedInserts) {
 		this.nTruncatedInserts = nTruncatedInserts;
 	}
 
-	@CustomMetric(kind = Metric.Kind.COUNTER)
+	@CustomMetric(kind = Metric.Kind.COUNTER, description = "The number of reconnection attempts that are made before a successful connection.")	//$NON-NLS-1$
 	public void setnReconnectionAttempts(Metric nReconnectionAttempts) {
 		this.nReconnectionAttempts = nReconnectionAttempts;
 	}
@@ -115,43 +170,42 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	// Operator parameters
 
 	// This optional parameter codepage speciifes the code page of the target
-	// system using which ustring conversions have to be done for a BytesMessage
-	// type.
+	// system using which ustring conversions have to be done for a BytesMessage type.
 	// If present, it must have exactly one value that is a String constant. If
-	// the parameter is absent, the operator will use the default value of to
-	// UTF-8
+	// the parameter is absent, the operator will use the default value of to UTF-8
 	private String codepage = "UTF-8"; //$NON-NLS-1$
+	
 	// This mandatory parameter access specifies access specification name.
 	private String access;
+	
 	// This mandatory parameter connection specifies name of the connection
 	// specification containing a JMS element
 	private String connection;
+	
 	// This optional parameter connectionDocument specifies the pathname of a
 	// file containing the connection information.
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
 	// filepath ../etc/connections.xml (with respect to the data directory)
 	private String connectionDocument = null;
+	
 	// This optional parameter reconnectionBound specifies the number of
-	// successive connections that
-	// will be attempted for this operator.
+	// successive connections that will be attempted for this operator.
 	// It is an optional parameter of type uint32.
 	// It can appear only when the reconnectionPolicy parameter is set to
 	// BoundedRetry and cannot appear otherwise.If not present the default value
 	// is taken to be 5.
 	private int reconnectionBound = 5;
+	
 	// This optional parameter reconnectionPolicy specifies the reconnection
-	// policy that would be applicable during initial/intermittent connection
-	// failures.
-	// The valid values for this parameter are NoRetry, BoundedRetry and
-	// InfiniteRetry.
+	// policy that would be applicable during initial/intermittent connection failures.
+	// The valid values for this parameter are NoRetry, BoundedRetry and InfiniteRetry.
 	// If not specified, it is set to BoundedRetry with a reconnectionBound of 5
 	// and a period of 60 seconds.
-	private ReconnectionPolicies reconnectionPolicy = ReconnectionPolicies
-			.valueOf("BoundedRetry"); //$NON-NLS-1$
+	private ReconnectionPolicies reconnectionPolicy = ReconnectionPolicies.valueOf("BoundedRetry"); //$NON-NLS-1$
+	
 	// This optional parameter period specifies the time period in seconds which
-	// the
-	// operator will wait before trying to reconnect.
+	// the operator will wait before trying to reconnect.
 	// It is an optional parameter of type float64.
 	// If not specified, the default value is 60.0. It must appear only when the
 	// reconnectionPolicy parameter is specified
@@ -168,6 +222,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 	// Declaring the JMSMEssagehandler,
 	private JMSMessageHandlerImpl mhandler;
+	
 	// Variable to define if the connection attempted to the JMSProvider is the
 	// first one.
 	private boolean isInitialConnection = true;
@@ -183,8 +238,19 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     
     // unique id to identify messages on CR queue
     private String operatorUniqueID = null;
-    
-    // application configuration name
+
+	
+	// Values to handle access to JMS Header property values
+	private String jmsHeaderProperties = null;
+	
+	// The broken down JMS Header property / attribute / type triplets
+	private List<PropertyAttributeType> patTriplets = null;
+
+	// Flag to signal if the operator accesses JMS Header property values
+	private boolean operatorAccessesJMSHeaderPropertyValues = false;
+	
+	
+	// application configuration name
     private String appConfigName = null;
     
     // user property name stored in application configuration
@@ -200,19 +266,21 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     private String keyStorePassword = null;
     
     private String trustStorePassword = null;
-    
+
     private boolean sslConnection;
 
     public boolean isSslConnection() {
 		return sslConnection;
 	}
+    
 
-    @Parameter(optional = true)
+    @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")  //$NON-NLS-1$ 
     public void setSslConnection(boolean sslConnection) {
 		this.sslConnection = sslConnection;
 	}
 
-    @Parameter(optional = true)
+    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    @Parameter(optional = true, description = "This parameter specifies the password for the trustStore given by the *trustStore* parameter. The *sslConnection* parameter must be set to `true` for this parameter to have any effect.")  //$NON-NLS-1$
     public void setTrustStorePassword(String trustStorePassword) {
 		this.trustStorePassword = trustStorePassword;
 	}
@@ -224,8 +292,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     public String getTrustStore() {
 		return trustStore;
 	}
-    
-    @Parameter(optional = true)
+    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    @Parameter(optional = true, description = "This parameter specifies the path to the trustStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")  //$NON-NLS-1$
     public void setTrustStore(String trustStore) {
 		this.trustStore = trustStore;
 	}
@@ -234,7 +302,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return keyStorePassword;
 	}
     
-    @Parameter(optional = true)
+    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    @Parameter(optional = true, description = "This parameter specifies the password for the keyStore given by the *keyStore* parameter. The *sslConnection* parameter must be set to `true` for this parameter to have any effect.")  //$NON-NLS-1$
     public void setKeyStorePassword(String keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
 	}
@@ -243,7 +312,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return keyStore;
 	}
     
-    @Parameter(optional = true)
+    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    @Parameter(optional = true, description = "This parameter specifies the path to the keyStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")  //$NON-NLS-1$
     public void setKeyStore(String keyStore) {
 		this.keyStore = keyStore;
 	}
@@ -252,7 +322,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return appConfigName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the name of application configuration that stores client credential information, the credential specified via application configuration overrides the one specified in connections file.")  //$NON-NLS-1$
 	public void setAppConfigName(String appConfigName) {
 		this.appConfigName = appConfigName;
 	}
@@ -261,7 +331,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return userPropName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the property name of user name in the application configuration. If the appConfigName parameter is specified and the userPropName parameter is not set, a compile time error occurs.")  //$NON-NLS-1$
 	public void setUserPropName(String userPropName) {
 		this.userPropName = userPropName;
 	}
@@ -270,7 +340,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return passwordPropName;
 	}
     
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This parameter specifies the property name of password in the application configuration. If the appConfigName parameter is specified and the passwordPropName parameter is not set, a compile time error occurs.")  //$NON-NLS-1$
 	public void setPasswordPropName(String passwordPropName) {
 		this.passwordPropName = passwordPropName;
 	}
@@ -279,66 +349,89 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return consistentRegionQueueName;
 	}
 
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "This is a required parameter if this operator is participating in a consistent region. This parameter specifies the queue to be used to store consistent region specific information and the operator will perform a JNDI lookup with the queue name specified at initialization state. The queue name specified must also exist on the same messaging server where this operator is establishing the connection.")  //$NON-NLS-1$
 	public void setConsistentRegionQueueName(String consistentRegionQueueName) {
 		this.consistentRegionQueueName = consistentRegionQueueName;
 	}
 
-	// Mandatory parameter access
-	@Parameter(optional = false)
+	@Parameter(optional = false, description = "This mandatory parameter identifies the access specification name.")  //$NON-NLS-1$
 	public void setAccess(String access) {
 		this.access = access;
 	}
 
-	// Mandatory parameter connection
-	@Parameter(optional = false)
+	@Parameter(optional = false, description = "This mandatory parameter identifies the name of the connection specification that contains a JMS element.")  //$NON-NLS-1$
 	public void setConnection(String connection) {
 		this.connection = connection;
 	}
 
-	// Optional parameter codepage
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This optional parameter specifies the code page of the target system that is used to convert ustring for a Bytes message type.\\n" +  //$NON-NLS-1$
+		"If this parameter is specified, it must have exactly one value, which is a String constant.\\n" +  //$NON-NLS-1$
+		"If the parameter is not specified, the operator uses the default value of UTF8.\\n")  //$NON-NLS-1$
 	public void setCodepage(String codepage) {
 		this.codepage = codepage;
 	}
 
-	// Optional parameter reconnectionPolicy
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This is an optional parameter that specifies the reconnection policy.\\n" +  //$NON-NLS-1$
+		"The valid values are `NoRetry`, `InfiniteRetry`, and `BoundedRetry`.\\n" +  //$NON-NLS-1$
+		"If the parameter is not specified, the reconnection policy is set to `BoundedRetry` with a **reconnectionBound** of `5`\\n" +  //$NON-NLS-1$
+		"and a **period** of 60 seconds.")  //$NON-NLS-1$
 	public void setReconnectionPolicy(String reconnectionPolicy) {
 		this.reconnectionPolicy = ReconnectionPolicies
 				.valueOf(reconnectionPolicy);
 	}
 
-	// Optional parameter reconnectionBound
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This optional parameter of type int32 specifies the number of successive connections that are attempted for an operator.\\n" +  //$NON-NLS-1$
+		"You can use this parameter only when the **reconnectionPolicy** parameter is specified and set to `BoundedRetry`,\\n" +  //$NON-NLS-1$
+		"otherwise a run time error occurs.\\n" +  //$NON-NLS-1$
+		"If the **reconnectionBound** parameter is specified and the **reconnectionPolicy** parameter is not set,\\n" +  //$NON-NLS-1$
+		"a compile time error occurs. The default value for the **reconnectionBound** parameter is `5`.\\n")  //$NON-NLS-1$
 	public void setReconnectionBound(int reconnectionBound) {
 		this.reconnectionBound = reconnectionBound;
 	}
 
-	// Optional parameter period
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This parameter specifies the time period in seconds the operator waits before it tries to reconnect.\\n" +  //$NON-NLS-1$
+		"It is an optional parameter of type float64. You can use this parameter only when the **reconnectionPolicy** parameter is specified,\\n" +  //$NON-NLS-1$
+		"otherwise a compile time error occurs. The default value for the **period** parameter is `60`.\\n")  //$NON-NLS-1$
 	public void setPeriod(double period) {
 		this.period = period;
 	}
 	
-	// Optional parameter maxMessageRetries
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This optional parameter specifies the number of successive retries that are attempted for a message\\n" +  //$NON-NLS-1$
+		"if a failure occurs when the message is sent.\\n" +  //$NON-NLS-1$
+		"The default value is zero; no retries are attempted.\\n")  //$NON-NLS-1$
 	public void setMaxMessageSendRetries(int maxMessageSendRetries) {
 		this.maxMessageSendRetries = maxMessageSendRetries;
 	}
 
-	// Optional parameter messageRetryDelay
-	@Parameter(optional = true)
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This optional parameter specifies the time in milliseconds to wait before the next delivery attempt.\\n" +  //$NON-NLS-1$
+		"If the **maxMessageSendRetries** is specified, you must also specify a value for this parameter.\\n")  //$NON-NLS-1$
 	public void setMessageSendRetryDelay(long messageSendRetryDelay) {
 		this.messageSendRetryDelay = messageSendRetryDelay;
 	}
 
-	// Optional parameter connectionDocument
-	@Parameter(optional = true, description="Connection document containing connection information to connect to messaging servers.  If not specified, the connection document is assumed to be application_dir/etc/connections.xml.")
+	@Parameter(optional = true, description = "\\n" +  //$NON-NLS-1$
+		"This optional parameter specifies the path name of the file that contains the connection and access specifications,\\n" +  //$NON-NLS-1$
+		"which are identified by the connection and access parameters.\\n" +  //$NON-NLS-1$
+		"If the parameter is not specified, the operator uses the file that is in the default location `../etc/connections.xml`.\\n")  //$NON-NLS-1$
 	public void setConnectionDocument(String connectionDocument) {
 		this.connectionDocument = connectionDocument;
 	}
-	
+
+    public String getJmsHeaderProperties() {
+        return jmsHeaderProperties;
+    }
+
+    @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
+    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+        this.jmsHeaderProperties = jmsHeaderProperties;
+    }
+    
 	public String getConnectionDocument() {
 	
 		if (connectionDocument == null)
@@ -512,10 +605,10 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 			}
 		}
 		
-		if((checker.getOperatorContext().getParameterNames().contains("appConfigName"))) { //$NON-NLS-1$
-        	String appConfigName = checker.getOperatorContext().getParameterValues("appConfigName").get(0); //$NON-NLS-1$
-			String userPropName = checker.getOperatorContext().getParameterValues("userPropName").get(0); //$NON-NLS-1$
-			String passwordPropName = checker.getOperatorContext().getParameterValues("passwordPropName").get(0); //$NON-NLS-1$
+		if((checker.getOperatorContext().getParameterNames().contains(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME))) { //$NON-NLS-1$
+        	String appConfigName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME).get(0); //$NON-NLS-1$
+			String userPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_USERPROPNAME).get(0); //$NON-NLS-1$
+			String passwordPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_PWPROPNAME).get(0); //$NON-NLS-1$
 			
 			
 			PropertyProvider provider = new PropertyProvider(checker.getOperatorContext().getPE(), appConfigName);
@@ -560,9 +653,9 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		}
 		
 		// Make sure if appConfigName is specified then both userPropName and passwordPropName are needed
-		checker.checkDependentParameters("appConfigName", "userPropName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("userPropName", "appConfigName", "passwordPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		checker.checkDependentParameters("passwordPropName", "appConfigName", "userPropName"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_USERPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_PWPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		checker.checkDependentParameters(JMSOpConstants.PARAM_AUTH_PWPROPNAME, JMSOpConstants.PARAM_AUTH_APPCONFIGNAME, JMSOpConstants.PARAM_AUTH_USERPROPNAME); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	@Override
@@ -585,13 +678,13 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 			
 			tracer.log(TraceLevel.TRACE, "Setting up SSL connection"); //$NON-NLS-1$
 
-			if(context.getParameterNames().contains("keyStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTORE))
 				System.setProperty("javax.net.ssl.keyStore", getAbsolutePath(getKeyStore()));				
-			if(context.getParameterNames().contains("keyStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTOREPW))
 				System.setProperty("javax.net.ssl.keyStorePassword", getKeyStorePassword());				
-			if(context.getParameterNames().contains("trustStore"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTORE))
 				System.setProperty("javax.net.ssl.trustStore",  getAbsolutePath(getTrustStore()));			
-			if(context.getParameterNames().contains("trustStorePassword"))
+			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_TRUSTSTOREPW))
 				System.setProperty("javax.net.ssl.trustStorePassword",  getTrustStorePassword());
 		}
 		
@@ -708,9 +801,29 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 		// register for data governance
 		registerForDataGovernance(connectionDocumentParser.getProviderURL(), connectionDocumentParser.getDestination());
-		
+
+		checkPrepareJmsHeaderPropertiesAccess(context, streamSchema);
+
 		tracer.log(TraceLevel.TRACE, "End initialize()"); //$NON-NLS-1$
 	}
+
+	
+	/**
+	 * Check and prepare this operator's access to JMS Header property values.
+	 * 
+	 * @param context	This operator's context data
+	 */
+	private void checkPrepareJmsHeaderPropertiesAccess(OperatorContext context, StreamSchema streamSchema) {
+ 
+        if((context.getParameterNames().contains(JMSOpConstants.PARAM_JMS_HEADER_PROPS))) {
+        	
+        	operatorAccessesJMSHeaderPropertyValues = true;
+        	patTriplets = new ArrayList<PropertyAttributeType>();
+        	
+        	JmsHeaderHelper.prepareJmsHeaderPropertiesAccess(context, streamSchema, patTriplets, logger, tracer);
+        }
+	}
+
 
 	protected String getAbsolutePath(String filePath) {
 		if(filePath == null) 
@@ -748,13 +861,15 @@ public class JMSSink extends AbstractOperator implements StateHandler{
             try {
                 // Construct the JMS message based on the message type taking the
                 // attributes from the tuple. If the session is closed, we will be thrown out by JMSException.
-                message = mhandler.convertTupleToMessage(tuple,
-                        jmsConnectionHelper.getSession());
+                message = mhandler.convertTupleToMessage(tuple, jmsConnectionHelper.getSession());
+                writeJmsHeaderPropertyValuesIntoJmsMessage(tuple, message);
                 msgSent = jmsConnectionHelper.sendMessage(message);
-            } catch (UnsupportedEncodingException | ParserConfigurationException | TransformerException e) {
+            }
+            catch (UnsupportedEncodingException | ParserConfigurationException | TransformerException e) {
                 tracer.log (LogLevel.ERROR, "Failure creating JMS message from input tuple: " + e.toString()); //$NON-NLS-1$
                 // no further action; tuple is dropped and sent to error port if present
-            } catch (/*JMS*/Exception e) {
+            }
+            catch (/*JMS*/Exception e) {
                 tracer.log (LogLevel.ERROR, "failure creating or sending JMS message: " + e.toString()
                         + ". Trying to reconnect and re-send message"); //$NON-NLS-1$
                 try {
@@ -790,6 +905,96 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		}
 	}
 
+
+
+	/**
+	 * Reads JMS Header property values from the current
+	 * input tuple and stores them in property values of the
+	 * current JMS message according to the mapping defined
+	 * via 'jmsHeaderProperties' parameter.
+	 *  
+	 * @param msg		The current JMS message.
+	 * @param tuple		The output tuple.
+	 */
+	private void writeJmsHeaderPropertyValuesIntoJmsMessage(Tuple tuple, Message msg) {
+		
+		// If we do not access property values, return
+		if(! operatorAccessesJMSHeaderPropertyValues ) return;
+		
+		for(PropertyAttributeType pat : patTriplets) {
+			
+			PropertyType	typeSpec	= pat.getTypeSpecification();
+			String			propName	= pat.getPropertyName();
+			int				attrIdx		= pat.getAttributeIdx();
+	
+			try {
+				switch (typeSpec) {
+				case BOOL:
+					{
+						boolean value = tuple.getBoolean(attrIdx);
+						msg.setBooleanProperty(propName, value);
+					}
+					break;
+				case BYTE:
+					{
+						byte value = tuple.getByte(attrIdx);
+						msg.setByteProperty(propName, value);
+					}
+					break;
+				case SHORT:
+					{
+						short value = tuple.getShort(attrIdx);
+						msg.setShortProperty(propName, value);
+					}
+					break;
+				case INT:
+					{
+						int value = tuple.getInt(attrIdx);
+						msg.setIntProperty(propName, value);
+					}
+					break;
+				case LONG:
+					{
+						long value = tuple.getLong(attrIdx);
+						msg.setLongProperty(propName, value);
+					}
+					break;
+				case FLOAT:
+					{
+						float value = tuple.getFloat(attrIdx);
+						msg.setFloatProperty(propName, value);
+					}
+					break;
+				case DOUBLE:
+					{
+						double value = tuple.getDouble(attrIdx);
+						msg.setDoubleProperty(propName, value);
+					}
+					break;
+				case STRING:
+					{
+						String value = tuple.getString(attrIdx);
+						msg.setStringProperty(propName, value);
+					}
+					break;
+				case OBJECT:
+					{
+						Object value = tuple.getObject(attrIdx);
+						msg.setObjectProperty(propName, value);
+					}
+					break;
+				}
+				
+			}
+			catch (JMSException e) {
+				String errMsg = Messages.getString("ERROR_WHILE_WRITING_JMSHEADERPROPS", e.getMessage());	//$NON-NLS-1$
+				logger.log(LogLevel.ERROR, errMsg);
+			}
+
+		}
+
+	}
+
 	// Method to send the error message to the error output port if one is
 	// specified
 	private void sendOutputErrorMsg(Tuple tuple, String errorMessage)
@@ -797,7 +1002,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 		OutputTuple errorTuple = errorOutputPort.newTuple();
 		String consolidatedErrorMessage = errorMessage;
-		// If the error output port speciifes the optional input tuple, populate
+		// If the error output port specifies the optional input tuple, populate
 		// its elements from the input tuple which caused this error.
 		if (hasOptionalTupleInErrorPort) {
 			Tuple embeddedTuple = embeddedSchema.getTuple(tuple);
@@ -910,4 +1115,182 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	public void retireCheckpoint(long id) throws Exception {
 		logger.log(LogLevel.INFO, "RETIRE_CHECKPOINT", id);		 //$NON-NLS-1$
 	}
+
+
+	public static final String DESC = "\\n" +  //$NON-NLS-1$
+"The `JMSSink` operator creates messages from InfoSphere Streams tuples\\n" +  //$NON-NLS-1$
+"and writes the messages to a WebSphere MQ or an Apache Active MQ queue or topic.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The incoming tuple from InfoSphere Streams can contain one or more attributes, each of which can be of the following data types:\\n" +  //$NON-NLS-1$
+"int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64, boolean, blob, rstring, decimal32,\\n" +  //$NON-NLS-1$
+"decimal64, decimal128, ustring, or timestamp. The input tuple is serialized into a JMS message.\\n" +  //$NON-NLS-1$
+"For the `JMSSink` operator, the following message classes are supported:\\n" +  //$NON-NLS-1$
+"map, stream, bytes, xml, wbe, wbe22, and empty.\\n" +  //$NON-NLS-1$
+"The type of message is specified as the value of the message_class attribute in the connection specifications document.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# SSL Support\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The `JMSSink` operator provides support for SSL via these parameters: *sslConnection*, *keyStore*, *keyStorePassword* and *trustStore*.\\n" +  //$NON-NLS-1$
+"When *sslConnection* is set to `true`, the *keyStore*, *keyStorePassword* and *trustStore* parameters must be set. \\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"**Note:** The `JMSSink` operator configures SSL by setting the JVM system properties via calls to `System.property()`. \\n" +  //$NON-NLS-1$
+"Java operators that are fused into the same PE share the same JVM. This implies that any other Java operators fused into the \\n" +  //$NON-NLS-1$
+"same PE as the `JMSSink` operator will have these SSL properties set. If this is undesirable, then the `JMSSink` operator\\n" +  //$NON-NLS-1$
+"should be placed into it's own PE. \\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# Behavior in a consistent region\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The `JMSSink` operator can be an operator within the reachability graph of a operator-driven consistent region.\\n" +  //$NON-NLS-1$
+"It cannot be the start of a consistent region.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"When this operator is participating in a consistent region, the parameter **consistentRegionQueueName** must be specified.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"`JMSSink` operator is using transacted session to achieve the purpose of consistent region and parameters **reconnectionPolicy**, **reconnectionBound**, **period**, **maxMessageSendRetries** and **messageSendRetryDelay** must not be specified.\\n" +  //$NON-NLS-1$
+"This is due to the fact that if connection problem occurs, the messages sent since the last successful checkpoint would be lost and it is not necessary to continue to process message even after connection is established again.\\n" +  //$NON-NLS-1$
+"In this case the operator needs to reset to the last checkpoint and re-send the messages again, thus re-connection policy would not apply when it is participating in a consistent region\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"# Exceptions\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The following list describes the common types of exceptions that can occur:\\n" +  //$NON-NLS-1$
+" * Run time errors that halt the operator execution.\\n" +  //$NON-NLS-1$
+"  * The `JMSSink` operator throws an exception and terminates in the following cases.\\n" +  //$NON-NLS-1$
+"    For some exceptions, the trace and log information is logged in the console logs\\n" +  //$NON-NLS-1$
+"    and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"    * During the initial connection attempt or during transient reconnection failures,\\n" +  //$NON-NLS-1$
+"      if the **reconnectionPolicy** is set to `NoRetry` and the operator does not have a successful connection,\\n" +  //$NON-NLS-1$
+"      or the **reconnectionPolicy** is set to `BoundedRetry` and the operator does not have a successful connection\\n" +  //$NON-NLS-1$
+"      after the number of attempts that are specified in the **reconnectionBound** parameter. Successive data is lost.\\n" +  //$NON-NLS-1$
+"    * The queue name is unknown.\\n" +  //$NON-NLS-1$
+"    * The queue manager name is unknown.\\n" +  //$NON-NLS-1$
+"    * The operator is unable to connect to the host.\\n" +  //$NON-NLS-1$
+"    * The operator is unable to connect o the port.\\n" +  //$NON-NLS-1$
+"    * There is a mismatch between the data type of one or more attributes in the native schema\\n" +  //$NON-NLS-1$
+"      and the data type of attributes in the input stream.\\n" +  //$NON-NLS-1$
+"    * One or more native schema attributes do not have a matching attribute in the input stream schema.\\n" +  //$NON-NLS-1$
+"    * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
+"    * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
+"    * An invalid value is specified for the message_class attribute of the access specification.\\n" +  //$NON-NLS-1$
+"    * A negative length is specified for a string or blob data types in the native schema for a map, stream, xml, wbe, or wbe22 message class.\\n" +  //$NON-NLS-1$
+"    * A negative length other than -2 or -4 is specified for a string/blob data type in the native_schema for a bytes message class.\\n" +  //$NON-NLS-1$
+"    * The message_class attribute is empty, but the &lt;native_schema> element is not empty.\\n" +  //$NON-NLS-1$
+"    * The **jmsHeaderProperties** parameter is specified but the contained configuration is erroneous.\\n" +  //$NON-NLS-1$
+" * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
+"  * The `JMSink` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
+"    The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
+"    and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"    *  The data being written is longer than the maximum message length specified in the queue.\\n" +  //$NON-NLS-1$
+"       The discarded message is not sent to the WebSphere MQ or Apache Active MQ queue or topic.\\n" +  //$NON-NLS-1$
+"    * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter\\n" +  //$NON-NLS-1$
+"      is set to a value other than `BoundedRetry`.\\n" +  //$NON-NLS-1$
+" * Compile time errors.\\n" +  //$NON-NLS-1$
+"  * The `JMSink` operator throws a compile time error in the following cases.\\n" +  //$NON-NLS-1$
+"    The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
+"    and also output to the optional output port if the application is configured to use the optional port.\\n" +  //$NON-NLS-1$
+"    * The mandatory parameters, connection and access are not specified.\\n" +  //$NON-NLS-1$
+"    * The **period** parameter is specified, but the **reconnectionPolicy** parameter is not specified.\\n" +  //$NON-NLS-1$
+"    * The **reconnectionBound** parameter is specified, but the **reconnectionPolicy** parameter is not specified.\\n" +  //$NON-NLS-1$
+"    * The environment variables **STREAMS_MESSAGING_WMQ_HOME** and **STREAMS_MESSAGING_AMQ_HOME**\\n" +  //$NON-NLS-1$
+"      are not set to the locations where the WMQ and AMQ libraries are installed.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"+ Examples\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"This example show the use of multiple JMSSink operators with different parameter combinations.\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	composite Main {\\n" +  //$NON-NLS-1$
+"	graph\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	stream &lt;int32 id, rstring fname, rstring lname>\\n" +  //$NON-NLS-1$
+"	MyPersonNamesStream  = Beacon()\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		iterations:10u;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with connections document in the default directory ../etc/connections.xml\\n" +  //$NON-NLS-1$
+"	// (relative to the data directory)\\n" +  //$NON-NLS-1$
+"	() as  MySink1 = JMSSink( MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connection : &quot;amqConn&quot;;	\\n" +  //$NON-NLS-1$
+"		access     : &quot;amqAccess&quot;;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with fully qualified name of connections document\\n" +  //$NON-NLS-1$
+"	() as  MySink2 = JMSSink( MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connectionDocument   : &quot;/home/streamsuser/connections/JMSconnections.xml&quot;;\\n" +  //$NON-NLS-1$
+"		connection           : &quot;amqConn&quot;;\\n" +  //$NON-NLS-1$
+"		access               : &quot;amqAccess&quot;;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with optional output error port specified\\n" +  //$NON-NLS-1$
+"	stream &lt;tuple&lt; int32 id, rstring fname, rstring lname> inTuple, rstring errorMessage>\\n" +  //$NON-NLS-1$
+"	MySink3  = JMSSink(MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connection : &quot;amqConn&quot;;	\\n" +  //$NON-NLS-1$
+"		access     : &quot;amqAccess&quot;;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with reconnectionPolicy specified as  NoRetry\\n" +  //$NON-NLS-1$
+"	() as  MySink4 = JMSSink( MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connection         : &quot;amqConn&quot;;\\n" +  //$NON-NLS-1$
+"		access             : &quot;amqAccess&quot;;\\n" +  //$NON-NLS-1$
+"		reconnectionPolicy : &quot;NoRetry&quot;;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with optional period and reconnectionPolicy specified\\n" +  //$NON-NLS-1$
+"	() as  MySink5 = JMSSink( MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connection: &quot;amqConn&quot;;	\\n" +  //$NON-NLS-1$
+"		access: &quot;amqAccess&quot;;\\n" +  //$NON-NLS-1$
+"		reconnectionPolicy : &quot;InfiniteRetry&quot;;\\n" +  //$NON-NLS-1$
+"		period: 1.20;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	// JMSSink operator with reconnectionPolicy specified as BoundedRetry\\n" +  //$NON-NLS-1$
+"	() as  MySink6 = JMSSink( MyPersonNamesStream )\\n" +  //$NON-NLS-1$
+"	{\\n" +  //$NON-NLS-1$
+"	param\\n" +  //$NON-NLS-1$
+"		connection: &quot;amqConn&quot;;	\\n" +  //$NON-NLS-1$
+"		access: &quot;amqAccess&quot;; \\n" +  //$NON-NLS-1$
+"		reconnectionPolicy : &quot;BoundedRetry&quot;;\\n" +  //$NON-NLS-1$
+"		reconnectionBound : 2;\\n" +  //$NON-NLS-1$
+"		period: 1.20;\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"	}\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"The following example shows a sample connections.xml file:\\n" +  //$NON-NLS-1$
+"\\n" +  //$NON-NLS-1$
+"	&lt;st:connections 	xmlns:st=&quot;http://www.ibm.com/xmlns/prod/streams/adapters&quot;\\n" +  //$NON-NLS-1$
+"						xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;>\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	&lt;connection_specifications>\\n" +  //$NON-NLS-1$
+"		&lt;connection_specification name=&quot;amqConn&quot;>\\n" +  //$NON-NLS-1$
+"		 &lt;JMS initial_context=&quot;org.apache.activemq.jndi.ActiveMQInitialContextFactory&quot;\\n" +  //$NON-NLS-1$
+"			provider_url = &quot;tcp://machine1.com:61616&quot;\\n" +  //$NON-NLS-1$
+"			connection_factory=&quot;ConnectionFactory&quot;/>\\n" +  //$NON-NLS-1$
+"		&lt;/connection_specification>\\n" +  //$NON-NLS-1$
+"	&lt;/connection_specifications>\\n" +  //$NON-NLS-1$
+"	\\n" +  //$NON-NLS-1$
+"	&lt;access_specifications>\\n" +  //$NON-NLS-1$
+"		&lt;access_specification name=&quot;amqAccess&quot;>\\n" +  //$NON-NLS-1$
+"			&lt;destination identifier=&quot;dynamicQueues/MapQueue&quot; message_class=&quot;bytes&quot; />\\n" +  //$NON-NLS-1$
+"				&lt;uses_connection connection=&quot;amqConn&quot;/>\\n" +  //$NON-NLS-1$
+"				&lt;native_schema>\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;id&quot; type=&quot;Int&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;fname&quot; type=&quot;Bytes&quot; length=&quot;15&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;lname&quot; type=&quot;Bytes&quot; length=&quot;20&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;age&quot; type=&quot;Int&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;gender&quot; type=&quot;Bytes&quot; length=&quot;1&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;score&quot; type=&quot;Float&quot; />\\n" +  //$NON-NLS-1$
+"					&lt;attribute name=&quot;total&quot; type=&quot;Double&quot; />\\n" +  //$NON-NLS-1$
+"				&lt;/native_schema>\\n" +  //$NON-NLS-1$
+"		&lt;/access_specification>\\n" +  //$NON-NLS-1$
+"	&lt;/access_specifications>\\n" +  //$NON-NLS-1$
+"	&lt;/st:connections>\\n";  //$NON-NLS-1$
+
 }
