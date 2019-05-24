@@ -275,7 +275,12 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
     
     // password property name stored in application configuration
     private String passwordPropName = null;
+
     
+    private boolean sslConnection = false;
+
+    private boolean sslDebug = false;
+
     private String keyStore = null;
     
     private String trustStore = null;
@@ -284,15 +289,23 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
     
     private String trustStorePassword = null;
     
-    private boolean sslConnection;
+    
+    @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")
+    public void setSslConnection(boolean sslConnection) {
+		this.sslConnection = sslConnection;
+	}
 
     public boolean isSslConnection() {
 		return sslConnection;
 	}
 
-    @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")
-    public void setSslConnection(boolean sslConnection) {
-		this.sslConnection = sslConnection;
+    @Parameter(optional=true, description="If SSL/TLS protocol debugging is enabled, all protocol data and information is logged to the console. Use this to debug TLS connection problems. The default is 'false'. ")  //$NON-NLS-1$
+	public void setSslDebug(boolean sslDebug) {
+		this.sslDebug = sslDebug;
+	}
+
+	public boolean isSslDebug() {
+		return sslDebug;
 	}
 
     public String getTrustStorePassword() {
@@ -812,6 +825,11 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		if(isSslConnection()) {
 			
 			tracer.log(TraceLevel.TRACE, "Setting up SSL connection"); //$NON-NLS-1$
+
+			// System.setProperty("com.ibm.jsse2.overrideDefaultTLS","true");
+			
+			if (isSslDebug())
+				System.setProperty("javax.net.debug","true");
 
 			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTORE))
 				System.setProperty("javax.net.ssl.keyStore", getAbsolutePath(getKeyStore()));				

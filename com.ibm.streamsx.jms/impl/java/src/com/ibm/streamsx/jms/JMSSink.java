@@ -259,6 +259,11 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     // password property name stored in application configuration
     private String passwordPropName = null;
     
+
+    private boolean sslConnection = false;
+
+    private boolean sslDebug = false;
+
     private String keyStore = null;
     
     private String trustStore = null;
@@ -267,16 +272,24 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     
     private String trustStorePassword = null;
 
-    private boolean sslConnection;
-
+    
+    
     public boolean isSslConnection() {
 		return sslConnection;
 	}
-    
 
     @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")  //$NON-NLS-1$ 
     public void setSslConnection(boolean sslConnection) {
 		this.sslConnection = sslConnection;
+	}
+
+    @Parameter(optional=true, description="If SSL/TLS protocol debugging is enabled, all protocol data and information is logged to the console. Use this to debug TLS connection problems. The default is 'false'. ")  //$NON-NLS-1$
+	public void setSslDebug(boolean sslDebug) {
+		this.sslDebug = sslDebug;
+	}
+
+	public boolean isSslDebug() {
+		return sslDebug;
 	}
 
     // TODO: expressionMode was set to AttributeFree for trustStorePassword
@@ -292,7 +305,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     public String getTrustStore() {
 		return trustStore;
 	}
-    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    // TODO: expressionMode was set to AttributeFree for trustStore
     @Parameter(optional = true, description = "This parameter specifies the path to the trustStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")  //$NON-NLS-1$
     public void setTrustStore(String trustStore) {
 		this.trustStore = trustStore;
@@ -302,7 +315,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return keyStorePassword;
 	}
     
-    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    // TODO: expressionMode was set to AttributeFree for keyStorePassword
     @Parameter(optional = true, description = "This parameter specifies the password for the keyStore given by the *keyStore* parameter. The *sslConnection* parameter must be set to `true` for this parameter to have any effect.")  //$NON-NLS-1$
     public void setKeyStorePassword(String keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
@@ -312,7 +325,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		return keyStore;
 	}
     
-    // TODO: expressionMode was set to AttributeFree for trustStorePassword
+    // TODO: expressionMode was set to AttributeFree for keyStore
     @Parameter(optional = true, description = "This parameter specifies the path to the keyStore. If a relative path is specified, the path is relative to the application directory. The *sslConnection* parameter must be set to true for this parameter to have any effect.")  //$NON-NLS-1$
     public void setKeyStore(String keyStore) {
 		this.keyStore = keyStore;
@@ -677,6 +690,11 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		if(isSslConnection()) {
 			
 			tracer.log(TraceLevel.TRACE, "Setting up SSL connection"); //$NON-NLS-1$
+			
+			// System.setProperty("com.ibm.jsse2.overrideDefaultTLS","true");
+			
+			if (isSslDebug())
+				System.setProperty("javax.net.debug","true");
 
 			if(context.getParameterNames().contains(JMSOpConstants.PARAM_AUTH_KEYSTORE))
 				System.setProperty("javax.net.ssl.keyStore", getAbsolutePath(getKeyStore()));				
