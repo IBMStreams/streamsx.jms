@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2013, 2014, International Business Machines Corporation
+ * Copyright (C) 2013, 2019, International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
 package com.ibm.streamsx.jms;
@@ -12,7 +12,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.jms.Destination;
@@ -258,11 +261,20 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	// Values to handle access to JMS Header property values
 	private String jmsHeaderProperties = null;
 	
+	// Attribute name in output tuple that receives the map of received JMS Header Properties values
+	private String jmsHeaderPropertiesOutAttrName = null;
+
+	// Index of attribute in output tuple that receives the map of received JMS Header Properties values
+	private int jmsHeaderPropOutAttributeIndex = -1;
+
 	// The broken down JMS Header property / attribute / type triplets
 	private List<PropertyAttributeType> patTriplets = null;
 
 	// Flag to signal if the operator accesses JMS Header property values
 	private boolean operatorAccessesJMSHeaderPropertyValues = false;
+	
+	// Flag to signal if the operator accesses JMS Header property values generically (w/o property names)
+	private boolean operatorGenericallyAccessesJMSHeaderPropertyValues = false;
 	
 	
 	private Object resetLock = new Object();
@@ -468,6 +480,15 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
     @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
     public void setJmsHeaderProperties(String jmsHeaderProperties) {
         this.jmsHeaderProperties = jmsHeaderProperties;
+    }
+    
+    public String getJmsHeaderPropertiesOutAttrName() {
+        return jmsHeaderPropertiesOutAttrName;
+    }
+
+    @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_O_ATTR_NAME_DESC)
+    public void setJmsHeaderPropertiesOutAttrName(String jmsHeaderPropertiesOutAttrName) {
+        this.jmsHeaderPropertiesOutAttrName = jmsHeaderPropertiesOutAttrName;
     }
     
 	public String getMessageSelector() {
@@ -761,7 +782,26 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		    	}
 	    	}
 		}
-        
+		
+		
+        if (checker.getOperatorContext().getParameterNames().contains(JMSOpConstants.PARAM_JMS_HEADER_PROPS_O_ATTR_NAME)) { 
+    		
+    		List<String> parameterValues = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_JMS_HEADER_PROPS_O_ATTR_NAME); 
+    		String outAttributeName = parameterValues.get(0);
+
+    		List<StreamingOutput<OutputTuple>> outputPorts = checker.getOperatorContext().getStreamingOutputs();
+	    	if (outputPorts.size() > 0)
+	    	{
+	    		StreamingOutput<OutputTuple> outputPort = outputPorts.get(0);
+	    		StreamSchema streamSchema = outputPort.getStreamSchema();
+	    		boolean check = checker.checkRequiredAttributes(streamSchema, outAttributeName);
+	    		if (check) {
+	    			checker.checkAttributeType(streamSchema.getAttribute(outAttributeName), MetaType.MAP);
+	    		}
+	    	}
+    	}
+
+
         if((checker.getOperatorContext().getParameterNames().contains(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME))) { //$NON-NLS-1$
         	String appConfigName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_APPCONFIGNAME).get(0); //$NON-NLS-1$
 			String userPropName = checker.getOperatorContext().getParameterValues(JMSOpConstants.PARAM_AUTH_USERPROPNAME).get(0); //$NON-NLS-1$
@@ -929,7 +969,6 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	        	operatorAccessesJMSHeaderValues = true;
 	        }
 		}
-
 		
 		checkPrepareJmsHeaderPropertiesAccess(context, streamSchema);
 
@@ -951,6 +990,14 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
         	
         	JmsHeaderHelper.prepareJmsHeaderPropertiesAccess(context, streamSchema, patTriplets, logger, tracer);
         }
+        
+        if((context.getParameterNames().contains(JMSOpConstants.PARAM_JMS_HEADER_PROPS_O_ATTR_NAME))) {
+        	operatorGenericallyAccessesJMSHeaderPropertyValues = true;
+        	
+        	List<String> jmsHeaderPropOutAttributeName = context.getParameterValues(JMSOpConstants.PARAM_JMS_HEADER_PROPS_O_ATTR_NAME);
+        	jmsHeaderPropOutAttributeIndex = streamSchema.getAttributeIndex(jmsHeaderPropOutAttributeName.get(0));
+        }
+        
 	}
 
 	
@@ -1308,81 +1355,104 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private void writeJmsHeaderPropertyValuesIntoTuple(Message msg, OutputTuple outTuple) {
 		
 		// If we do not access property values, return
-		if(! operatorAccessesJMSHeaderPropertyValues ) return;
-
+		if( ! operatorAccessesJMSHeaderPropertyValues &&
+			! operatorGenericallyAccessesJMSHeaderPropertyValues ) return;
+		
 
 		try {
 			// If the message has no property values, return
 			if(! msg.getPropertyNames().hasMoreElements()) return;
-			
-			for(PropertyAttributeType pat : patTriplets) {
-				
-				PropertyType	typeSpec	= pat.getTypeSpecification();
-				String			propName	= pat.getPropertyName();
-				int				attrIdx		= pat.getAttributeIdx();
-				
-				if(msg.propertyExists(propName)) {
 
-					switch (typeSpec) {
-					case BOOL:
-						{
-							boolean value = msg.getBooleanProperty(propName);
-							outTuple.setObject(attrIdx, new Boolean(value));
+			
+			// Handling JMS Header Properties by their configured name and type information 
+			if( operatorAccessesJMSHeaderPropertyValues ) {
+				for(PropertyAttributeType pat : patTriplets) {
+					
+					PropertyType	typeSpec	= pat.getTypeSpecification();
+					String			propName	= pat.getPropertyName();
+					int				attrIdx		= pat.getAttributeIdx();
+					
+					if(msg.propertyExists(propName)) {
+
+						switch (typeSpec) {
+						case BOOL:
+							{
+								boolean value = msg.getBooleanProperty(propName);
+								outTuple.setObject(attrIdx, new Boolean(value));
+							}
+							break;
+						case BYTE:
+							{
+								byte value = msg.getByteProperty(propName);
+								outTuple.setObject(attrIdx, new Byte(value));
+							}
+							break;
+						case SHORT:
+							{
+								short value = msg.getShortProperty(propName);
+								outTuple.setObject(attrIdx, new Short(value));
+							}
+							break;
+						case INT:
+							{
+								int value = msg.getIntProperty(propName);
+								outTuple.setObject(attrIdx, new Integer(value));
+							}
+							break;
+						case LONG:
+							{
+								long value = msg.getLongProperty(propName);
+								outTuple.setObject(attrIdx, new Long(value));
+							}
+							break;
+						case FLOAT:
+							{
+								float value = msg.getFloatProperty(propName);
+								outTuple.setObject(attrIdx, new Float(value));
+							}
+							break;
+						case DOUBLE:
+							{
+								double value = msg.getDoubleProperty(propName);
+								outTuple.setObject(attrIdx, new Double(value));
+							}
+							break;
+						case STRING:
+							{
+								String value = msg.getStringProperty(propName);
+								outTuple.setObject(attrIdx, new RString(value));
+							}
+							break;
+						case OBJECT:
+							{
+								Object value = msg.getObjectProperty(propName);
+								outTuple.setObject(attrIdx, value);
+							}
+							break;
 						}
-						break;
-					case BYTE:
-						{
-							byte value = msg.getByteProperty(propName);
-							outTuple.setObject(attrIdx, new Byte(value));
-						}
-						break;
-					case SHORT:
-						{
-							short value = msg.getShortProperty(propName);
-							outTuple.setObject(attrIdx, new Short(value));
-						}
-						break;
-					case INT:
-						{
-							int value = msg.getIntProperty(propName);
-							outTuple.setObject(attrIdx, new Integer(value));
-						}
-						break;
-					case LONG:
-						{
-							long value = msg.getLongProperty(propName);
-							outTuple.setObject(attrIdx, new Long(value));
-						}
-						break;
-					case FLOAT:
-						{
-							float value = msg.getFloatProperty(propName);
-							outTuple.setObject(attrIdx, new Float(value));
-						}
-						break;
-					case DOUBLE:
-						{
-							double value = msg.getDoubleProperty(propName);
-							outTuple.setObject(attrIdx, new Double(value));
-						}
-						break;
-					case STRING:
-						{
-							String value = msg.getStringProperty(propName);
-							outTuple.setObject(attrIdx, new RString(value));
-						}
-						break;
-					case OBJECT:
-						{
-							Object value = msg.getObjectProperty(propName);
-							outTuple.setObject(attrIdx, value);
-						}
-						break;
+					}
+					else {
+						tracer.log(TraceLevel.DEBUG, "JMS Header property not contained in current message: " + propName);	//$NON-NLS-1$
 					}
 				}
-				else {
-					tracer.log(TraceLevel.DEBUG, "JMS Header property not contained in current message: " + propName);	//$NON-NLS-1$
+			}
+			
+			
+			// Handling all JMS Header properties generically by folding them into one map
+			if( operatorGenericallyAccessesJMSHeaderPropertyValues ) {
+				
+				@SuppressWarnings("rawtypes")
+				Enumeration			propertyNames		= msg.getPropertyNames();
+				Map<String,String>	receivedProperties	= new HashMap<String,String>();
+				
+				while(propertyNames.hasMoreElements()) {
+					String	propertyName		= (String)propertyNames.nextElement();
+					String	propertyValue		= msg.getObjectProperty(propertyName).toString();
+
+					receivedProperties.put(propertyName, propertyValue);
 				}
+
+				outTuple.setObject(jmsHeaderPropOutAttributeIndex, receivedProperties);
 			}
 		}
 		catch (JMSException e) {
@@ -1651,6 +1721,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "     * The **jmsTypeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
 "     * The **jmsRedeliveredOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.\\n" +  //$NON-NLS-1$
 "     * The **jmsHeaderProperties** parameter is specified but the contained configuration is erroneous.\\n" +  //$NON-NLS-1$
+"     * The **jmsHeaderPropertiesOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not map<ustring,ustring>." +  //$NON-NLS-1$
 " * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
 "   * The `JMSSource` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
 "     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$

@@ -44,5 +44,12 @@ public class JMSOpDescriptions {
             + "If property or attribute type do not match the specified type, "		//$NON-NLS-1$
             + "an error is logged during operator initialization."					//$NON-NLS-1$
             + "\\n\\n";																//$NON-NLS-1$
+
 	
+	public static final String JMS_HEADER_PROPERTIES_O_ATTR_NAME_DESC = ""			//$NON-NLS-1$
+            + "Output attribute on output data stream to assign to the map\\n"		//$NON-NLS-1$
+            + "containing all received properties. The specified attribute\\n"		//$NON-NLS-1$
+            + "in output stream must be of type map<ustring,ustring>."					//$NON-NLS-1$
+            + "\\n\\n";																//$NON-NLS-1$
+
 }

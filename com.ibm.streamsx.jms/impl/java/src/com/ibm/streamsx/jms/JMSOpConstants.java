@@ -30,5 +30,7 @@ public class JMSOpConstants {
 	public static final String PARAM_JMS_HEADER_REDELIVERED_O_ATTR_NAME		= "jmsRedeliveredOutAttrName";		//$NON-NLS-1$
 
 	public static final String PARAM_JMS_HEADER_PROPS						= "jmsHeaderProperties";			//$NON-NLS-1$
+
+	public static final String PARAM_JMS_HEADER_PROPS_O_ATTR_NAME			= "jmsHeaderPropertiesOutAttrName";	//$NON-NLS-1$
 	
 }

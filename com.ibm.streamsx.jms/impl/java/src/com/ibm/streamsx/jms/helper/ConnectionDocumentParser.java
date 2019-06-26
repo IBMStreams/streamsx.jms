@@ -444,6 +444,7 @@ public class ConnectionDocumentParser {
 		for (Attribute attr : streamSchema) {
 			String streamAttrName = attr.getName();
 			MetaType streamAttrMetaType = attr.getType().getMetaType();
+			if(attr.getType().toString().equals("MAP:map<ustring,ustring>")) continue;  // We allow this type only to handle a dynamic / unknown amount of JMS Header Property values 
 			if (!supportedSPLTypes.contains(streamAttrMetaType.getLanguageType())) {
 				throw new ParseConnectionDocumentException(Messages.getString("ATTRIB_TYPE_FOR_STREAM_ATTRIB_NOT_SUPPORTED_SPL_TYPE", streamAttrMetaType.getLanguageType(), streamAttrName ));	//$NON-NLS-1$
 			}

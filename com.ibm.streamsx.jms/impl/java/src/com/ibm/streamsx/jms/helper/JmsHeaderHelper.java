@@ -124,7 +124,7 @@ public class JmsHeaderHelper {
         			erroneousConfiguration = true;
         		}
         		
-        		// Check if every attribute name name was just used once
+        		// Check if every attribute name was just used once
         		if(usedAttributeNames.contains(attributeName)) {
         			String errMsg = Messages.getString("PROPERTY_ATTRIBUTE_TYPE_SAME_ATTRIB_NAMES", new Object[] { attributeName });	//$NON-NLS-1$
         			logger.log(LogLevel.ERROR, errMsg);
