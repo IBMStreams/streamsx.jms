@@ -39,23 +39,25 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 	public Message convertTupleToMessage(Tuple tuple, Session session)
 			throws JMSException {
 		// create a new mapMessage
-		MapMessage message;
+		MapMessage mapMessage;
 		synchronized (session) {
-			message = (MapMessage) session.createMapMessage();
+			mapMessage = (MapMessage) session.createMapMessage();
 		}
 		// variable to specify if any of the attributes in the message is
 		// truncated
 		boolean isTruncated = false;
 
 		// get the attributes from the native schema
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchema nsObj : nativeSchemaObjects) {
+			
 			// iterate through the native schema elements
 			// extract the name, type and length
-			final String name = currentObject.getName();
-			final NativeTypes type = currentObject.getType();
-			final int length = currentObject.getLength();
+			final String		nsObjName	= nsObj.getName();
+			final NativeTypes	nsObjType	= nsObj.getType();
+			final int			nsObjLength	= nsObj.getLength();
+			
 			// handle based on the data-type
-			switch (type) {
+			switch (nsObjType) {
 
 			// For all cases, IllegalArgumentException and NPE(for setBytes) is
 			// not caught since name is always verified and is not null or not
@@ -63,7 +65,7 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 			case Bytes: {
 				// extract the blob from the tuple
 				// get its size
-				Blob bl = tuple.getBlob(name);
+				Blob bl = tuple.getBlob(nsObjName);
 				long size = bl.getLength();
 
 				// check for length in native schema
@@ -71,9 +73,9 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 				// specified in native schema
 				// set the isTruncated to true
 				// truncate the blob
-				if (size > length && length != LENGTH_ABSENT_IN_NATIVE_SCHEMA) {
+				if (size > nsObjLength && nsObjLength != LENGTH_ABSENT_IN_NATIVE_SCHEMA) {
 					isTruncated = true;
-					size = length;
+					size = nsObjLength;
 				}
 				byte[] blobdata = new byte[(int) size];
 				bl.getByteBuffer(0, (int) size).get(blobdata);
@@ -81,32 +83,32 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 				// we dont need to catch NPE
 
 				// set the bytes into the messaage
-				message.setBytes(name, blobdata);
+				mapMessage.setBytes(nsObjName, blobdata);
 			}
 				break;
 			case String: {
-				switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
+				switch (tuple.getStreamSchema().getAttribute(nsObjName).getType().getMetaType()) {
 				case RSTRING:
 				case USTRING:
 					// extract the String
 					// get its length
-					String rdata = tuple.getString(name);
+					String rdata = tuple.getString(nsObjName);
 					int size = rdata.length();
 					// If no length was specified in native schema or
 					// if the length of the String rdata is less than the length
 					// specified in native schema
-					if (length == LENGTH_ABSENT_IN_NATIVE_SCHEMA
-							|| size <= length) {
-						message.setString(name, rdata);
+					if (nsObjLength == LENGTH_ABSENT_IN_NATIVE_SCHEMA
+							|| size <= nsObjLength) {
+						mapMessage.setString(nsObjName, rdata);
 					}
 					// if the length of rdate is greater than the length
 					// specified in native schema
 					// set the isTruncated to true
 					// truncate the String
-					else if (size > length) {
+					else if (size > nsObjLength) {
 						isTruncated = true;
-						String stringdata = rdata.substring(0, length);
-						message.setString(name, stringdata);
+						String stringdata = rdata.substring(0, nsObjLength);
+						mapMessage.setString(nsObjName, stringdata);
 					}
 
 					break;
@@ -115,11 +117,11 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 				case DECIMAL32:
 				case DECIMAL64:
 				case DECIMAL128:
-					message.setString(name, tuple.getBigDecimal(name)
+					mapMessage.setString(nsObjName, tuple.getBigDecimal(nsObjName)
 							.toString());
 					break;
 				case TIMESTAMP:
-					message.setString(name, (tuple.getTimestamp(name)
+					mapMessage.setString(nsObjName, (tuple.getTimestamp(nsObjName)
 							.getTimeAsSeconds()).toString());
 					break;
 
@@ -154,25 +156,25 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 			}
 				break;
 			case Byte:
-				message.setByte(name, tuple.getByte(name));
+				mapMessage.setByte(nsObjName, tuple.getByte(nsObjName));
 				break;
 			case Short:
-				message.setShort(name, tuple.getShort(name));
+				mapMessage.setShort(nsObjName, tuple.getShort(nsObjName));
 				break;
 			case Int:
-				message.setInt(name, tuple.getInt(name));
+				mapMessage.setInt(nsObjName, tuple.getInt(nsObjName));
 				break;
 			case Long:
-				message.setLong(name, tuple.getLong(name));
+				mapMessage.setLong(nsObjName, tuple.getLong(nsObjName));
 				break;
 			case Float:
-				message.setFloat(name, tuple.getFloat(name));
+				mapMessage.setFloat(nsObjName, tuple.getFloat(nsObjName));
 				break;
 			case Double:
-				message.setDouble(name, tuple.getDouble(name));
+				mapMessage.setDouble(nsObjName, tuple.getDouble(nsObjName));
 				break;
 			case Boolean:
-				message.setBoolean(name, tuple.getBoolean(name));
+				mapMessage.setBoolean(nsObjName, tuple.getBoolean(nsObjName));
 				break;
 			}
 		}
@@ -182,7 +184,7 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 			nTruncatedInserts.incrementValue(1);
 		}
 		// return the message
-		return message;
+		return mapMessage;
 	}
 
 	// For JMSSource operator, convert the incoming JMS MapMessage to tuple
@@ -191,63 +193,65 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 		if (!(message instanceof MapMessage)) {
 			// We got a wrong message type so throw an error
 			return MessageAction.DISCARD_MESSAGE_WRONG_TYPE;
-		} else {
+		}
+		else {
 			MapMessage mapMessage = (MapMessage) message;
+			
 			// Iterate through the native schema attributes
-			for (NativeSchema currentObject : nativeSchemaObjects) {
+			for (NativeSchema nsObj : nativeSchemaObjects) {
 
 				try {
 					// extract the name, type and length
-					final String name = currentObject.getName();
-					final NativeTypes type = currentObject.getType();
-					// handle based on data-tye
+					final String		nsObjName = nsObj.getName();
+					final NativeTypes	nsObjType = nsObj.getType();
+					// handle based on data-type
 					// extract the data from the message for each native schema
-					// attrbute and set into the tuple
-					// we are interested in this currentObject only if it is
+					// attribute and set into the tuple
+					// we are interested in the current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema())
-						switch (type) {
+					if (nsObj.getIsPresentInStreamSchema())
+						switch (nsObjType) {
 						case Byte:
-							tuple.setByte(name, mapMessage.getByte(name));
+							tuple.setByte(nsObjName, mapMessage.getByte(nsObjName));
 							break;
 						case Short:
-							tuple.setShort(name, mapMessage.getShort(name));
+							tuple.setShort(nsObjName, mapMessage.getShort(nsObjName));
 							break;
 						case Int:
-							tuple.setInt(name, mapMessage.getInt(name));
+							tuple.setInt(nsObjName, mapMessage.getInt(nsObjName));
 							break;
 						case Long:
-							tuple.setLong(name, mapMessage.getLong(name));
+							tuple.setLong(nsObjName, mapMessage.getLong(nsObjName));
 							break;
 						case Float:
-							tuple.setFloat(name, mapMessage.getFloat(name));
+							tuple.setFloat(nsObjName, mapMessage.getFloat(nsObjName));
 							break;
 						case Double:
-							tuple.setDouble(name, mapMessage.getDouble(name));
+							tuple.setDouble(nsObjName, mapMessage.getDouble(nsObjName));
 							break;
 						case Boolean:
-							tuple.setBoolean(name, mapMessage.getBoolean(name));
+							tuple.setBoolean(nsObjName, mapMessage.getBoolean(nsObjName));
 							break;
 						case String:
-							switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
+							switch (tuple.getStreamSchema().getAttribute(nsObjName).getType().getMetaType()) {
 							case RSTRING:
 							case USTRING:
-								tuple.setString(name,
-										mapMessage.getString(name));
+								tuple.setString(nsObjName,
+										mapMessage.getString(nsObjName));
 								break;
 							case DECIMAL32:
 							case DECIMAL64:
 							case DECIMAL128: {
 
 								BigDecimal bigDecValue = new BigDecimal(
-										mapMessage.getString(name));
-								tuple.setBigDecimal(name, bigDecValue);
+										mapMessage.getString(nsObjName));
+								tuple.setBigDecimal(nsObjName, bigDecValue);
 							}
 								break;
 							case TIMESTAMP: {
 								BigDecimal bigDecValue = new BigDecimal(
-										mapMessage.getString(name));
-								tuple.setTimestamp(name,
+										mapMessage.getString(nsObjName));
+								tuple.setTimestamp(nsObjName,
 										Timestamp.getTimestamp(bigDecValue));
 							}
 								break;
