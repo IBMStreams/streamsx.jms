@@ -33,6 +33,9 @@ public class JmsClasspathUtil {
 			tracer.log(TraceLevel.TRACE, key + " = " + System.getenv(key)); //$NON-NLS-1$
 		}
 		tracer.log(TraceLevel.TRACE, "------------------------------------------------------------------------------------"); //$NON-NLS-1$
+
+		
+// TODO: Introduce new operator parameter to load class libs
 		
 		
 		String AMQ_HOME = System.getenv("STREAMS_MESSAGING_AMQ_HOME"); //$NON-NLS-1$

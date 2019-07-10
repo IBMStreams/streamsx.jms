@@ -43,24 +43,24 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 	public Message convertTupleToMessage(Tuple tuple, Session session)
 			throws JMSException {
 		// create a new StreamMessage
-		StreamMessage message;
+		StreamMessage streamMessage;
 		synchronized (session) {
-			message = session.createStreamMessage();
+			streamMessage = session.createStreamMessage();
 		}
 		// variable to specify if any of the attributes in the message is
 		// truncated
 		boolean isTruncated = false;
 
 		// get the attributes from the native schema
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchema nsObj : nativeSchemaObjects) {
 			// iterate through the native schema elements
 			// extract the name, type and length
 
-			final String name = currentObject.getName();
-			final NativeTypes type = currentObject.getType();
-			final int length = currentObject.getLength();
+			final String		nsObjName 	= nsObj.getName();
+			final NativeTypes	nsObjType 	= nsObj.getType();
+			final int			nsObjLength = nsObj.getLength();
 			// handle based on the data-type
-			switch (type) {
+			switch (nsObjType) {
 			// For all cases, IllegalArgumentException and NPE(for setBytes) is
 			// not caught since name is always verified and is not null or not
 			// empty string.
@@ -68,7 +68,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 			case Bytes: {
 				// extract the blob from the tuple
 				// get its size
-				Blob bl = tuple.getBlob(name);
+				Blob bl = tuple.getBlob(nsObjName);
 				long size = bl.getLength();
 
 				// check for length in native schema
@@ -76,42 +76,42 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				// specified in native schema
 				// set the isTruncated to true
 				// truncate the blob
-				if (size > length && length != LENGTH_ABSENT_IN_NATIVE_SCHEMA) {
+				if (size > nsObjLength && nsObjLength != LENGTH_ABSENT_IN_NATIVE_SCHEMA) {
 					isTruncated = true;
-					size = length;
+					size = nsObjLength;
 				}
 				// set the bytes in the message
 				byte[] blobdata = new byte[(int) size];
 				bl.getByteBuffer(0, (int) size).get(blobdata);
-				message.writeBytes(blobdata);
+				streamMessage.writeBytes(blobdata);
 			}
 				break;
 
 			case String: {
-				switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
+				switch (tuple.getStreamSchema().getAttribute(nsObjName).getType().getMetaType()) {
 				case RSTRING:
 				case USTRING:
 
 					// extract the String
 					// get its length
-					String rdata = tuple.getString(name);
+					String rdata = tuple.getString(nsObjName);
 					int size = rdata.length();
 					// If no length was specified in native schema or
 					// if the length of the String rdata is less than the length
 					// specified in native schema
-					if (length == LENGTH_ABSENT_IN_NATIVE_SCHEMA
-							|| size <= length) {
+					if (nsObjLength == LENGTH_ABSENT_IN_NATIVE_SCHEMA
+							|| size <= nsObjLength) {
 
-						message.writeString(rdata);
+						streamMessage.writeString(rdata);
 					}
 					// if the length of rdate is greater than the length
 					// specified in native schema
 					// set the isTruncated to true
 					// truncate the String
-					else if (size > length) {
+					else if (size > nsObjLength) {
 						isTruncated = true;
-						String stringdata = rdata.substring(0, length);
-						message.writeString(stringdata);
+						String stringdata = rdata.substring(0, nsObjLength);
+						streamMessage.writeString(stringdata);
 					}
 					break;
 				// spl types decimal32, decimal64,decimal128, timestamp are
@@ -119,10 +119,10 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				case DECIMAL32:
 				case DECIMAL64:
 				case DECIMAL128:
-					message.writeString(tuple.getBigDecimal(name).toString());
+					streamMessage.writeString(tuple.getBigDecimal(nsObjName).toString());
 					break;
 				case TIMESTAMP:
-					message.writeString((tuple.getTimestamp(name)
+					streamMessage.writeString((tuple.getTimestamp(nsObjName)
 							.getTimeAsSeconds()).toString());
 					break;
 
@@ -158,29 +158,29 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				break;
 
 			case Byte:
-				message.writeByte(tuple.getByte(name));
+				streamMessage.writeByte(tuple.getByte(nsObjName));
 				break;
 
 			case Short:
-				message.writeShort(tuple.getShort(name));
+				streamMessage.writeShort(tuple.getShort(nsObjName));
 				break;
 
 			case Int:
-				message.writeInt(tuple.getInt(name));
+				streamMessage.writeInt(tuple.getInt(nsObjName));
 				break;
 
 			case Long:
-				message.writeLong(tuple.getLong(name));
+				streamMessage.writeLong(tuple.getLong(nsObjName));
 				break;
 
 			case Float:
-				message.writeFloat(tuple.getFloat(name));
+				streamMessage.writeFloat(tuple.getFloat(nsObjName));
 				break;
 			case Double:
-				message.writeDouble(tuple.getDouble(name));
+				streamMessage.writeDouble(tuple.getDouble(nsObjName));
 				break;
 			case Boolean:
-				message.writeBoolean(tuple.getBoolean(name));
+				streamMessage.writeBoolean(tuple.getBoolean(nsObjName));
 				break;
 			}
 		}
@@ -189,7 +189,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 		if (isTruncated) {
 			nTruncatedInserts.incrementValue(1);
 		}
-		return message;
+		return streamMessage;
 	}
 
 	// For JMSSource operator, convert the incoming JMS MapMessage to tuple
@@ -201,90 +201,90 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 		}
 		StreamMessage streamMessage = (StreamMessage) message;
 		// Iterate through the native schema attributes
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchema nsObj : nativeSchemaObjects) {
 			// Added the try catch block to catch the MessageEOFException
 			// This exception must be thrown when an unexpected end of stream
 			// has been reached when a StreamMessage is being read.
 			try {
 				// extract the name and type
-				final String name = currentObject.getName();
-				final NativeTypes type = currentObject.getType();
+				final String		nsObjName = nsObj.getName();
+				final NativeTypes	nsObjType = nsObj.getType();
 				// handle based on data-tye
 				// extract the data from the message for each native schema
 				// attrbute and set into the tuple
-				switch (type) {
+				switch (nsObjType) {
 				case Byte:
 					byte byteData = streamMessage.readByte();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setByte(name, byteData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setByte(nsObjName, byteData);
 					}
 					break;
 				case Short:
 
 					short shortData = streamMessage.readShort();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setShort(name, shortData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setShort(nsObjName, shortData);
 					}
 					break;
 				case Int:
 
 					int intData = streamMessage.readInt();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setInt(name, intData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setInt(nsObjName, intData);
 					}
 					break;
 				case Long:
 
 					long longData = streamMessage.readLong();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setLong(name, longData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setLong(nsObjName, longData);
 					}
 					break;
 				case Float:
 
 					float floatData = streamMessage.readFloat();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setFloat(name, floatData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setFloat(nsObjName, floatData);
 					}
 					break;
 				case Double:
 
 					double doubleData = streamMessage.readDouble();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setDouble(name, doubleData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setDouble(nsObjName, doubleData);
 					}
 					break;
 				case Boolean:
 
 					boolean booleanData = streamMessage.readBoolean();
-					// we are interested in this currentObject only if it is
+					// we are interested in this current object only if it is
 					// present in streams schema
-					if (currentObject.getIsPresentInStreamSchema()) {
-						tuple.setBoolean(name, booleanData);
+					if (nsObj.getIsPresentInStreamSchema()) {
+						tuple.setBoolean(nsObjName, booleanData);
 					}
 					break;
 				case String:
 
-					switch (tuple.getStreamSchema().getAttribute(name).getType().getMetaType()) {
+					switch (tuple.getStreamSchema().getAttribute(nsObjName).getType().getMetaType()) {
 					case RSTRING:
 					case USTRING:
 						String stringData = streamMessage.readString();
-						// we are interested in this currentObject only if it is
+						// we are interested in this current object only if it is
 						// present in streams schema
-						if (currentObject.getIsPresentInStreamSchema()) {
-							tuple.setString(name, stringData);
+						if (nsObj.getIsPresentInStreamSchema()) {
+							tuple.setString(nsObjName, stringData);
 						}
 						break;
 					case DECIMAL32:
@@ -292,20 +292,20 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 					case DECIMAL128: {
 						BigDecimal bigDecValue = new BigDecimal(
 								streamMessage.readString());
-						// we are interested in this currentObject only if it is
+						// we are interested in this current object only if it is
 						// present in streams schema
-						if (currentObject.getIsPresentInStreamSchema()) {
-							tuple.setBigDecimal(name, bigDecValue);
+						if (nsObj.getIsPresentInStreamSchema()) {
+							tuple.setBigDecimal(nsObjName, bigDecValue);
 						}
 					}
 						break;
 					case TIMESTAMP: {
 						BigDecimal bigDecValue = new BigDecimal(
 								streamMessage.readString());
-						// we are interested in this currentObject only if it is
+						// we are interested in this current object only if it is
 						// present in streams schema
-						if (currentObject.getIsPresentInStreamSchema()) {
-							tuple.setTimestamp(name,
+						if (nsObj.getIsPresentInStreamSchema()) {
+							tuple.setTimestamp(nsObjName,
 									Timestamp.getTimestamp(bigDecValue));
 						}
 					}
@@ -354,9 +354,9 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 				return MessageAction.DISCARD_MESSAGE_MESSAGE_FORMAT_ERROR;
 			}
 
-		}// end for
-			// Messsage was successfully read
+		}
+		
+		// Message was successfully read
 		return MessageAction.SUCCESSFUL_MESSAGE;
-
 	}
 }
