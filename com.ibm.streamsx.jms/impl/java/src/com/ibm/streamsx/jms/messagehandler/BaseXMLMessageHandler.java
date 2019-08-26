@@ -22,7 +22,7 @@ import org.w3c.dom.Document;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 abstract class BaseXMLMessageHandler extends JMSMessageHandlerImpl {
 
@@ -54,7 +54,7 @@ abstract class BaseXMLMessageHandler extends JMSMessageHandlerImpl {
 	}
 
 	// constructor
-	public BaseXMLMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public BaseXMLMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName) throws TransformerConfigurationException {
 		// call the base class constructor to initialize the native schema
 		// attributes.
@@ -66,7 +66,7 @@ abstract class BaseXMLMessageHandler extends JMSMessageHandlerImpl {
 	}
 
 	// constructor
-	public BaseXMLMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public BaseXMLMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName, Metric nTruncatedInserts)
 			throws TransformerConfigurationException {
 		// call the base class constructor to initialize the native schema

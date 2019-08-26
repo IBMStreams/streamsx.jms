@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2014, International Business Machines Corporation
+ * Copyright (C) 2014,2019 International Business Machines Corporation
  * All Rights Reserved
  *******************************************************************************/
 package com.ibm.streamsx.jms.messagehandler;
@@ -17,13 +17,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import com.ibm.streams.operator.OutputTuple;
+import com.ibm.streams.operator.StreamSchema;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streams.operator.types.XML;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 /**
  * 
@@ -32,26 +33,33 @@ import com.ibm.streamsx.jms.types.NativeSchema;
  * For text message class, the following restrictions applies:
  * * Text messages must be encoded in UTF-8.  For support of other encoding, use bytes message class.
  * * When the text message class is specified in the connection document, the native
- * schema must contain a single attribute of String.  
+ * schema must contain an attribute of String.  
  * * When the text message class is specified in the connection document, the input schema
- * for JMSSource must contain a single attribute of type rstring, ustring or xml.
+ * for JMSSource must contain an attribute of type rstring, ustring or xml.
  * When the text message class is specified in the connection document, the output schema
- * for JMSSink must contain a single attribute of type rstring, ustring or xml.
+ * for JMSSink must contain an attribute of type rstring, ustring or xml.
  *
  */
 public class TextMessageHandler extends JMSMessageHandlerImpl {
 
-	private int length;
+	private String	attributeNameNS;
+	private int		msgLengthNS;
+	
+	
 
-	public TextMessageHandler(List<NativeSchema> nsa) {
-		super(nsa);
-
-		if (nsa.size() == 1) {
-			NativeSchema nativeSchema = nsa.get(0);
-			length = nativeSchema.getLength();
-		}
+	public TextMessageHandler(List<NativeSchemaElement> nativeSchemaObjects) {
+		super(nativeSchemaObjects);
+		
+		// This should not happen as length of native schema has already been checked
+		if (nativeSchemaObjects.size() != 1) return;
+		
+		NativeSchemaElement nse = nativeSchemaObjects.get(0);
+		attributeNameNS	= nse.getName();
+		msgLengthNS		= nse.getLength();
 	}
 
+	
+	
 	@Override
 	public Message convertTupleToMessage(Tuple tuple, Session session) throws JMSException,
 			UnsupportedEncodingException, ParserConfigurationException, TransformerException {
@@ -60,27 +68,30 @@ public class TextMessageHandler extends JMSMessageHandlerImpl {
 		synchronized (session) {
 			textMessage = session.createTextMessage();
 		}
-
-		MetaType attrType = tuple.getStreamSchema().getAttribute(0).getType().getMetaType();
+		
+		StreamSchema streamSchema = tuple.getStreamSchema();
+		int attributeIdx = determineAttributeIndex(streamSchema);
+		
+		MetaType attrType = streamSchema.getAttribute(attributeIdx).getType().getMetaType();
 
 		String msgText = ""; //$NON-NLS-1$
 
 		if (attrType == MetaType.RSTRING || attrType == MetaType.USTRING) {
 			// use getObject to avoid copying of the tuple
-			Object tupleVal = tuple.getObject(0);
+			Object tupleVal = tuple.getObject(attributeIdx);
 			if (tupleVal instanceof RString) {
 				msgText = ((RString) tupleVal).getString();
 			} else if (tupleVal instanceof String) {
 				msgText = (String) tupleVal;
 			}
 		} else if (attrType == MetaType.XML) {
-			XML xmlValue = tuple.getXML(0);
+			XML xmlValue = tuple.getXML(attributeIdx);
 			msgText = xmlValue.toString();
 		}
 
 		// make sure message length is < the length specified in native schema
-		if (length > 0 && msgText.length() > length) {
-			msgText = msgText.substring(0, length);
+		if (msgLengthNS > 0 && msgText.length() > msgLengthNS) {
+			msgText = msgText.substring(0, msgLengthNS);
 			nTruncatedInserts.increment();
 		}
 		textMessage.setText(msgText);
@@ -89,26 +100,29 @@ public class TextMessageHandler extends JMSMessageHandlerImpl {
 	}
 
 	@Override
-	public MessageAction convertMessageToTuple(Message message, OutputTuple tuple) throws JMSException,
+	public MessageAction convertMessageToTuple(Message message, OutputTuple tuple) throws JMSException, 
 			UnsupportedEncodingException {
 
 		TextMessage textMessage = (TextMessage) message;
 
 		// make sure message length is < the length specified in native schema
 		String tupleStr = textMessage.getText();
-		if (length > 0 && tupleStr.length() > length) {
-			tupleStr = tupleStr.substring(0, length);
+		if (msgLengthNS > 0 && tupleStr.length() > msgLengthNS) {
+			tupleStr = tupleStr.substring(0, msgLengthNS);
 		}
 
-		MetaType attrType = tuple.getStreamSchema().getAttribute(0).getType().getMetaType();
+		StreamSchema streamSchema = tuple.getStreamSchema();
+		int attributeIdx = determineAttributeIndex(streamSchema);
+		
+		MetaType attrType = tuple.getStreamSchema().getAttribute(attributeIdx).getType().getMetaType();
 
 		if (attrType == MetaType.RSTRING || attrType == MetaType.USTRING) {
-			tuple.setString(0, tupleStr);
+			tuple.setString(attributeIdx, tupleStr);
 		} else if (attrType == MetaType.XML) {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(tupleStr.getBytes());
 			try {
 				XML xmlValue = ValueFactory.newXML(inputStream);
-				tuple.setXML(0, xmlValue);
+				tuple.setXML(attributeIdx, xmlValue);
 			} catch (IOException e) {		
 				// unable to convert incoming string to xml value
 				// discard message and continue
@@ -117,6 +131,16 @@ public class TextMessageHandler extends JMSMessageHandlerImpl {
 		}
 
 		return MessageAction.SUCCESSFUL_MESSAGE;
+	}
+	
+
+	private int determineAttributeIndex(StreamSchema streamSchema) {
+		int idx = 0;
+		
+		if(streamSchema.getAttributeCount() > 1)
+			idx = streamSchema.getAttributeIndex(attributeNameNS);
+		
+		return idx;
 	}
 
 }

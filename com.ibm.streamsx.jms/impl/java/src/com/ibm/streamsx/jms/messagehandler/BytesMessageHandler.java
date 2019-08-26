@@ -25,7 +25,7 @@ import com.ibm.streams.operator.types.RString;
 import com.ibm.streams.operator.types.Timestamp;
 import com.ibm.streams.operator.types.ValueFactory;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class handles the JMS Bytes message type 
@@ -35,7 +35,7 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 	private final String codepage;
 
 	// constructor
-	public BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage) {
+	public BytesMessageHandler(List<NativeSchemaElement> nativeSchemaObjects, String cpage) {
 		// call the base class constructor to initialize the native schema
 		// attributes.
 		super(nativeSchemaObjects);
@@ -44,7 +44,7 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 		codepage = cpage;
 	}
 
-	public BytesMessageHandler(List<NativeSchema> nativeSchemaObjects, String cpage, Metric nTruncatedInserts) {
+	public BytesMessageHandler(List<NativeSchemaElement> nativeSchemaObjects, String cpage, Metric nTruncatedInserts) {
 		super(nativeSchemaObjects, nTruncatedInserts);
 		// set the codepage parameter if one is specified in the operator model,
 		// if not a default value of UTF-8 is assumed
@@ -64,7 +64,7 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 		// truncated
 		boolean isTruncated = false;
 
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchemaElement currentObject : nativeSchemaObjects) {
 			// Iterate through the native schema attributes
 			// extract the name, type and length
 			final String name = currentObject.getName();
@@ -227,7 +227,7 @@ public class BytesMessageHandler extends JMSMessageHandlerImpl {
 		BytesMessage bytesMessage = (BytesMessage) message;
 		boolean discard = false;
 		// Iterate through the native schema attributes
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchemaElement currentObject : nativeSchemaObjects) {
 			// Added the try catch block to catch the MessageEOFException
 			// This exception must be thrown when an unexpected end of stream
 			// has been reached when a BytesMessage is being read.

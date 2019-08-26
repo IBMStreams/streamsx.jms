@@ -21,7 +21,7 @@ import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.OutputTuple;
 import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 //Empty message class is used in JMSSink/JMSSource to send/receive
 // control message to the JMSPorvider to test initial connectivity.
@@ -29,7 +29,7 @@ import com.ibm.streamsx.jms.types.NativeSchema;
 public class EmptyMessageHandler extends JMSMessageHandlerImpl {
 
 	// Constructor
-	public EmptyMessageHandler(List<NativeSchema> nativeSchemaObjects) {
+	public EmptyMessageHandler(List<NativeSchemaElement> nativeSchemaObjects) {
 		super(nativeSchemaObjects);
 	}
 

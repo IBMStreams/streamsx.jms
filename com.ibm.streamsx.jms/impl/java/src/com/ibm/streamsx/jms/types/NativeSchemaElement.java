@@ -4,8 +4,8 @@
  *******************************************************************************/
 package com.ibm.streamsx.jms.types;
 
-//Class that holds the elements(name, type and length) of an attribute in native schema element.
-public class NativeSchema {
+// Class that holds the elements(name, type and length) of an attribute in native schema element.
+public class NativeSchemaElement {
 	
 	// variable to hold the name
 	private final String name;
@@ -15,10 +15,10 @@ public class NativeSchema {
 	private final int length;
 	// boolean variable to signify if the native schema element is present in
 	// the stream schema or not
-	// if present set to true, fasle otherwise.
+	// if present set to true, false otherwise.
 	private final boolean isPresentInStreamSchema;
 
-	public NativeSchema(String name, NativeTypes type, int length,
+	public NativeSchemaElement(String name, NativeTypes type, int length,
 			boolean isPresentInStreamSchema) {
 		this.name = name;
 		this.type = type;
