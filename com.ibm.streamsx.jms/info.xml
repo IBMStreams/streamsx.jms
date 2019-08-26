@@ -492,7 +492,7 @@ The &lt;attribute> element has three possible attributes:
      * composite types
      * xml
 </info:description>
-    <info:version>1.2.0</info:version>
+    <info:version>1.2.1</info:version>
     <info:requiredProductVersion>4.3.0.0</info:requiredProductVersion>
   </info:identity>
   <info:dependencies/>

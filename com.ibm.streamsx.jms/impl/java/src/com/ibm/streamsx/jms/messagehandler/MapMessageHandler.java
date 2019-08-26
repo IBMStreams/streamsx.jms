@@ -17,28 +17,25 @@ import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.Timestamp;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 import com.ibm.streamsx.jms.types.NativeTypes;
 
-//This class handles the JMS Map message type 
+
 public class MapMessageHandler extends JMSMessageHandlerImpl {
-	// constructor
-	public MapMessageHandler(List<NativeSchema> nativeSchemaObjects) {
-		// call the base class constructor to initialize the native schema
-		// attributes.
+	
+	public MapMessageHandler(List<NativeSchemaElement> nativeSchemaObjects) {
 		super(nativeSchemaObjects);
 	}
 
-	// constructor
-	public MapMessageHandler(List<NativeSchema> nativeSchemaObjects,
-			Metric nTruncatedInserts) {
+	
+	public MapMessageHandler(List<NativeSchemaElement> nativeSchemaObjects, Metric nTruncatedInserts) {
 		super(nativeSchemaObjects, nTruncatedInserts);
 	}
 
+	
 	// For JMSSink operator, convert the incoming tuple to a JMS MapMessage
-	public Message convertTupleToMessage(Tuple tuple, Session session)
-			throws JMSException {
-		// create a new mapMessage
+	public Message convertTupleToMessage(Tuple tuple, Session session) throws JMSException {
+
 		MapMessage mapMessage;
 		synchronized (session) {
 			mapMessage = (MapMessage) session.createMapMessage();
@@ -48,7 +45,7 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 		boolean isTruncated = false;
 
 		// get the attributes from the native schema
-		for (NativeSchema nsObj : nativeSchemaObjects) {
+		for (NativeSchemaElement nsObj : nativeSchemaObjects) {
 			
 			// iterate through the native schema elements
 			// extract the name, type and length
@@ -198,7 +195,7 @@ public class MapMessageHandler extends JMSMessageHandlerImpl {
 			MapMessage mapMessage = (MapMessage) message;
 			
 			// Iterate through the native schema attributes
-			for (NativeSchema nsObj : nativeSchemaObjects) {
+			for (NativeSchemaElement nsObj : nativeSchemaObjects) {
 
 				try {
 					// extract the name, type and length

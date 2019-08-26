@@ -6,14 +6,14 @@ package com.ibm.streamsx.jms.messagehandler;
 
 import java.util.List;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 //abstract base class for all JMS message classes 
 public abstract class JMSMessageHandlerImpl implements JMSMessageHandler {
 
 	// This holds all the attributes coming in the native schema
 	// oject in connections.xml
-	protected final List<NativeSchema> nativeSchemaObjects;
+	protected final List<NativeSchemaElement> nativeSchemaObjects;
 	// This metric indicates the number of tuples that had truncated
 	// attributes while converting to a message for JMSSink
 	Metric nTruncatedInserts;
@@ -23,12 +23,12 @@ public abstract class JMSMessageHandlerImpl implements JMSMessageHandler {
 
 	// Constructor to initialize the nativeSchemaObjects
 
-	JMSMessageHandlerImpl(List<NativeSchema> nsa) {
+	JMSMessageHandlerImpl(List<NativeSchemaElement> nsa) {
 		this.nativeSchemaObjects = nsa;
 	}
 
 	// Constructor to initialize the nativeSchemaObjects and nTruncatedInserts
-	JMSMessageHandlerImpl(List<NativeSchema> nsa, Metric nTruncatedInserts) {
+	JMSMessageHandlerImpl(List<NativeSchemaElement> nsa, Metric nTruncatedInserts) {
 		this.nativeSchemaObjects = nsa;
 		this.nTruncatedInserts = nTruncatedInserts;
 	}

@@ -22,19 +22,19 @@ import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.types.Blob;
 import com.ibm.streams.operator.types.Timestamp;
 import com.ibm.streamsx.jms.types.MessageAction;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class handles the JMS Stream message type 
 public class StreamMessageHandler extends JMSMessageHandlerImpl {
 	
 	// constructor
-	public StreamMessageHandler(List<NativeSchema> nativeSchemaObjects) {
+	public StreamMessageHandler(List<NativeSchemaElement> nativeSchemaObjects) {
 		super(nativeSchemaObjects);
 	}
 
 	// constructor
-	public StreamMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public StreamMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			Metric nTruncatedInserts) {
 		super(nativeSchemaObjects, nTruncatedInserts);
 	}
@@ -52,7 +52,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 		boolean isTruncated = false;
 
 		// get the attributes from the native schema
-		for (NativeSchema nsObj : nativeSchemaObjects) {
+		for (NativeSchemaElement nsObj : nativeSchemaObjects) {
 			// iterate through the native schema elements
 			// extract the name, type and length
 
@@ -201,7 +201,7 @@ public class StreamMessageHandler extends JMSMessageHandlerImpl {
 		}
 		StreamMessage streamMessage = (StreamMessage) message;
 		// Iterate through the native schema attributes
-		for (NativeSchema nsObj : nativeSchemaObjects) {
+		for (NativeSchemaElement nsObj : nativeSchemaObjects) {
 			// Added the try catch block to catch the MessageEOFException
 			// This exception must be thrown when an unexpected end of stream
 			// has been reached when a StreamMessage is being read.

@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.metrics.Metric;
 import com.ibm.streams.operator.types.Blob;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 //This class handles the wbe22 message type 
 public class XMLTextMessageHandler extends BaseXMLMessageHandler {
@@ -32,7 +32,7 @@ public class XMLTextMessageHandler extends BaseXMLMessageHandler {
 	private DocumentBuilder documentBuilder;
 
 	// constructor
-	public XMLTextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public XMLTextMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName) throws ParserConfigurationException,
 			TransformerConfigurationException {
 		// call the base class constructor to initialize the native schema
@@ -43,7 +43,7 @@ public class XMLTextMessageHandler extends BaseXMLMessageHandler {
 	}
 
 	// constructor
-	public XMLTextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public XMLTextMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName, Metric nTruncatedInserts)
 			throws ParserConfigurationException,
 			TransformerConfigurationException {
@@ -83,7 +83,7 @@ public class XMLTextMessageHandler extends BaseXMLMessageHandler {
 		boolean isTruncated = false;
 		String stringdata = new String();
 
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchemaElement currentObject : nativeSchemaObjects) {
 			// iterate through the native schema elements
 			// extract the name, type and length
 			final String name = currentObject.getName();

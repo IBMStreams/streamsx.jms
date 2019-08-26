@@ -20,7 +20,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import com.ibm.streams.operator.Tuple;
 import com.ibm.streams.operator.metrics.Metric;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 
 //This class handles the wbe22 message type 
 public class WBETextMessageHandler extends BaseXMLMessageHandler {	
@@ -29,7 +29,7 @@ public class WBETextMessageHandler extends BaseXMLMessageHandler {
 	private DocumentBuilder documentBuilder;
 
 	// constructor
-	public WBETextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public WBETextMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName) throws TransformerConfigurationException,
 			ParserConfigurationException {
 		// call the base class constructor to initialize the native schema
@@ -40,7 +40,7 @@ public class WBETextMessageHandler extends BaseXMLMessageHandler {
 	}
 
 	// constructor
-	public WBETextMessageHandler(List<NativeSchema> nativeSchemaObjects,
+	public WBETextMessageHandler(List<NativeSchemaElement> nativeSchemaObjects,
 			String eventName, Metric nTruncatedInserts)
 			throws TransformerConfigurationException,
 			ParserConfigurationException {
@@ -86,7 +86,7 @@ public class WBETextMessageHandler extends BaseXMLMessageHandler {
 		Element rootEle3 = document.createElement(eventName);
 		rootEle2.appendChild(rootEle3);
 
-		for (NativeSchema currentObject : nativeSchemaObjects) {
+		for (NativeSchemaElement currentObject : nativeSchemaObjects) {
 			// iterate through the native schema elements
 			// extract the name, type and length
 			final String name = currentObject.getName();

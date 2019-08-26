@@ -40,7 +40,7 @@ import com.ibm.streams.operator.Type.MetaType;
 import com.ibm.streamsx.jms.exceptions.ParseConnectionDocumentException;
 import com.ibm.streamsx.jms.i18n.Messages;
 import com.ibm.streamsx.jms.types.MessageClass;
-import com.ibm.streamsx.jms.types.NativeSchema;
+import com.ibm.streamsx.jms.types.NativeSchemaElement;
 import com.ibm.streamsx.jms.types.NativeTypes;
 
 //This class parses and validates the connections document 
@@ -75,7 +75,7 @@ public class ConnectionDocumentParser {
 
 	// variables to hold the native schema attributes which are specified in
 	// connection document
-	private List<NativeSchema> nativeSchemaObjects = new ArrayList<NativeSchema>();
+	private List<NativeSchemaElement> nativeSchemaObjects = new ArrayList<NativeSchemaElement>();
 
 	// Variable to create a mapping table for mapping between SPL datatypes and
 	// their equivalent native schema data type for different message classes
@@ -156,7 +156,7 @@ public class ConnectionDocumentParser {
 	}
 
 	// getter for NativeSchemaObjects
-	public List<NativeSchema> getNativeSchemaObjects() {
+	public List<NativeSchemaElement> getNativeSchemaObjects() {
 		return nativeSchemaObjects;
 	}
 
@@ -505,7 +505,7 @@ public class ConnectionDocumentParser {
 
 				// validate that the attribute name is not already
 				// existing in the native schema
-				Iterator<NativeSchema> it = nativeSchemaObjects.iterator();
+				Iterator<NativeSchemaElement> it = nativeSchemaObjects.iterator();
 				while (it.hasNext()) {
 					if (it.next().getName().equals(nativeAttrName)) {
 
@@ -645,15 +645,15 @@ public class ConnectionDocumentParser {
 				}
 
 				// the native schema parameter is valid, add to list
-				NativeSchema currentObject;
+				NativeSchemaElement currentObject;
 				// if the paramter is present in streams schema, set the
 				// isPresentInStreamSchema to true
 				// else set it ti false
 				if (streamSchema.getAttribute(nativeAttrName) == null) {
-					currentObject = new NativeSchema(nativeAttrName, NativeTypes.valueOf(nativeAttrType),
+					currentObject = new NativeSchemaElement(nativeAttrName, NativeTypes.valueOf(nativeAttrType),
 							nativeAttrLength, false);
 				} else {
-					currentObject = new NativeSchema(nativeAttrName, NativeTypes.valueOf(nativeAttrType),
+					currentObject = new NativeSchemaElement(nativeAttrName, NativeTypes.valueOf(nativeAttrType),
 							nativeAttrLength, true);
 				}
 				nativeSchemaObjects.add(currentObject);
