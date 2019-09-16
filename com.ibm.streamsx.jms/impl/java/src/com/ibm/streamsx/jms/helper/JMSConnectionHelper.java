@@ -70,8 +70,8 @@ public class JMSConnectionHelper implements ExceptionListener {
 	private Metric nFailedInserts;
 	// userPrincipal and userCredential will be initialized by 
 	// createAdministeredObjects and used for connection
-	private String userPrincipal = null;
-	private String userCredential = null;
+	private String userPrincipal;
+	private String userCredential;
 	
 	// Max number of retries on message send
 	private final int maxMessageRetries;
@@ -83,7 +83,7 @@ public class JMSConnectionHelper implements ExceptionListener {
 	private final boolean useClientAckMode;
 	
 	// JMS message selector
-	private String messageSelector = null;
+	private String messageSelector;
 	
 	// Timestamp of session creation
 	private long sessionCreationTime;
@@ -99,12 +99,12 @@ public class JMSConnectionHelper implements ExceptionListener {
 	
 	private PropertyProvider propertyProvider = null;
 	
-	private String userPropName = null;
+	private String userPropName;
 	
-	private String passwordPropName = null;
+	private String passwordPropName;
 	
 	// CR queue name
-	private String destinationCR = null;
+	private String destinationCR;
 	
 	private ConnectionDocumentParser connectionDocumentParser = null;
 

@@ -187,7 +187,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
 	// filepath ../etc/connections.xml (with respect to the data directory)
-	private String connectionDocument = null;
+	private String connectionDocument;
 	
 	// This optional parameter reconnectionBound specifies the number of
 	// successive connections that will be attempted for this operator.
@@ -231,17 +231,17 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     private ConsistentRegionContext consistentRegionContext;
     
     // CR queue name for storing checkpoint information
-    private String consistentRegionQueueName = null;
+    private String consistentRegionQueueName;
     
     // variable to keep track of last successful check point sequeuce id.
     private long lastSuccessfulCheckpointId = 0;
     
     // unique id to identify messages on CR queue
-    private String operatorUniqueID = null;
+    private String operatorUniqueID;
 
 	
 	// Values to handle access to JMS Header property values
-	private String jmsHeaderProperties = null;
+	private String jmsHeaderProperties;
 	
 	// The broken down JMS Header property / attribute / type triplets
 	private List<PropertyAttributeType> patTriplets = null;
@@ -251,26 +251,26 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	
 	
 	// application configuration name
-    private String appConfigName = null;
+    private String appConfigName;
     
     // user property name stored in application configuration
-    private String userPropName = null;
+    private String userPropName;
     
     // password property name stored in application configuration
-    private String passwordPropName = null;
+    private String passwordPropName;
     
 
     private boolean sslConnection = false;
 
     private boolean sslDebug = false;
 
-    private String keyStore = null;
+    private String keyStore;
     
-    private String trustStore = null;
+    private String trustStore;
     
-    private String keyStorePassword = null;
+    private String keyStorePassword;
     
-    private String trustStorePassword = null;
+    private String trustStorePassword;
 
     
     

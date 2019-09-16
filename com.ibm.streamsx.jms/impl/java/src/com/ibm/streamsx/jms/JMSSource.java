@@ -176,7 +176,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 
 	// operator parameters
 
-	// This optional parameter codepage speciifes the code page of the target
+	// This optional parameter codepage specifies the code page of the target
 	// system using which ustring conversions have to be done for a BytesMessage
 	// type.
 	// If present, it must have exactly one value that is a String constant. If
@@ -184,16 +184,16 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	// UTF-8
 	private String codepage = "UTF-8"; //$NON-NLS-1$
 	// This mandatory parameter access specifies access specification name.
-	private String access = null;
+	private String access;
 	// This mandatory parameter connection specifies name of the connection
 	// specification containing a JMS element
-	private String connection = null;
+	private String connection;
 	// This optional parameter connectionDocument specifies the pathname of a
 	// file containing the connection information.
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
-	// filepath etc/connections.xml (with respect to the application directory)
-	private String connectionDocument = null;
+	// file path etc/connections.xml (with respect to the application directory)
+	private String connectionDocument;
 	// This optional parameter reconnectionBound specifies the number of
 	// successive connections that
 	// will be attempted for this operator.
@@ -227,21 +227,21 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	// instance of JMSSourceCRState to hold variables required for consistent region
 	private JMSSourceCRState crState = null;
 	
-	private String messageSelector = null;
+	private String messageSelector;
 	
 	private boolean initalConnectionEstablished = false;
 	
 	// Values to handle access to JMS Header values
-	private String jmsDestinationOutAttrName = null;
-	private String jmsDeliveryModeOutAttrName = null;
-	private String jmsExpirationOutAttrName = null;
-	private String jmsPriorityOutAttrName = null;
-	private String jmsMessageIDOutAttrName = null;
-	private String jmsTimestampOutAttrName = null;
-	private String jmsCorrelationIDOutAttrName = null;
-	private String jmsReplyToOutAttrName = null;
-	private String jmsTypeOutAttrName = null;
-	private String jmsRedeliveredOutAttrName = null;
+	private String jmsDestinationOutAttrName;
+	private String jmsDeliveryModeOutAttrName;
+	private String jmsExpirationOutAttrName;
+	private String jmsPriorityOutAttrName;
+	private String jmsMessageIDOutAttrName;
+	private String jmsTimestampOutAttrName;
+	private String jmsCorrelationIDOutAttrName;
+	private String jmsReplyToOutAttrName;
+	private String jmsTypeOutAttrName;
+	private String jmsRedeliveredOutAttrName;
 	 
 	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList(JMSOpConstants.PARAM_JMS_HEADER_DESTINATION_O_ATTR_NAME,
 																		JMSOpConstants.PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME,
@@ -259,10 +259,10 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 
 	
 	// Values to handle access to JMS Header property values
-	private String jmsHeaderProperties = null;
+	private String jmsHeaderProperties;
 	
 	// Attribute name in output tuple that receives the map of received JMS Header Properties values
-	private String jmsHeaderPropertiesOutAttrName = null;
+	private String jmsHeaderPropertiesOutAttrName;
 
 	// Index of attribute in output tuple that receives the map of received JMS Header Properties values
 	private int jmsHeaderPropOutAttributeIndex = -1;
@@ -280,26 +280,26 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private Object resetLock = new Object();
 	
 	 // application configuration name
-    private String appConfigName = null;
+    private String appConfigName ;
     
     // user property name stored in application configuration
-    private String userPropName = null;
+    private String userPropName;
     
     // password property name stored in application configuration
-    private String passwordPropName = null;
+    private String passwordPropName;
 
     
     private boolean sslConnection = false;
 
     private boolean sslDebug = false;
 
-    private String keyStore = null;
+    private String keyStore;
     
-    private String trustStore = null;
+    private String trustStore;
     
-    private String keyStorePassword = null;
+    private String keyStorePassword;
     
-    private String trustStorePassword = null;
+    private String trustStorePassword;
     
     
     @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")
@@ -1242,6 +1242,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			}
 		}
 	}
+	
+	
 
 
 	/**
