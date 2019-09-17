@@ -301,6 +301,10 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
     
     private String trustStorePassword;
     
+    // List of class library paths to load
+    private List<String> classLibs = null;
+
+    
     
     @Parameter(optional = true, description = "This parameter specifies whether the operator should attempt to connect using SSL. If this parameter is specified, then the *keyStore*, *keyStorePassword* and *trustStore* parameters must also be specified. The default value is `false`.")
     public void setSslConnection(boolean sslConnection) {
@@ -383,6 +387,15 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		this.passwordPropName = passwordPropName;
 	}
 
+    public List<String> getClassLibs() {
+		return classLibs;
+	}
+    
+	@Parameter(optional = true, description = JMSOpDescriptions.CLASS_LIBS)  //$NON-NLS-1$
+    public void setClassLibs(List<String> classLibs) {
+		this.classLibs = classLibs;
+	}
+    
 	public String getJmsDestinationOutAttrName() {
 		return jmsDestinationOutAttrName;
 	}

@@ -169,7 +169,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 	// Operator parameters
 
-	// This optional parameter codepage speciifes the code page of the target
+	// This optional parameter codepage specifies the code page of the target
 	// system using which ustring conversions have to be done for a BytesMessage type.
 	// If present, it must have exactly one value that is a String constant. If
 	// the parameter is absent, the operator will use the default value of to UTF-8
@@ -186,7 +186,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	// file containing the connection information.
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
-	// filepath ../etc/connections.xml (with respect to the data directory)
+	// file path ../etc/connections.xml (with respect to the data directory)
 	private String connectionDocument;
 	
 	// This optional parameter reconnectionBound specifies the number of
@@ -233,7 +233,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     // CR queue name for storing checkpoint information
     private String consistentRegionQueueName;
     
-    // variable to keep track of last successful check point sequeuce id.
+    // variable to keep track of last successful check point sequence id.
     private long lastSuccessfulCheckpointId = 0;
     
     // unique id to identify messages on CR queue
@@ -271,6 +271,9 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     private String keyStorePassword;
     
     private String trustStorePassword;
+
+    // List of class library paths to load
+    private List<String> classLibs = null;
 
     
     
@@ -358,7 +361,16 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		this.passwordPropName = passwordPropName;
 	}
 
-	public String getConsistentRegionQueueName() {
+	@Parameter(optional = true, description = JMSOpDescriptions.CLASS_LIBS)  //$NON-NLS-1$
+    public void setClassLibs(List<String> classLibs) {
+		this.classLibs = classLibs;
+	}
+    
+    public List<String> getClassLibs() {
+		return classLibs;
+	}
+    
+    public String getConsistentRegionQueueName() {
 		return consistentRegionQueueName;
 	}
 

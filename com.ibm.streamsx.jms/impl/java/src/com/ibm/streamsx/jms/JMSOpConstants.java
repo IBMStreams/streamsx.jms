@@ -17,6 +17,7 @@ public class JMSOpConstants {
 	public static final String PARAM_AUTH_TRUSTSTORE						= "trustStore";						//$NON-NLS-1$
 	public static final String PARAM_AUTH_TRUSTSTOREPW						= "trustStorePassword";				//$NON-NLS-1$
 
+	public static final String PARAM_CLASS_LIBS								= "classLibs";						//$NON-NLS-1$
 	
 	public static final String PARAM_JMS_HEADER_DESTINATION_O_ATTR_NAME		= "jmsDestinationOutAttrName";		//$NON-NLS-1$
 	public static final String PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME	= "jmsDeliveryModeOutAttrName";		//$NON-NLS-1$

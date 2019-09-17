@@ -49,7 +49,18 @@ public class JMSOpDescriptions {
 	public static final String JMS_HEADER_PROPERTIES_O_ATTR_NAME_DESC = ""			//$NON-NLS-1$
             + "Output attribute on output data stream to assign to the map\\n"		//$NON-NLS-1$
             + "containing all received properties. The specified attribute\\n"		//$NON-NLS-1$
-            + "in output stream must be of type map<ustring,ustring>."					//$NON-NLS-1$
+            + "in output stream must be of type map<ustring,ustring>."				//$NON-NLS-1$
             + "\\n\\n";																//$NON-NLS-1$
 
+	
+	public static final String CLASS_LIBS = ""										//$NON-NLS-1$
+            + "Allows the user to specify paths to JAR files that should be\\n"		//$NON-NLS-1$
+            + "loaded into the operators classpath. The values of this parameter\\n"//$NON-NLS-1$
+            + "may point to a specific JAR file, or to a directory. If pointing\\n"	//$NON-NLS-1$
+            + "to a directory, the operator will load all files ending in .jar\\n"	//$NON-NLS-1$
+            + "onto the classpath."													//$NON-NLS-1$
+            + "\\n\\n";																//$NON-NLS-1$
+	
+	// continue here (provide more information here)
+	  
 }
