@@ -12,8 +12,9 @@ public class JMSOpDescriptions {
 	public static final String JMS_HEADER_PROPERTIES_DESC = ""						//$NON-NLS-1$
             + "Specifies the mapping between JMS Header property values and"		//$NON-NLS-1$
             + "Streams tuple attributes. The format of the mapping is: \\n\\n"		//$NON-NLS-1$
-            + "`propertyName1/streamsAttributeName1/typeSpecifier1,"				//$NON-NLS-1$
-            + "propertyName2/streamsAttributeName2/typeSpecifier2,...` \\n\\n"		//$NON-NLS-1$
+            + "'propertyName1/streamsAttributeName1/typeSpecifier1',"				//$NON-NLS-1$
+            + "'propertyName2/streamsAttributeName2/typeSpecifier2',"				//$NON-NLS-1$
+            + "'...' ;\\n\\n" 														//$NON-NLS-1$
             + "Leading and trailing spaces are trimmed from property and\\n\\n"		//$NON-NLS-1$
             + "attribute names. The properties can be of the following types:\\n"	//$NON-NLS-1$
             + "\\n"																	//$NON-NLS-1$

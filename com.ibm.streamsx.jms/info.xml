@@ -30,6 +30,12 @@ will help you to migrate to the newer version.
 
 * Parameters whose name ended in "AttrName" now end in "AttributeName". Simply renaming
   such parameters will make your Streams application compile clean again.
+* The parameter 'jmsHeaderProperties' is not a single string anymore, but a list of
+  strings instead. If your configuration has been similar to the following line:
+    jmsHeaderProperties : &quot;propertyName1/streamsAttributeName1/typeSpecifier1,propertyName2/streamsAttributeName2/typeSpecifier2,...&quot; ;
+  Change it into this format:
+    jmsHeaderProperties : &quot;propertyName1/streamsAttributeName1/typeSpecifier1&quot;,&quot;propertyName2/streamsAttributeName2/typeSpecifier2&quot;,&quot;...&quot; ;
+
 
 
 + Developing and running applications that use the JMS toolkit
