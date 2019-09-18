@@ -1723,8 +1723,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "       the type attribute is string or bytes and the length attribute is missing.\\n" +  //$NON-NLS-1$
 "     * An invalid value is specified for the message_class attribute of the access specification.\\n" +  //$NON-NLS-1$
 "     * If an attribute occurs more than once in the &lt;native_schema&gt; element.\\n" +  //$NON-NLS-1$
-"     * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
-"     * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
+"     * The **connectionDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
+"     * The **connectionDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
 "     * The **jmsDestinationOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type." +  //$NON-NLS-1$
 "     * The **jmsDeliveryModeOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
 "     * The **jmsExpirationOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$

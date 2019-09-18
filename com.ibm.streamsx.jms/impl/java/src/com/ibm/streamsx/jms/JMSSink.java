@@ -1198,8 +1198,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 "    * There is a mismatch between the data type of one or more attributes in the native schema\\n" +  //$NON-NLS-1$
 "      and the data type of attributes in the input stream.\\n" +  //$NON-NLS-1$
 "    * One or more native schema attributes do not have a matching attribute in the input stream schema.\\n" +  //$NON-NLS-1$
-"    * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
-"    * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
+"    * The **connectionDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
+"    * The **connectionDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
 "    * An invalid value is specified for the message_class attribute of the access specification.\\n" +  //$NON-NLS-1$
 "    * A negative length is specified for a string or blob data types in the native schema for a map, stream, xml, wbe, or wbe22 message class.\\n" +  //$NON-NLS-1$
 "    * A negative length other than -2 or -4 is specified for a string/blob data type in the native_schema for a bytes message class.\\n" +  //$NON-NLS-1$
