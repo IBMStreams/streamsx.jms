@@ -58,9 +58,11 @@ public class JMSOpDescriptions {
             + "loaded into the operators classpath. The values of this parameter\\n"//$NON-NLS-1$
             + "may point to a specific JAR file, or to a directory. If pointing\\n"	//$NON-NLS-1$
             + "to a directory, the operator will load all files ending in .jar\\n"	//$NON-NLS-1$
-            + "onto the classpath."													//$NON-NLS-1$
+            + "onto the classpath.\\n"												//$NON-NLS-1$
+            + "If the parameter is set, only its values are used to identify\\n"	//$NON-NLS-1$
+            + "class libraries. If the parameter is not set, the operator falls\\n"	//$NON-NLS-1$
+            + "back to the old implementation referring to environment variables\\n"//$NON-NLS-1$
+            + "STREAMS_MESSAGING_WMQ_HOME and STREAMS_MESSAGING_AMQ_HOME."			//$NON-NLS-1$
             + "\\n\\n";																//$NON-NLS-1$
 	
-	// continue here (provide more information here)
-	  
 }
