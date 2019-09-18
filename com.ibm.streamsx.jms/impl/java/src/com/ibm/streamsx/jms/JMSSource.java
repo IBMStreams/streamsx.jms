@@ -232,18 +232,18 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private boolean initalConnectionEstablished = false;
 	
 	// Values to handle access to JMS Header values
-	private String jmsDestinationOutAttrName;
-	private String jmsDeliveryModeOutAttrName;
-	private String jmsExpirationOutAttrName;
-	private String jmsPriorityOutAttrName;
-	private String jmsMessageIDOutAttrName;
-	private String jmsTimestampOutAttrName;
-	private String jmsCorrelationIDOutAttrName;
-	private String jmsReplyToOutAttrName;
-	private String jmsTypeOutAttrName;
-	private String jmsRedeliveredOutAttrName;
+	private String jmsDestinationOutAttributeName;
+	private String jmsDeliveryModeOutAttributeName;
+	private String jmsExpirationOutAttributeName;
+	private String jmsPriorityOutAttributeName;
+	private String jmsMessageIDOutAttributeName;
+	private String jmsTimestampOutAttributeName;
+	private String jmsCorrelationIDOutAttributeName;
+	private String jmsReplyToOutAttributeName;
+	private String jmsTypeOutAttributeName;
+	private String jmsRedeliveredOutAttributeName;
 	 
-	private static List<String> jmsHeaderValOutAttrNames = Arrays.asList(JMSOpConstants.PARAM_JMS_HEADER_DESTINATION_O_ATTR_NAME,
+	private static List<String> jmsHeaderValOutAttributeNames = Arrays.asList(JMSOpConstants.PARAM_JMS_HEADER_DESTINATION_O_ATTR_NAME,
 																		JMSOpConstants.PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME,
 																		JMSOpConstants.PARAM_JMS_HEADER_EXPIRATION_O_ATTR_NAME,
 																		JMSOpConstants.PARAM_JMS_HEADER_PRIORITY_O_ATTR_NAME,
@@ -262,7 +262,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 	private String jmsHeaderProperties;
 	
 	// Attribute name in output tuple that receives the map of received JMS Header Properties values
-	private String jmsHeaderPropertiesOutAttrName;
+	private String jmsHeaderPropertiesOutAttributeName;
 
 	// Index of attribute in output tuple that receives the map of received JMS Header Properties values
 	private int jmsHeaderPropOutAttributeIndex = -1;
@@ -396,94 +396,94 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		this.classLibs = classLibs;
 	}
     
-	public String getJmsDestinationOutAttrName() {
-		return jmsDestinationOutAttrName;
+	public String getJmsDestinationOutAttributeName() {
+		return jmsDestinationOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSDestination to, the specified attribute in output stream must be of type rstring." )
-	public void setJmsDestinationOutAttrName(String jmsDestinationOutAttrName) {
-		this.jmsDestinationOutAttrName = jmsDestinationOutAttrName;
+	public void setJmsDestinationOutAttributeName(String jmsDestinationOutAttributeName) {
+		this.jmsDestinationOutAttributeName = jmsDestinationOutAttributeName;
 	}
 
-	public String getJmsDeliveryModeOutAttrName() {
-		return jmsDeliveryModeOutAttrName;
+	public String getJmsDeliveryModeOutAttributeName() {
+		return jmsDeliveryModeOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSDeliveryMode to, the specified attribute in output stream must be of type int32." )
-	public void setJmsDeliveryModeOutAttrName(String jmsDeliveryModeOutAttrName) {
-		this.jmsDeliveryModeOutAttrName = jmsDeliveryModeOutAttrName;
+	public void setJmsDeliveryModeOutAttributeName(String jmsDeliveryModeOutAttributeName) {
+		this.jmsDeliveryModeOutAttributeName = jmsDeliveryModeOutAttributeName;
 	}
 
-	public String getJmsExpirationOutAttrName() {
-		return jmsExpirationOutAttrName;
+	public String getJmsExpirationOutAttributeName() {
+		return jmsExpirationOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSExpiration to, the specified attribute in output stream must be of type int64." )
-	public void setJmsExpirationOutAttrName(String jmsExpirationOutAttrName) {
-		this.jmsExpirationOutAttrName = jmsExpirationOutAttrName;
+	public void setJmsExpirationOutAttributeName(String jmsExpirationOutAttributeName) {
+		this.jmsExpirationOutAttributeName = jmsExpirationOutAttributeName;
 	}
 
-	public String getJmsPriorityOutAttrName() {
-		return jmsPriorityOutAttrName;
+	public String getJmsPriorityOutAttributeName() {
+		return jmsPriorityOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSPriority to, the specified attribute in output stream must be of type int32." )
-	public void setJmsPriorityOutAttrName(String jmsPriorityOutAttrName) {
-		this.jmsPriorityOutAttrName = jmsPriorityOutAttrName;
+	public void setJmsPriorityOutAttributeName(String jmsPriorityOutAttributeName) {
+		this.jmsPriorityOutAttributeName = jmsPriorityOutAttributeName;
 	}
 
-	public String getJmsMessageIDOutAttrName() {
-		return jmsMessageIDOutAttrName;
+	public String getJmsMessageIDOutAttributeName() {
+		return jmsMessageIDOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSMessageID to, the specified attribute in output stream must be of type rstring.")
-	public void setJmsMessageIDOutAttrName(String jmsMessageIDOutAttrName) {
-		this.jmsMessageIDOutAttrName = jmsMessageIDOutAttrName;
+	public void setJmsMessageIDOutAttributeName(String jmsMessageIDOutAttributeName) {
+		this.jmsMessageIDOutAttributeName = jmsMessageIDOutAttributeName;
 	}
 
-	public String getJmsTimestampOutAttrName() {
-		return jmsTimestampOutAttrName;
+	public String getJmsTimestampOutAttributeName() {
+		return jmsTimestampOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSTimestamp to, the specified attribute in output stream must be of type int64." )
-	public void setJmsTimestampOutAttrName(String jmsTimestampOutAttrName) {
-		this.jmsTimestampOutAttrName = jmsTimestampOutAttrName;
+	public void setJmsTimestampOutAttributeName(String jmsTimestampOutAttributeName) {
+		this.jmsTimestampOutAttributeName = jmsTimestampOutAttributeName;
 	}
 
-	public String getJmsCorrelationIDOutAttrName() {
-		return jmsCorrelationIDOutAttrName;
+	public String getJmsCorrelationIDOutAttributeName() {
+		return jmsCorrelationIDOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSCorrelationID to, the specified attribute in output stream must be of type rstring." )
-	public void setJmsCorrelationIDOutAttrName(String jmsCorrelationIDOutAttrName) {
-		this.jmsCorrelationIDOutAttrName = jmsCorrelationIDOutAttrName;
+	public void setJmsCorrelationIDOutAttributeName(String jmsCorrelationIDOutAttributeName) {
+		this.jmsCorrelationIDOutAttributeName = jmsCorrelationIDOutAttributeName;
 	}
 
-	public String getJmsReplyToOutAttrName() {
-		return jmsReplyToOutAttrName;
+	public String getJmsReplyToOutAttributeName() {
+		return jmsReplyToOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSReplyTo to, the specified attribute in output stream must be of type rstring." )
-	public void setJmsReplyToOutAttrName(String jmsReplyToOutAttrName) {
-		this.jmsReplyToOutAttrName = jmsReplyToOutAttrName;
+	public void setJmsReplyToOutAttributeName(String jmsReplyToOutAttributeName) {
+		this.jmsReplyToOutAttributeName = jmsReplyToOutAttributeName;
 	}
 
-	public String getJmsTypeOutAttrName() {
-		return jmsTypeOutAttrName;
+	public String getJmsTypeOutAttributeName() {
+		return jmsTypeOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSType to, the specified attribute in output stream must be of type rstring." )	//$NON-NLS-1$
-	public void setJmsTypeOutAttrName(String jmsTypeOutAttrName) {
-		this.jmsTypeOutAttrName = jmsTypeOutAttrName;
+	public void setJmsTypeOutAttributeName(String jmsTypeOutAttributeName) {
+		this.jmsTypeOutAttributeName = jmsTypeOutAttributeName;
 	}
 
-	public String getJmsRedeliveredOutAttrName() {
-		return jmsRedeliveredOutAttrName;
+	public String getJmsRedeliveredOutAttributeName() {
+		return jmsRedeliveredOutAttributeName;
 	}
 
 	@Parameter(optional = true, description = "Output attribute on output data stream to assign JMSRedelivered to, the specified attribute in output stream must be of type boolean." )	//$NON-NLS-1$
-	public void setJmsRedeliveredOutAttrName(String jmsRedeliveredOutAttrName) {
-		this.jmsRedeliveredOutAttrName = jmsRedeliveredOutAttrName;
+	public void setJmsRedeliveredOutAttributeName(String jmsRedeliveredOutAttributeName) {
+		this.jmsRedeliveredOutAttributeName = jmsRedeliveredOutAttributeName;
 	}
 
     public String getJmsHeaderProperties() {
@@ -495,13 +495,13 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
         this.jmsHeaderProperties = jmsHeaderProperties;
     }
     
-    public String getJmsHeaderPropertiesOutAttrName() {
-        return jmsHeaderPropertiesOutAttrName;
+    public String getJmsHeaderPropertiesOutAttributeName() {
+        return jmsHeaderPropertiesOutAttributeName;
     }
 
     @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_O_ATTR_NAME_DESC)
-    public void setJmsHeaderPropertiesOutAttrName(String jmsHeaderPropertiesOutAttrName) {
-        this.jmsHeaderPropertiesOutAttrName = jmsHeaderPropertiesOutAttrName;
+    public void setJmsHeaderPropertiesOutAttributeName(String jmsHeaderPropertiesOutAttributeName) {
+        this.jmsHeaderPropertiesOutAttributeName = jmsHeaderPropertiesOutAttributeName;
     }
     
 	public String getMessageSelector() {
@@ -764,10 +764,10 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 			}
 		}
 		
-		for(String jmsHeaderValOutAttrName : jmsHeaderValOutAttrNames ) {
-	        if (checker.getOperatorContext().getParameterNames().contains(jmsHeaderValOutAttrName)) { 
+		for(String jmsHeaderValOutAttributeName : jmsHeaderValOutAttributeNames ) {
+	        if (checker.getOperatorContext().getParameterNames().contains(jmsHeaderValOutAttributeName)) { 
 	    		
-	    		List<String> parameterValues = checker.getOperatorContext().getParameterValues(jmsHeaderValOutAttrName); 
+	    		List<String> parameterValues = checker.getOperatorContext().getParameterValues(jmsHeaderValOutAttributeName); 
 	    		String outAttributeName = parameterValues.get(0);
 		    	List<StreamingOutput<OutputTuple>> outputPorts = checker.getOperatorContext().getStreamingOutputs();
 		    	if (outputPorts.size() > 0)
@@ -776,7 +776,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		    		StreamSchema streamSchema = outputPort.getStreamSchema();
 		    		boolean check = checker.checkRequiredAttributes(streamSchema, outAttributeName);
 		    		if (check) {
-		    			switch (jmsHeaderValOutAttrName) {
+		    			switch (jmsHeaderValOutAttributeName) {
 		    			case JMSOpConstants.PARAM_JMS_HEADER_DELIVERYMODE_O_ATTR_NAME:
 		    			case JMSOpConstants.PARAM_JMS_HEADER_PRIORITY_O_ATTR_NAME:
 		    				checker.checkAttributeType(streamSchema.getAttribute(outAttributeName), MetaType.INT32);
@@ -977,8 +977,8 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		registerForDataGovernance(connectionDocumentParser.getProviderURL(), connectionDocumentParser.getDestination());
 		
 		// Check if this operator accesses JMS Header values
-		for(String jmsHeaderValOutAttrName : jmsHeaderValOutAttrNames ) {
-	        if (context.getParameterNames().contains(jmsHeaderValOutAttrName)) {
+		for(String jmsHeaderValOutAttributeName : jmsHeaderValOutAttributeNames ) {
+	        if (context.getParameterNames().contains(jmsHeaderValOutAttributeName)) {
 	        	operatorAccessesJMSHeaderValues = true;
 	        }
 		}
@@ -1286,71 +1286,71 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		StreamSchema streamSchema = getOutput(0).getStreamSchema();
 
 		
-		if(this.getJmsDestinationOutAttrName() != null) {
-			jmsDestinationAttrIdx = streamSchema.getAttributeIndex(this.getJmsDestinationOutAttrName());
+		if(this.getJmsDestinationOutAttributeName() != null) {
+			jmsDestinationAttrIdx = streamSchema.getAttributeIndex(this.getJmsDestinationOutAttributeName());
 		}
 		if(jmsDestinationAttrIdx != -1 && msg.getJMSDestination() != null) {
 			outTuple.setObject(jmsDestinationAttrIdx, new RString(getDestinationName(msg.getJMSDestination())));
 		}
 		
-		if(this.getJmsDeliveryModeOutAttrName() != null) {
-			jmsDeliveryModeAttrIdx = streamSchema.getAttributeIndex(this.getJmsDeliveryModeOutAttrName());
+		if(this.getJmsDeliveryModeOutAttributeName() != null) {
+			jmsDeliveryModeAttrIdx = streamSchema.getAttributeIndex(this.getJmsDeliveryModeOutAttributeName());
 		}
 		if(jmsDeliveryModeAttrIdx != -1) {
 			outTuple.setObject(jmsDeliveryModeAttrIdx, new Integer(msg.getJMSDeliveryMode()));
 		}
 		
-		if(this.getJmsExpirationOutAttrName() != null) {
-			jmsExpirationAttrIdx = streamSchema.getAttributeIndex(this.getJmsExpirationOutAttrName());
+		if(this.getJmsExpirationOutAttributeName() != null) {
+			jmsExpirationAttrIdx = streamSchema.getAttributeIndex(this.getJmsExpirationOutAttributeName());
 		}
 		if(jmsExpirationAttrIdx != -1) {
 			outTuple.setObject(jmsExpirationAttrIdx, new Long(msg.getJMSExpiration()));
 		}
 		
-		if(this.getJmsPriorityOutAttrName() != null) {
-			jmsPriorityAttrIdx = streamSchema.getAttributeIndex(this.getJmsPriorityOutAttrName());
+		if(this.getJmsPriorityOutAttributeName() != null) {
+			jmsPriorityAttrIdx = streamSchema.getAttributeIndex(this.getJmsPriorityOutAttributeName());
 		}
 		if(jmsPriorityAttrIdx != -1) {
 			outTuple.setObject(jmsPriorityAttrIdx, new Integer(msg.getJMSPriority()));
 		}
 		
-		if(this.getJmsMessageIDOutAttrName() != null) {
-			jmsMessageIDAttrIdx = streamSchema.getAttributeIndex(this.getJmsMessageIDOutAttrName());
+		if(this.getJmsMessageIDOutAttributeName() != null) {
+			jmsMessageIDAttrIdx = streamSchema.getAttributeIndex(this.getJmsMessageIDOutAttributeName());
 		}
 		if(jmsMessageIDAttrIdx != -1 && msg.getJMSMessageID() != null) {
 			outTuple.setObject(jmsMessageIDAttrIdx, new RString(msg.getJMSMessageID()));
 		}
 
-		if(this.getJmsTimestampOutAttrName() != null) {
-			jmsTimestampAttrIdx = streamSchema.getAttributeIndex(this.getJmsTimestampOutAttrName());
+		if(this.getJmsTimestampOutAttributeName() != null) {
+			jmsTimestampAttrIdx = streamSchema.getAttributeIndex(this.getJmsTimestampOutAttributeName());
 		}
 		if(jmsTimestampAttrIdx != -1) {
 			outTuple.setObject(jmsTimestampAttrIdx, new Long(msg.getJMSTimestamp()));
 		}
 		
-		if(this.getJmsCorrelationIDOutAttrName() != null) {
-			jmsCorrelationIDAttrIdx = streamSchema.getAttributeIndex(this.getJmsCorrelationIDOutAttrName());
+		if(this.getJmsCorrelationIDOutAttributeName() != null) {
+			jmsCorrelationIDAttrIdx = streamSchema.getAttributeIndex(this.getJmsCorrelationIDOutAttributeName());
 		}
 		if(jmsCorrelationIDAttrIdx != -1 && msg.getJMSCorrelationID() != null) {
 			outTuple.setObject(jmsCorrelationIDAttrIdx, new RString(msg.getJMSCorrelationID()));
 		}
 		
-		if(this.getJmsReplyToOutAttrName() != null) {
-			jmsReplyToAttrIdx = streamSchema.getAttributeIndex(this.getJmsReplyToOutAttrName());
+		if(this.getJmsReplyToOutAttributeName() != null) {
+			jmsReplyToAttrIdx = streamSchema.getAttributeIndex(this.getJmsReplyToOutAttributeName());
 		}
 		if(jmsReplyToAttrIdx != -1 && msg.getJMSReplyTo() != null) {
 			outTuple.setObject(jmsReplyToAttrIdx, new RString(getDestinationName(msg.getJMSReplyTo())));
 		}
 				
-		if(this.getJmsTypeOutAttrName() != null) {
-			jmsTypeAttrIdx = streamSchema.getAttributeIndex(this.getJmsTypeOutAttrName());
+		if(this.getJmsTypeOutAttributeName() != null) {
+			jmsTypeAttrIdx = streamSchema.getAttributeIndex(this.getJmsTypeOutAttributeName());
 		}
 		if(jmsTypeAttrIdx != -1 && msg.getJMSType() != null) {
 			outTuple.setObject(jmsTypeAttrIdx, new RString(msg.getJMSType()));
 		}
 		
-		if(this.getJmsRedeliveredOutAttrName() != null) {
-			jmsRedeliveredAttrIdx = streamSchema.getAttributeIndex(this.getJmsRedeliveredOutAttrName());
+		if(this.getJmsRedeliveredOutAttributeName() != null) {
+			jmsRedeliveredAttrIdx = streamSchema.getAttributeIndex(this.getJmsRedeliveredOutAttributeName());
 		}
 		if(jmsRedeliveredAttrIdx != -1) {
 			outTuple.setObject(jmsRedeliveredAttrIdx, new Boolean(msg.getJMSRedelivered()));
@@ -1725,18 +1725,18 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 "     * If an attribute occurs more than once in the &lt;native_schema&gt; element.\\n" +  //$NON-NLS-1$
 "     * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
 "     * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
-"     * The **jmsDestinationOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type." +  //$NON-NLS-1$
-"     * The **jmsDeliveryModeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
-"     * The **jmsExpirationOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
-"     * The **jmsPriorityOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
-"     * The **jmsMessageIDOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
-"     * The **jmsTimestampOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
-"     * The **jmsCorrelationIDOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
-"     * The **jmsReplyToOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
-"     * The **jmsTypeOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
-"     * The **jmsRedeliveredOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.\\n" +  //$NON-NLS-1$
+"     * The **jmsDestinationOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type." +  //$NON-NLS-1$
+"     * The **jmsDeliveryModeOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsExpirationOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsPriorityOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int32 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsMessageIDOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsTimestampOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a int64 type.\\n" +  //$NON-NLS-1$
+"     * The **jmsCorrelationIDOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsReplyToOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsTypeOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a rstring type.\\n" +  //$NON-NLS-1$
+"     * The **jmsRedeliveredOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not a boolean type.\\n" +  //$NON-NLS-1$
 "     * The **jmsHeaderProperties** parameter is specified but the contained configuration is erroneous.\\n" +  //$NON-NLS-1$
-"     * The **jmsHeaderPropertiesOutAttrName** parameter is specified but the attribute is not found in output schema or the type of attribute is not map<ustring,ustring>." +  //$NON-NLS-1$
+"     * The **jmsHeaderPropertiesOutAttributeName** parameter is specified but the attribute is not found in output schema or the type of attribute is not map<ustring,ustring>." +  //$NON-NLS-1$
 " * Run time errors that cause a message to be dropped and an error message to be logged.\\n" +  //$NON-NLS-1$
 "   * The `JMSSource` operator throws an exception and discards the message in the following cases.\\n" +  //$NON-NLS-1$
 "     The trace and log information for these exceptions is logged in the console logs\\n" +  //$NON-NLS-1$
