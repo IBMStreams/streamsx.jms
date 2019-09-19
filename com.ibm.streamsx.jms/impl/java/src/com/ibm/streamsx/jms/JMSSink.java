@@ -169,7 +169,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 	// Operator parameters
 
-	// This optional parameter codepage speciifes the code page of the target
+	// This optional parameter codepage specifies the code page of the target
 	// system using which ustring conversions have to be done for a BytesMessage type.
 	// If present, it must have exactly one value that is a String constant. If
 	// the parameter is absent, the operator will use the default value of to UTF-8
@@ -186,8 +186,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	// file containing the connection information.
 	// If present, it must have exactly one value that is a String constant.
 	// If the parameter is absent, the operator will use the default location
-	// filepath ../etc/connections.xml (with respect to the data directory)
-	private String connectionDocument = null;
+	// file path ../etc/connections.xml (with respect to the data directory)
+	private String connectionDocument;
 	
 	// This optional parameter reconnectionBound specifies the number of
 	// successive connections that will be attempted for this operator.
@@ -231,17 +231,17 @@ public class JMSSink extends AbstractOperator implements StateHandler{
     private ConsistentRegionContext consistentRegionContext;
     
     // CR queue name for storing checkpoint information
-    private String consistentRegionQueueName = null;
+    private String consistentRegionQueueName;
     
-    // variable to keep track of last successful check point sequeuce id.
+    // variable to keep track of last successful check point sequence id.
     private long lastSuccessfulCheckpointId = 0;
     
     // unique id to identify messages on CR queue
-    private String operatorUniqueID = null;
+    private String operatorUniqueID;
 
 	
 	// Values to handle access to JMS Header property values
-	private String jmsHeaderProperties = null;
+	private List<String> jmsHeaderProperties;
 	
 	// The broken down JMS Header property / attribute / type triplets
 	private List<PropertyAttributeType> patTriplets = null;
@@ -251,26 +251,29 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 	
 	
 	// application configuration name
-    private String appConfigName = null;
+    private String appConfigName;
     
     // user property name stored in application configuration
-    private String userPropName = null;
+    private String userPropName;
     
     // password property name stored in application configuration
-    private String passwordPropName = null;
+    private String passwordPropName;
     
 
     private boolean sslConnection = false;
 
     private boolean sslDebug = false;
 
-    private String keyStore = null;
+    private String keyStore;
     
-    private String trustStore = null;
+    private String trustStore;
     
-    private String keyStorePassword = null;
+    private String keyStorePassword;
     
-    private String trustStorePassword = null;
+    private String trustStorePassword;
+
+    // List of class library paths to load
+    private List<String> classLibs = null;
 
     
     
@@ -358,7 +361,16 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		this.passwordPropName = passwordPropName;
 	}
 
-	public String getConsistentRegionQueueName() {
+	@Parameter(optional = true, description = JMSOpDescriptions.CLASS_LIBS)  //$NON-NLS-1$
+    public void setClassLibs(List<String> classLibs) {
+		this.classLibs = classLibs;
+	}
+    
+    public List<String> getClassLibs() {
+		return classLibs;
+	}
+    
+    public String getConsistentRegionQueueName() {
 		return consistentRegionQueueName;
 	}
 
@@ -436,12 +448,12 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		this.connectionDocument = connectionDocument;
 	}
 
-    public String getJmsHeaderProperties() {
+    public List<String> getJmsHeaderProperties() {
         return jmsHeaderProperties;
     }
 
     @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
-    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+    public void setJmsHeaderProperties(List<String> jmsHeaderProperties) {
         this.jmsHeaderProperties = jmsHeaderProperties;
     }
     
@@ -1186,8 +1198,8 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 "    * There is a mismatch between the data type of one or more attributes in the native schema\\n" +  //$NON-NLS-1$
 "      and the data type of attributes in the input stream.\\n" +  //$NON-NLS-1$
 "    * One or more native schema attributes do not have a matching attribute in the input stream schema.\\n" +  //$NON-NLS-1$
-"    * The **connectionsDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
-"    * The **connectionsDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
+"    * The **connectionDocument** parameter refers to an file that does not exist.\\n" +  //$NON-NLS-1$
+"    * The **connectionDocument** parameter is not specified and the `connections.xml` file is not present in the default location.\\n" +  //$NON-NLS-1$
 "    * An invalid value is specified for the message_class attribute of the access specification.\\n" +  //$NON-NLS-1$
 "    * A negative length is specified for a string or blob data types in the native schema for a map, stream, xml, wbe, or wbe22 message class.\\n" +  //$NON-NLS-1$
 "    * A negative length other than -2 or -4 is specified for a string/blob data type in the native_schema for a bytes message class.\\n" +  //$NON-NLS-1$
