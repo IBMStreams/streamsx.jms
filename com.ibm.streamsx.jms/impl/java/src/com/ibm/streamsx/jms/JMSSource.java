@@ -259,7 +259,7 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 
 	
 	// Values to handle access to JMS Header property values
-	private String jmsHeaderProperties;
+	private List<String> jmsHeaderProperties;
 	
 	// Attribute name in output tuple that receives the map of received JMS Header Properties values
 	private String jmsHeaderPropertiesOutAttributeName;
@@ -486,12 +486,12 @@ public class JMSSource extends ProcessTupleProducer implements StateHandler{
 		this.jmsRedeliveredOutAttributeName = jmsRedeliveredOutAttributeName;
 	}
 
-    public String getJmsHeaderProperties() {
+    public List<String> getJmsHeaderProperties() {
         return jmsHeaderProperties;
     }
 
     @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
-    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+    public void setJmsHeaderProperties(List<String> jmsHeaderProperties) {
         this.jmsHeaderProperties = jmsHeaderProperties;
     }
     

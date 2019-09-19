@@ -241,7 +241,7 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 
 	
 	// Values to handle access to JMS Header property values
-	private String jmsHeaderProperties;
+	private List<String> jmsHeaderProperties;
 	
 	// The broken down JMS Header property / attribute / type triplets
 	private List<PropertyAttributeType> patTriplets = null;
@@ -448,12 +448,12 @@ public class JMSSink extends AbstractOperator implements StateHandler{
 		this.connectionDocument = connectionDocument;
 	}
 
-    public String getJmsHeaderProperties() {
+    public List<String> getJmsHeaderProperties() {
         return jmsHeaderProperties;
     }
 
     @Parameter(optional = true, description = JMSOpDescriptions.JMS_HEADER_PROPERTIES_DESC)
-    public void setJmsHeaderProperties(String jmsHeaderProperties) {
+    public void setJmsHeaderProperties(List<String> jmsHeaderProperties) {
         this.jmsHeaderProperties = jmsHeaderProperties;
     }
     
