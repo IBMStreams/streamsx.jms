@@ -51,6 +51,8 @@ developerdocs:
     children:
       - title: "Developer Documentation Overview"
         url: /docs/developer/overview
+      - title: "SPL Doc v2.0.0"
+        url: /doc/spldoc/2_0_0/html
       - title: "SPL Doc v1.2.0"
         url: /doc/spldoc/1_2_0/html
       - title: "SPL Doc v1.1.0"
