@@ -17,44 +17,19 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<connection_specifications>
-		<connection_specification name="conn1">
+		<connection_specification name="myLocalhost">
 			<JMS initial_context="org.apache.activemq.jndi.ActiveMQInitialContextFactory"
 				provider_url="tcp://127.0.0.1:61616"
 				connection_factory="ConnectionFactory" />
 		</connection_specification>
 	</connection_specifications>
 
-<!--
-	<connection_specifications>
-		<connection_specification name="conn1">
-			<JMS initial_context="org.apache.activemq.jndi.ActiveMQInitialContextFactory"
-				provider_url="tcp://ns2-amq-node1.fyre.ibm.com:61616"
-				connection_factory="ConnectionFactory" />
-		</connection_specification>
-	</connection_specifications>
--->
+
 	<access_specifications>
 	
-	
-		<access_specification name="access1">
-			<destination identifier="dynamicQueues/MapQueue"
-				message_class="map" />
-			<uses_connection connection="conn1" />
-			<native_schema>
-				<attribute name="id" type="Int" />
-				<attribute name="fname" type="String" length="15" />
-				<attribute name="lname" type="String" length="20" />
-				<attribute name="age" type="Int" />
-				<attribute name="gender" type="String" length="1" />
-				<attribute name="score" type="Float" />
-				<attribute name="total" type="Double" />
-			</native_schema>
-		</access_specification>
-	
-		
-		<access_specification name="accessForHeader">
-			<destination identifier="dynamicQueues/MapQueueForHeaderTest" delivery_mode="non_persistent" message_class="map" />
-			<uses_connection connection="conn1" />
+		<access_specification name="myAccessSpec">
+			<destination identifier="dynamicQueues/MapQueueForSslTest" delivery_mode="non_persistent" message_class="map" />
+			<uses_connection connection="myLocalhost" />
 			<native_schema>
 				<attribute name="seqID" type="Long" />
 				<attribute name="msg" type="String" length="50" />

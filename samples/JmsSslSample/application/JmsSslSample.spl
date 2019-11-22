@@ -20,9 +20,13 @@ use com.ibm.streamsx.jms::* ;
 composite JmsSslSample 
 {
 	param
-		expression<rstring> $connectionDoc :	getSubmissionTimeValue("connectionDoc", "../etc/connections.xml") ;
-		expression<rstring> $connection :		getSubmissionTimeValue("connection", "conn1") ;
-		expression<rstring> $access :			getSubmissionTimeValue("access", "accessForHeader") ;
+		expression<rstring> $connectionDoc :		getSubmissionTimeValue("connectionDoc", "../etc/connections.xml") ;
+		expression<rstring> $connection :			getSubmissionTimeValue("connection", "myLocalhost") ;
+		expression<rstring> $access :				getSubmissionTimeValue("access", "myAccessSpec") ;
+		expression<rstring> $keyStore :				getSubmissionTimeValue("keyStore", "../etc/keystore") ;
+		expression<rstring> $keyStorePassword :		getSubmissionTimeValue("keyStorePassword", "jmsToolkitPassword") ;
+		expression<rstring> $trustStore :			getSubmissionTimeValue("trustStore", "../etc/truststore") ;
+		expression<rstring> $trustStorePassword :	getSubmissionTimeValue("trustStorePassword", "jmsToolkitPassword") ;
 
 
 	type
@@ -105,6 +109,12 @@ composite JmsSslSample
 				connection :			$connection ;
 				access :				$access ;
 				
+				sslConnection :			true ;
+				keyStore :				$keyStore ;
+				keyStorePassword :		$keyStorePassword ;
+				trustStore :			$trustStore ;
+				trustStorePassword :	$trustStorePassword ;
+				
 				jmsHeaderProperties :	"headerPropString/myJhpString/string",
 									 	"headerPropByte/myJhpByte/byte",
 									 	"headerPropShort/myJhpShort/short",
@@ -131,6 +141,13 @@ composite JmsSslSample
 				connectionDocument :			$connectionDoc ;
 				connection :					$connection ;
 				access :						$access ;
+				
+				sslConnection :					true ;
+				keyStore :						$keyStore ;
+				keyStorePassword :				$keyStorePassword ;
+				trustStore :					$trustStore ;
+				trustStorePassword :			$trustStorePassword ;
+				
 				initDelay :				        4l ;
 				
 				jmsHeaderProperties :			"headerPropString/receivedJhpString/string",
