@@ -1,0 +1,185 @@
+// begin_generated_IBM_copyright_prolog                             
+//                                                                  
+// This is an automatically generated copyright prolog.             
+// After initializing,  DO NOT MODIFY OR MOVE                       
+// **************************************************************** 
+// Licensed Materials - Property of IBM                             
+// 5724-Y95                                                         
+// (C) Copyright IBM Corp.  2019   All Rights Reserved.      
+// US Government Users Restricted Rights - Use, duplication or      
+// disclosure restricted by GSA ADP Schedule Contract with          
+// IBM Corp.                                                        
+//                                                                  
+// end_generated_IBM_copyright_prolog                               
+namespace application;
+
+
+use com.ibm.streamsx.jms::* ;
+
+
+composite JmsSslSample 
+{
+	param
+		expression<rstring> $connectionDoc :		getSubmissionTimeValue("connectionDoc", "../etc/connections.xml") ;
+		expression<rstring> $connection :			getSubmissionTimeValue("connection", "myLocalhost") ;
+		expression<rstring> $access :				getSubmissionTimeValue("access", "myAccessSpec") ;
+		expression<rstring> $keyStore :				getSubmissionTimeValue("keyStore", "../etc/keystore") ;
+		expression<rstring> $keyStorePassword :		getSubmissionTimeValue("keyStorePassword", "jmsToolkitPassword") ;
+		expression<rstring> $trustStore :			getSubmissionTimeValue("trustStore", "../etc/truststore") ;
+		expression<rstring> $trustStorePassword :	getSubmissionTimeValue("trustStorePassword", "jmsToolkitPassword") ;
+
+
+	type
+        MessageBodyData         = tuple<uint64 seqID, rstring msg> ;
+
+        JMSHeaderPropsSender	= tuple<rstring	myJhpString,
+        								int8	myJhpByte,
+        								int16	myJhpShort,
+        								int32	myJhpInt,
+        								int64	myJhpLong,
+        								float32	myJhpFloat,
+        								float64	myJhpDouble,
+        								boolean	myJhpBoolean
+        								> ;
+        JMSHeaderPropsReceiver	= tuple<rstring receivedJhpString,
+        								int8 	receivedJhpByte,
+        								int16	receivedJhpShort,
+        								int32	receivedJhpInt,
+        								int64	receivedJhpLong,
+        								float32	receivedJhpFloat,
+        								float64	receivedJhpDouble,
+        								boolean	receivedJhpBoolean
+        								> ;
+        
+        SenderData		  		= MessageBodyData, JMSHeaderPropsSender ;
+        ReveiverData		  	= JMSHeaderPropsReceiver, MessageBodyData ;
+		
+	
+	graph
+		
+//		(stream<Data> InData) as DataGenerator = Beacon()                      
+//		{                                                                      
+//		  param                                                                
+//		    period :		0.0;                                                      
+//		    initDelay:		5.0;
+//		    iterations :	20u;
+//		    
+//		  output                                                               
+//		    InData:	seqID = IterationCount(),
+//		    		msg = "This is my message #" + (rstring)IterationCount();
+//		  
+//		  config
+//		  	placement : partitionIsolation ;
+//
+//		}
+		
+		
+		(stream<SenderData> InData) as DataReader = FileSource()
+		{
+			param
+				file :					"testData.txt" ;
+				format :				txt ;
+				
+			config
+				placement : partitionIsolation ;
+				
+		}
+		
+		
+		() as TestDataDumper = FileSink(InData)
+		{
+			param
+				file :					"testDataDump.txt" ;
+				format :				txt ;
+				//quoteStrings :			false ;
+				flush :					1u ;
+				writePunctuations :		false ;
+				flushOnPunctuation :	true ;
+				
+			config
+				placement : partitionIsolation ;
+				
+		}   
+		
+		
+		() as Producer = JMSSink(InData)
+		{
+			param
+				connectionDocument :	$connectionDoc ;
+				connection :			$connection ;
+				access :				$access ;
+				
+				sslConnection :			true ;
+//				keyStore :				$keyStore ;
+//				keyStorePassword :		$keyStorePassword ;
+//				trustStore :			$trustStore ;
+//				trustStorePassword :	$trustStorePassword ;
+				sslDebug :				true ;
+				
+				jmsHeaderProperties :	"headerPropString/myJhpString/string",
+									 	"headerPropByte/myJhpByte/byte",
+									 	"headerPropShort/myJhpShort/short",
+									 	"headerPropInt/myJhpInt/int",
+									 	"headerPropLong/myJhpLong/long",
+									 	"headerPropFloat/myJhpFloat/float",
+									 	"headerPropDouble/myJhpDouble/double",
+									 	"headerPropBoolean/myJhpBoolean/bool";
+				
+			config
+				placement : partitionIsolation ;
+				
+		}
+
+
+/* ######################################################################################################################################### */
+/* ######################################################################################################################################### */
+/* ######################################################################################################################################### */
+
+
+		(stream<ReveiverData> ReadDataWithHeaderProps) as Consumer = JMSSource()
+		{
+			param
+				connectionDocument :			$connectionDoc ;
+				connection :					$connection ;
+				access :						$access ;
+				
+				sslConnection :					true ;
+//				keyStore :						$keyStore ;
+//				keyStorePassword :				$keyStorePassword ;
+//				trustStore :					$trustStore ;
+//				trustStorePassword :			$trustStorePassword ;
+				sslDebug :						true ;
+				
+				initDelay :				        4l ;
+				
+				jmsHeaderProperties :			"headerPropString/receivedJhpString/string",
+											 	"headerPropByte/receivedJhpByte/byte",
+											 	"headerPropShort/receivedJhpShort/short",
+											 	"headerPropInt/receivedJhpInt/int",
+											 	"headerPropLong/receivedJhpLong/long",
+											 	"headerPropFloat/receivedJhpFloat/float",
+											 	"headerPropDouble/receivedJhpDouble/double",
+											 	"headerPropBoolean/receivedJhpBoolean/bool";
+											
+				
+				
+			config
+				placement : partitionIsolation ;
+				
+		}
+
+
+		() as ReceivedDataDumper = FileSink(ReadDataWithHeaderProps)
+		{
+			param
+				file :					"actual.txt" ;
+				format :				txt ;
+				//quoteStrings :			false ;
+				flush :					1u ;
+				
+			config
+				placement : partitionIsolation ;
+				
+		}   
+
+}
