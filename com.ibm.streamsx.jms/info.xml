@@ -55,15 +55,21 @@ or the SPL compiler to be aware of the location of the toolkit.
       * The Apache ActiveMQ libraries must be installed on same machine as IBM Streams
         because the `JMSSink` and `JMSSource` operators require the libraries that are installed with IBM Streams.
         However, the ActiveMQ instance to which a message is sent can be a different machine.
-        You must set the **STREAMS_MESSAGING_AMQ_HOME** environment variable to the location where Apache ActiveMQ is installed. For example:
+        You either must set the **STREAMS_MESSAGING_AMQ_HOME** environment variable to the location where Apache ActiveMQ is installed
+        or use the **classLibs** parameter to point to your messaging provider's class libraries.
+        For example:
             export STREAMS_MESSAGING_AMQ_HOME=&quot;/home/streamsuser/ApacheActiveMQ&quot;
   * WebSphere MQ Server
     * The `JMSSource` and `JMSSink` operators support WebSphere MQ v7.5 and v8.0.
     * The `JMSSource` and `JMSSink` operators require the WebSphere MQ Client libraries for Java if the messaging provider is WebSphere MQ.
       * The WebSphere MQ Client libraries must be installed on the hosts where the JMS operators can be run.
-        You must set the **STREAMS_MESSAGING_WMQ_HOME** environment variable to the location where WebSphere MQ is installed.
+        You either must set the **STREAMS_MESSAGING_WMQ_HOME** environment variable to the location where WebSphere MQ is installed
+        or use the **classLibs** parameter to point to your messaging provider's class libraries.
         For example:
             export STREAMS_MESSAGING_WMQ_HOME=&quot;/opt/mqm&quot;
+      * Tip:
+        When using JMS over Websphere MQ / IBM MQ in server binding mode, you may need to update **LD_LIBRARY_PATH** definition
+        to .../java/lib64. Please, refer to your IBM MQ's documentation for more information.
 
 # About this task
 
